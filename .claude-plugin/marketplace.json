@@ -1,0 +1,25 @@
+{
+  "name": "booster",
+  "owner": {
+    "name": "ship-it-ops"
+  },
+  "metadata": {
+    "description": "Boost your AI agents with powerful tools. Skills, agents, and workflows for supercharging AI-assisted development.",
+    "version": "1.0.0",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "ship-it-ops",
+      "source": "./obsidian-knowledge-graph",
+      "description": "Turn Obsidian into an AI-managed knowledge graph. Captures architecture decisions, bug investigations, and codebase patterns as persistent memory across coding sessions.",
+      "version": "1.0.0",
+      "author": {
+        "name": "ship-it-ops"
+      },
+      "license": "MIT",
+      "keywords": ["obsidian", "knowledge-graph", "memory", "decisions", "investigations", "patterns", "ai-agent"],
+      "category": "knowledge-management"
+    }
+  ]
+}

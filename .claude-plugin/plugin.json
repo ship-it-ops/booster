@@ -1,0 +1,10 @@
+{
+  "name": "ship-it-ops",
+  "description": "Boost your AI agents with powerful tools. Skills, agents, and workflows for supercharging AI-assisted development.",
+  "version": "1.0.0",
+  "author": {
+    "name": "ship-it-ops"
+  },
+  "license": "MIT",
+  "skills": ["./skills/obsidian-knowledge-graph"]
+}

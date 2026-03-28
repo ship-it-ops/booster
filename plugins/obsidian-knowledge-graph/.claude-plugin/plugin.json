@@ -1,0 +1,10 @@
+{
+  "name": "ship-it-ops",
+  "description": "Turn Obsidian into an AI-managed knowledge graph. Captures architecture decisions, bug investigations, and codebase patterns as persistent memory across coding sessions.",
+  "version": "1.0.0",
+  "author": {
+    "name": "ship-it-ops"
+  },
+  "license": "MIT",
+  "skills": ["../../skills/obsidian-knowledge-graph"]
+}
