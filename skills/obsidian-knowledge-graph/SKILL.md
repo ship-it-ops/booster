@@ -74,9 +74,20 @@ When setting up `_ai/` in the vault for the first time:
 
 ```
 {vault}/_ai/
-  MANIFEST.md       — the index you read first, every session
-  notes/            — flat folder for all knowledge notes (across all projects)
+  MANIFEST.md         — the index you read first, every session
+  Decisions/          — architecture, library, and configuration choices
+  Research/           — bug hunts, investigations, deep dives
+  Patterns/           — codebase conventions, recurring approaches
+  Conventions/        — workflow preferences, user rules, cross-session expectations
+  Projects/           — project overviews, architecture context, onboarding docs
+  People/             — contacts, stakeholders, who owns what
+  Tools/              — tools in use, configurations, runbooks
+  Environments/       — setup steps, infra config, deployment notes
+  APIs/               — external API quirks, integration gotchas, auth flows
+  Status/             — current state, progress tracking
 ```
+
+Create all directories: `mkdir -p {vault}/_ai/{Decisions,Research,Patterns,Conventions,Projects,People,Tools,Environments,APIs,Status}`
 
 Create `{vault}/_ai/MANIFEST.md` with this starter content:
 
@@ -87,7 +98,7 @@ Last updated: {TODAY} | Total notes: 0
 <!--
   This file is your AI agent's memory index.
   The agent reads this at the start of every session to recall past knowledge.
-  Notes are stored in _ai/notes/ and prefixed with the project name.
+  Notes are stored in _ai/{folder}/ and prefixed with the project name.
   Format: - [[project--slug]] | status | importance | project | date | brief summary
 -->
 
@@ -102,9 +113,27 @@ Last updated: {TODAY} | Total notes: 0
 
 ## Conventions
 <!-- Workflow preferences, user expectations, cross-session rules -->
+
+## Projects
+<!-- Project overviews, architecture context, onboarding docs -->
+
+## People
+<!-- Contacts, stakeholders, who owns what -->
+
+## Tools
+<!-- Tools in use, configurations, runbooks -->
+
+## Environments
+<!-- Setup steps, infra config, deployment notes -->
+
+## APIs
+<!-- External API quirks, integration gotchas, auth flows -->
+
+## Status
+<!-- Current state, progress tracking -->
 ```
 
-Create a seed note at `{vault}/_ai/notes/{project}--knowledge-graph-initialized.md` (where `{project}` is derived from the current working directory basename):
+Create a seed note at `{vault}/_ai/Decisions/{project}--knowledge-graph-initialized.md` (where `{project}` is derived from the current working directory basename):
 
 ```markdown
 ---
@@ -113,7 +142,9 @@ status: active
 created: {TODAY}
 updated: {TODAY}
 project: {project}
-tags: meta, knowledge-graph
+tags:
+  - meta
+  - knowledge-graph
 ---
 
 # Initialized Knowledge Graph
@@ -123,13 +154,14 @@ This Obsidian vault now has an AI-managed knowledge graph in `_ai/`. The agent
 uses this as persistent memory across all projects and coding sessions.
 
 ## Decision
-Using a central Obsidian vault with a flat `_ai/notes/` folder and MANIFEST.md
-index. Notes are prefixed with the project name (e.g., `booster--auth-choice.md`)
-and use YAML frontmatter for metadata and wikilinks for connections.
+Using a central Obsidian vault with structured folders inside `_ai/` and a
+MANIFEST.md index. Notes are filed by type (Decisions/, Research/, Patterns/,
+etc.) and prefixed with the project name (e.g., `booster--auth-choice.md`).
+Uses YAML frontmatter for metadata and wikilinks for connections.
 
 ## Consequences
 - The agent reads MANIFEST.md at session start for context
-- New knowledge is captured as individual notes, tagged by project
+- New knowledge is captured in the appropriate folder by type
 - Notes link to each other via `[[wikilinks]]` in a `## Related` section
 - Cross-project knowledge is discoverable through the shared MANIFEST
 
@@ -196,7 +228,7 @@ Read `{vault}/_ai/MANIFEST.md`. Scan for entries relevant to your current task. 
 ### Step 2.5: Conceptual Search
 If MANIFEST scanning yields fewer than 2 relevant matches for a task that likely has prior knowledge, expand your search before falling back to brute-force Grep:
 
-1. **Tag scan**: Grep `{vault}/_ai/notes/` for frontmatter tags related to your concept. Use `Grep` with pattern `^tags:.*{concept-keyword}` on path `{vault}/_ai/notes/`. Tags are curated concept labels — they catch what slugs miss.
+1. **Tag scan**: Grep `{vault}/_ai/` for frontmatter tags related to your concept. Use `Grep` with pattern `^tags:.*{concept-keyword}` on path `{vault}/_ai/`. Tags are curated concept labels — they catch what slugs miss.
 2. **Synonym expansion**: Think of 2-3 alternate terms for the concept (e.g., "auth" / "authentication" / "login" / "token"), then Grep the MANIFEST for each. LLMs are good at synonyms — use that strength.
 3. **Related-section crawl**: If you found at least one relevant note, read its `## Related` section and follow those links. Related notes cluster around topics — one hit often leads to the full cluster.
 
@@ -220,10 +252,10 @@ If any note fails these checks, flag it to the user:
 This is **opportunistic**, not exhaustive. Only check notes you're already reading — never scan the full vault for staleness. Also treat notes with `confidence: low` with extra scrutiny.
 
 ### Step 5: Search Fallback
-If MANIFEST doesn't surface what you need, use Grep to search `{vault}/_ai/notes/` for keywords. This is the expensive path — use it only when the index fails.
+If MANIFEST doesn't surface what you need, use Grep to search `{vault}/_ai/` for keywords. This is the expensive path — use it only when the index fails. You can narrow the search to a specific folder if you know the note type (e.g., search only `_ai/Research/` for bug-related content).
 
 ### Rules
-- **NEVER** glob-read all notes in `_ai/notes/`. That wastes tokens and context.
+- **NEVER** glob-read all notes across all `_ai/` folders. That wastes tokens and context.
 - **ALWAYS** check `status` before trusting a note. Skip `deprecated` notes. Flag `superseded` notes and check what replaced them.
 - **PREFER** the MANIFEST path (Steps 2-3) over search (Step 5). The MANIFEST is curated; search is brute-force.
 - **CROSS-PROJECT**: When you find a note from another project that's relevant, mention it to the user — they may not know that knowledge exists.
@@ -273,7 +305,7 @@ Examples:
 - `ship-code--postgres-connection-pool.md`
 - `my-api--react-memo-pitfall.md`
 
-Write the file to `{vault}/_ai/notes/{project}--{topic-slug}.md`.
+Write the file to `{vault}/_ai/{folder}/{project}--{topic-slug}.md`, where `{folder}` is determined by the note's type (see Folder Mapping above). For example, a decision goes to `_ai/Decisions/`, an investigation to `_ai/Research/`.
 
 **Revisit Triggers (recommended for `decision` and `pattern` types)**: Add a `## Revisit Triggers` section listing concrete conditions under which the note should be re-evaluated. This helps the staleness spot-check (Step 4.5) by making expiry conditions explicit rather than relying on date heuristics alone. Example: "If we upgrade from Node 20 to 22", "If connection count exceeds 1000 concurrent".
 
@@ -293,6 +325,30 @@ Bump the "Last updated" date and "Total notes" count.
 
 ---
 
+## Folder Mapping
+
+Each note type maps to a specific folder within `_ai/`:
+
+| Note Type | Folder | Contents |
+|-----------|--------|----------|
+| `decision` | `Decisions/` | Architecture, library, config choices |
+| `investigation` | `Research/` | Bug hunts, debugging, root cause analyses |
+| `pattern` | `Patterns/` | Codebase conventions, recurring approaches |
+| `convention` | `Conventions/` | Workflow preferences, user rules |
+| `onboarding` | `Projects/` | Project overviews, getting-started guides |
+| `runbook` | `Tools/` | Operational procedures, tool usage guides |
+
+Additional folders for content that doesn't use the standard note templates:
+
+| Folder | Contents | When to Use |
+|--------|----------|-------------|
+| `People/` | Contacts, stakeholders, ownership info | When you learn who owns what or who to contact |
+| `Environments/` | Setup steps, infra config, deployment notes | When environment knowledge would save future sessions time |
+| `APIs/` | External API quirks, integration gotchas | When you discover API behavior that isn't in the docs |
+| `Status/` | Current state, progress tracking | When tracking ongoing initiatives across sessions |
+
+---
+
 ## Note Types & Templates
 
 ### Decision
@@ -305,7 +361,10 @@ status: active
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 project: {project}
-tags: relevant, topic, tags
+tags:
+  - relevant
+  - topic
+  - tags
 ---
 
 # {Descriptive Title}
@@ -333,7 +392,10 @@ status: active
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 project: {project}
-tags: relevant, topic, tags
+tags:
+  - relevant
+  - topic
+  - tags
 ---
 
 # {Bug or Issue Title}
@@ -364,7 +426,10 @@ status: active
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 project: {project}
-tags: relevant, topic, tags
+tags:
+  - relevant
+  - topic
+  - tags
 ---
 
 # {Pattern Name}
@@ -395,7 +460,10 @@ status: active
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 project: {project}
-tags: relevant, topic, tags
+tags:
+  - relevant
+  - topic
+  - tags
 ---
 
 # {Convention Name}
@@ -436,7 +504,7 @@ The MANIFEST is a compact index — one line per note, organized by category. It
 **Backwards compatibility**: Older entries with 4 pipe-separated fields (no importance) are treated as `standard` importance.
 
 ### Category Sections
-Group entries under `## Decisions`, `## Investigations`, `## Patterns`, `## Conventions`. Add `## Onboarding` and `## Runbooks` sections when those note types are used.
+Group entries under `## Decisions`, `## Investigations`, `## Patterns`, `## Conventions`, `## Projects`, `## People`, `## Tools`, `## Environments`, `## APIs`, `## Status`. Not all sections need to exist — add them as notes are created.
 
 ### Header
 ```markdown
@@ -484,7 +552,7 @@ confidence: high | medium | low       # defaults to medium if omitted
 
 ### Rules
 - Keep frontmatter **flat** — no nested YAML objects or arrays of objects
-- `tags` is a comma-separated string, not a YAML array (saves tokens)
+- `tags` must be a YAML array (Obsidian renders comma-separated strings as a single tag)
 - `project` is the working directory basename where the knowledge was captured
 - `status` must always be set. When deprecating, change status and add a note explaining why
 - Dates use ISO 8601 format: `YYYY-MM-DD`
@@ -560,7 +628,7 @@ Use this mode when the user has told you they run multiple Claude instances, or 
    ## Entries
    - [[project--slug]] | status | importance | project | YYYY-MM-DD | summary
    ```
-4. Write the note file to `_ai/notes/` as normal (unique filenames = no conflict)
+4. Write the note file to the appropriate `_ai/{folder}/` as normal (unique filenames = no conflict)
 
 ### Merge Path (at session start, after reading MANIFEST)
 1. `Glob: {vault}/_ai/ledger/*.md`

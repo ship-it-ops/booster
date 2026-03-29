@@ -95,7 +95,7 @@ For teams that want separation:
       notes/
 ```
 
-- **Shared notes** in `_ai/notes/` — team-agreed decisions, documented patterns, resolved investigations
+- **Shared notes** in `_ai/{folders}/` — team-agreed decisions, documented patterns, resolved investigations
 - **Personal notes** in `_ai/personal/{username}/notes/` — individual context, draft investigations, scratch knowledge
 - The agent should check `whoami` or `git config user.name` to determine the personal folder
 
@@ -190,7 +190,7 @@ related decisions, investigations, and patterns.
 
 ### MOC Placement
 
-Store MOCs in `_ai/notes/` alongside regular notes. Prefix the slug with `moc-`:
+Store MOCs in `_ai/Projects/` alongside project notes. Prefix the slug with `moc-`:
 - `moc-authentication.md`
 - `moc-deployment-pipeline.md`
 - `moc-database-layer.md`
@@ -245,7 +245,7 @@ Read MANIFEST.md and match entries by slug, project, or summary keywords. This i
 ### Level 2: Tag-Based Grep (targeted)
 When MANIFEST doesn't surface enough results, search note frontmatter by tags:
 ```
-Grep: pattern "^tags:.*authentication" path "{vault}/_ai/notes/"
+Grep: pattern "^tags:.*authentication" path "{vault}/_ai/"
 ```
 This finds notes tagged with `authentication` regardless of their slug or summary text. Tags are curated semantic labels — they bridge the vocabulary gap between how knowledge was stored and how it's being searched for.
 
@@ -258,7 +258,7 @@ Generate 2-3 alternate terms and Grep MANIFEST for each:
 ### Level 4: Full-Text Grep (expensive)
 Search all note content — use only when Levels 1-3 fail:
 ```
-Grep: pattern "connection pool" path "{vault}/_ai/notes/"
+Grep: pattern "connection pool" path "{vault}/_ai/"
 ```
 
 ### Level 5: Related-Section Crawl (discovery)
@@ -314,7 +314,7 @@ tags:
 This allows Dataview queries like:
 ```dataview
 TABLE status, updated
-FROM "_ai/notes"
+FROM "_ai"
 WHERE contains(tags, "auth") AND status = "active"
 SORT updated DESC
 ```
@@ -324,7 +324,7 @@ SORT updated DESC
 **Active decisions by recency:**
 ```dataview
 TABLE status, updated, tags
-FROM "_ai/notes"
+FROM "_ai"
 WHERE type = "decision" AND status = "active"
 SORT updated DESC
 ```
@@ -332,7 +332,7 @@ SORT updated DESC
 **Unresolved investigations:**
 ```dataview
 LIST
-FROM "_ai/notes"
+FROM "_ai"
 WHERE type = "investigation" AND status = "active"
 SORT created DESC
 ```
@@ -340,7 +340,7 @@ SORT created DESC
 **Knowledge graph statistics:**
 ```dataview
 TABLE length(rows) as "Count"
-FROM "_ai/notes"
+FROM "_ai"
 GROUP BY type
 ```
 
