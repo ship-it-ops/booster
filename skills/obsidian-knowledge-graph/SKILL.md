@@ -1,11 +1,11 @@
 ---
 name: obsidian-knowledge-graph
 description: >
-  Manage an AI-powered knowledge graph in an Obsidian vault. Captures architecture
-  decisions, bug investigations, and codebase patterns as persistent memory across
-  coding sessions. Use when recalling past decisions, documenting learnings, building
-  project memory, or working with an Obsidian-based knowledge base. Activates
-  when the agent knows the user's Obsidian vault path.
+  ALWAYS activate at session start to read the Obsidian knowledge graph before
+  doing any work. Check the vault before answering questions, making decisions,
+  debugging, or writing code — prior knowledge may already exist. Also activate
+  to write new knowledge after significant milestones. This is your long-term
+  memory across all projects and Claude instances.
 allowed-tools: Read, Write, Glob, Grep, Bash(mkdir -p *)
 ---
 
@@ -16,6 +16,30 @@ You are an AI agent with a persistent knowledge graph stored in the user's Obsid
 You capture architecture decisions, bug investigations, and codebase patterns as linked markdown notes. Each session, you consult your knowledge graph first and contribute back to it — making every future session smarter.
 
 The vault is a single, central location (e.g., `~/Obsidian/my-vault/`), not a per-repo folder. All projects share the same knowledge graph, with notes tagged by project name. This lets you discover cross-project patterns and reuse knowledge across codebases.
+
+---
+
+## CRITICAL: Always Check the Vault
+
+**At session start — before doing ANY work:**
+1. Resolve the vault path (from memory or ask the user)
+2. Read `{vault}/_ai/MANIFEST.md`
+3. Scan for entries relevant to the current project and the user's request
+4. Read any `core` importance notes for the current project
+5. Only then begin working on the user's request
+
+**Before making decisions during a session:**
+- About to choose a library, pattern, or architecture? → Check `_ai/Decisions/` and `_ai/Patterns/`
+- About to debug a bug? → Check `_ai/Research/` for prior investigations
+- About to set up an environment? → Check `_ai/Environments/`
+- About to integrate with an API? → Check `_ai/APIs/`
+- User states a preference? → Check `_ai/Conventions/` for existing rules, then save the new one
+
+**If you skip the vault check, you risk:**
+- Repeating work that was already done in a previous session
+- Contradicting decisions that were already made
+- Missing conventions the user has explicitly set
+- Wasting the user's time re-explaining context
 
 ---
 
@@ -670,21 +694,26 @@ This skill teaches **strategy** — what to remember and how to organize it. It 
 
 ## Session Lifecycle
 
-### Start of Session
+### Start of Session (MANDATORY — do this before any work)
 1. Resolve vault path (from memory or ask the user)
 2. Resolve project name (check aliases if `PROJECT-ALIASES.md` exists)
 3. Merge any pending ledger files in `{vault}/_ai/ledger/` (multi-instance mode)
-4. Read `{vault}/_ai/MANIFEST.md` to load context
-5. Note entries relevant to the current project and likely task
+4. Read `{vault}/_ai/MANIFEST.md` — scan ALL entries, not just current project
+5. Read any `core` importance notes for the current project
+6. Check `_ai/Conventions/` for active rules that apply to this session
+7. Only now begin working on the user's request
 
-### During Work
-6. When you encounter a past decision, bug, or pattern — check if it's already captured
-7. Reference captured knowledge in your responses when relevant
-8. Surface cross-project knowledge when it helps the current task
-9. Flag stale notes opportunistically (Step 4.5) when you read them
-10. **Write incrementally**: After each significant milestone (a decision made, a bug root-caused, a preference stated), capture the knowledge immediately — don't defer to end-of-session
+### During Work (check before acting)
+8. **Before making a decision**: Check MANIFEST for prior decisions on this topic
+9. **Before debugging**: Check `_ai/Research/` for prior investigations of similar symptoms
+10. **Before environment/setup work**: Check `_ai/Environments/` for existing notes
+11. **When user states a preference**: Check `_ai/Conventions/` first, then save if new
+12. Reference captured knowledge in your responses — tell the user what you found
+13. Surface cross-project knowledge when it helps the current task
+14. Flag stale notes opportunistically (Step 4.5) when you read them
+15. **Write incrementally**: After each significant milestone (a decision made, a bug root-caused, a preference stated), capture the knowledge immediately — don't defer to end-of-session
 
 ### End of Session
-11. Review: did you miss anything worth persisting? Check for uncaptured decisions, conventions, or discoveries.
-12. If yes, follow the 5-step write protocol (use ledger path if multi-instance mode is active)
-13. If no, move on — not every session produces new knowledge
+16. Review: did you miss anything worth persisting? Check for uncaptured decisions, conventions, or discoveries.
+17. If yes, follow the 5-step write protocol (use ledger path if multi-instance mode is active)
+18. If no, move on — not every session produces new knowledge
