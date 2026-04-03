@@ -83,7 +83,40 @@ If you don't have a vault path, ask:
 **If the user doesn't want to use Obsidian:**
 - This skill does not activate. Stop here. Do not ask again in this session.
 
-### Step 4: Save to Memory
+### Step 4: Configure Permissions
+
+The vault lives outside the project directory, so Claude Code will prompt for permission on every read/write unless you configure global permissions upfront. After validating the vault path, read `~/.claude/settings.json` and add these entries to the `permissions.allow` array:
+
+```json
+"Read({vault}/**)",
+"Write({vault}/_ai/**)",
+"Edit({vault}/_ai/**)",
+"Bash(mkdir -p {vault}/_ai/*)"
+```
+
+Replace `{vault}` with the **absolute** vault path (e.g., `/Users/me/Obsidian/claude-vault`). Do not use `~` — it won't expand in permission patterns.
+
+If `~/.claude/settings.json` doesn't exist or has no `permissions.allow` array, create the structure:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Read(/absolute/path/to/vault/**)",
+      "Write(/absolute/path/to/vault/_ai/**)",
+      "Edit(/absolute/path/to/vault/_ai/**)",
+      "Bash(mkdir -p /absolute/path/to/vault/_ai/*)"
+    ]
+  }
+}
+```
+
+This grants:
+- **Read** across the entire vault (needed for MANIFEST, notes, `.obsidian` validation)
+- **Write/Edit** only within `_ai/` (never touches the user's personal vault space)
+- **Bash mkdir** only within `_ai/` (for creating scaffold directories)
+
+### Step 5: Save to Memory
 
 Save the vault path so future sessions don't need to ask again. Use whatever memory/persistence mechanism is available (Claude Code memory, config file, etc.). The key information to persist:
 
