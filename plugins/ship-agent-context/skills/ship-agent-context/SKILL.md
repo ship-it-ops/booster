@@ -1,0 +1,1 @@
+../../../../skills/ship-agent-context/SKILL.md
