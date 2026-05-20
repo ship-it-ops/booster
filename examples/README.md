@@ -16,7 +16,11 @@ Guides for using booster skills with different AI coding tools:
 ### Claude Code
 
 ```bash
-# One-command install via npx
+# Recommended — install via the plugin marketplace (carries bundled hooks)
+/plugin marketplace add ship-it-ops/booster
+/plugin install <skill-name>@booster
+
+# Or, files-only install via npx (no bundled hooks)
 npx skills add ship-it-ops/booster --skill <skill-name>
 
 # Use it — invoke with the skill's slash command

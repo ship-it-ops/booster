@@ -30,6 +30,18 @@ skills/skill-name/
 └── scripts/              # Optional — helper scripts
 ```
 
+If your skill ships via the booster plugin marketplace, also add a plugin manifest and (optionally) a bundled hook:
+
+```text
+plugins/skill-name/
+├── .claude-plugin/
+│   └── plugin.json       # Plugin manifest (metadata + skill path)
+└── hooks/                # Optional — bundled SessionStart / PreToolUse / etc.
+    └── hooks.json        # Same schema as settings.json hooks
+```
+
+Bundled hooks fire automatically when the user installs the plugin via the marketplace. Use them only when guaranteed activation matters (e.g., session-start orientation). See `plugins/ship-agent-context/` for a working example. Hooks are not delivered by `npx skills add` or manual copy — only by the plugin install path.
+
 ### Naming
 
 - Use `kebab-case` for directory names

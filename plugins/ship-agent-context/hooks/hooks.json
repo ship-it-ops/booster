@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "test -f docs/agent/MANIFEST.md && echo 'docs/agent/ is present in this repo. Before proceeding, read docs/agent/MANIFEST.md and every file under docs/agent/status/. Capture new decisions, plans, root causes, scars, and open questions per the ship-agent-context skill as you go.' || true"
+          }
+        ]
+      }
+    ]
+  }
+}

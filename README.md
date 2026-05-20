@@ -4,36 +4,47 @@
 
 Built on the [Agent Skills open standard](https://agentskills.io) and the Claude Code Skills 2.0 format.
 
-## Featured Skill: obsidian-knowledge-graph
+## Featured Skills
 
-Turn Obsidian into a persistent, AI-managed knowledge graph. Your AI agent builds long-term memory across coding sessions — capturing architecture decisions, bug investigations, and codebase patterns as linked notes in an Obsidian vault.
+Two complementary memory skills — use either one, or both together.
 
-**What it does:**
-- **Central vault** — Uses your existing Obsidian vault as a single knowledge base across all projects
-- **Persistent memory** — Decisions, investigations, and patterns survive between sessions
-- **Cross-project discovery** — A pattern found in project A helps prevent bugs in project B
-- **MANIFEST-first retrieval** — A compact index lets the agent find relevant knowledge in 1-2 reads
-- **Structured note types** — Decision, Investigation, Pattern, Onboarding, and Runbook templates with consistent frontmatter
-- **Scoped writes** — The agent writes only to `_ai/` inside your vault, never touching your personal notes
+### obsidian-knowledge-graph — cross-repo memory
 
-**What it covers:**
-- Vault discovery flow (finds your vault, or helps you create one)
-- 5-step read protocol (MANIFEST -> targeted notes -> search fallback)
-- 5-step write protocol (search -> decide -> write -> index -> link)
-- Project-prefixed filenames as pseudo-primary keys
-- Cross-project knowledge linking and discovery
-- Scaling guidance for 100+ note vaults
-- Team mode with shared and personal knowledge spaces
-- Companion tool recommendations (kepano/obsidian-skills, MCP servers)
+Turn Obsidian into a persistent, AI-managed knowledge graph. Captures decisions, bug investigations, and codebase patterns as linked notes in a central vault that follows you across every project.
 
-**Quick install:**
+- **Central vault** — One knowledge base across all your repos
+- **Cross-project discovery** — A pattern from project A surfaces when working in project B
+- **MANIFEST-first retrieval** — Compact index, 1–2 reads to find what you need
+- **Scoped writes** — Agent only writes to `_ai/` inside your vault
+
 ```bash
 npx skills add ship-it-ops/booster --skill obsidian-knowledge-graph
 ```
 
+### ship-agent-context — in-repo memory
+
+Manages `docs/agent/` inside the repo itself — committed alongside the code so every branch and every agent sees the same handoff context. Designed for the multi-agent / next-agent handoff problem: plans that didn't finish, decisions made and *why*, what's in flight on parallel branches, open questions, and incident scars.
+
+- **Travels with the code** — Lives in git, not an external vault
+- **Standalone** — No dependency on Obsidian or any other skill
+- **Auto-activates** — Ships a bundled SessionStart hook (when installed via the plugin marketplace) that fires automatically in any repo with `docs/agent/`; silent everywhere else
+- **Complements AGENTS.md / CLAUDE.md** — Those hold static rules; this holds dynamic state
+- **Parallel-agent coordination** — `status/` entries prevent agents from stomping each other
+- **Captures what `git log` doesn't** — Rejected alternatives, blockers, scars, in-flight intent
+
+```bash
+# Recommended: install via the plugin marketplace for auto-activation
+/plugin install ship-agent-context@booster
+
+# Or, manual install (no bundled hook — see SKILL.md for the CLAUDE.md anchor workaround)
+npx skills add ship-it-ops/booster --skill ship-agent-context
+```
+
+The two are independent. Use the in-repo one for handoff context that should travel with branches, and the obsidian one for cross-repo pattern reuse.
+
 ## Installation
 
-### Option 1: Add as a marketplace (recommended — get all current and future skills)
+### Option 1: Add as a marketplace (recommended — get all current and future skills + bundled hooks)
 
 This repo is a Claude Code plugin marketplace. Add it once and get access to all skills — including new ones as they're released:
 
@@ -44,9 +55,15 @@ This repo is a Claude Code plugin marketplace. Add it once and get access to all
 # Then install any skill from the marketplace:
 /plugin install <skill-name>@booster
 
+# Examples:
+/plugin install ship-agent-context@booster      # in-repo agent memory + auto-activation hook
+/plugin install ship-it-ops@booster             # obsidian-knowledge-graph (legacy plugin name)
+
 # To see all available skills:
 /plugin marketplace list booster
 ```
+
+> **Why this path is recommended**: Some skills (notably `ship-agent-context`) ship a bundled SessionStart hook for guaranteed activation. **Only the marketplace install path activates bundled hooks** — Options 2–7 below install the skill files but skip the hook layer. If a skill's auto-activation matters to you, use Option 1.
 
 To auto-update when we release new skills or improvements:
 ```bash
@@ -66,6 +83,8 @@ You can also configure your project to recommend this marketplace to your team. 
   }
 }
 ```
+
+> **Note for Options 2–7**: These install the skill's files only. They do **not** install plugin-bundled hooks. For `ship-agent-context` specifically, you can recover guaranteed activation by adding the `CLAUDE.md` / `AGENTS.md` anchor described in [`skills/ship-agent-context/examples/initialization-example.md`](skills/ship-agent-context/examples/initialization-example.md).
 
 ### Option 2: npx (one command, single skill)
 
