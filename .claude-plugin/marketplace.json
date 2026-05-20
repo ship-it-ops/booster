@@ -20,6 +20,18 @@
       "license": "MIT",
       "keywords": ["obsidian", "knowledge-graph", "memory", "decisions", "investigations", "patterns", "ai-agent"],
       "category": "knowledge-management"
+    },
+    {
+      "name": "ship-agent-context",
+      "source": "./ship-agent-context",
+      "description": "In-repo memory for AI agents. Captures plans, decisions, in-flight status, open questions, and incident scars in docs/agent/ so the next agent (or human) walks into context, not a blank slate.",
+      "version": "1.0.0",
+      "author": {
+        "name": "ship-it-ops"
+      },
+      "license": "MIT",
+      "keywords": ["agent-context", "repo-memory", "handoff", "decisions", "plans", "scars", "open-questions", "ai-agent"],
+      "category": "knowledge-management"
     }
   ]
 }

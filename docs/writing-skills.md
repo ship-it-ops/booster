@@ -58,6 +58,29 @@ description: Code review skill
 
 Include keywords users would naturally say and explain both what the skill does AND when to use it.
 
+### When description-matching isn't enough: bundle a hook
+
+Auto-invocation via the `description` field is best-effort — the model decides on each turn whether your skill is relevant. For skills that need **guaranteed** session-start activation, ship a SessionStart hook alongside the skill via the plugin layer.
+
+In your plugin directory (`plugins/<name>/`), add a `hooks/hooks.json` file:
+
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          { "type": "command", "command": "test -f <your-marker-file> && echo 'system reminder text...' || true" }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The hook fires for every Claude Code session in which the user has the plugin enabled. Make the shell command silent when the skill is not relevant (e.g., a marker file is absent), so installing the plugin imposes near-zero cost in unrelated repos. See `skills/ship-agent-context/` and `plugins/ship-agent-context/hooks/hooks.json` for a working example. Note that bundled hooks only activate when the skill is installed via the plugin marketplace — not via `npx skills add` or manual copy.
+
 ## Dynamic Content
 
 ### Arguments

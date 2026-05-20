@@ -2,7 +2,7 @@
 
 How to use booster skills in your projects.
 
-## Marketplace (recommended — get all skills + auto-updates)
+## Marketplace (recommended — get all skills + auto-updates + bundled hooks)
 
 This repo is a Claude Code plugin marketplace. Add it once and get access to all current and future skills:
 
@@ -13,9 +13,15 @@ This repo is a Claude Code plugin marketplace. Add it once and get access to all
 # Install a skill:
 /plugin install <skill-name>@booster
 
+# Examples:
+/plugin install ship-agent-context@booster      # in-repo agent memory + auto-activation hook
+/plugin install ship-it-ops@booster             # obsidian-knowledge-graph (legacy plugin name)
+
 # Update when new skills or improvements are released:
 /plugin marketplace update booster
 ```
+
+> **Why this path is recommended**: Some skills ship plugin-bundled hooks (e.g., `ship-agent-context` ships a `SessionStart` hook that auto-activates in any repo with `docs/agent/`). **The marketplace install path is the only one that activates bundled hooks** — the other install methods below install the skill files but skip the hook layer.
 
 ### Team setup
 
@@ -66,6 +72,8 @@ npx add-skill ship-it-ops/booster --skill <skill-name> -g -y
 ```
 
 ## Manual Installation
+
+> **Heads-up on bundled hooks**: The methods below install only the skill's files (`SKILL.md`, `reference.md`, etc.). They **do not** install any plugin-bundled hooks. If you install `ship-agent-context` via these methods, the SessionStart hook that guarantees auto-activation is absent — see `skills/ship-agent-context/examples/initialization-example.md` for a `CLAUDE.md` / `AGENTS.md` anchor workaround.
 
 ### Per-Project
 

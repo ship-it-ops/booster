@@ -9,6 +9,7 @@ Skills live at `skills/<skill-name>/` — one flat directory per skill, no neste
 | Skill | Description |
 |-------|-------------|
 | [obsidian-knowledge-graph](obsidian-knowledge-graph/) | Turn Obsidian into an AI-managed knowledge graph. Captures architecture decisions, bug investigations, and codebase patterns as persistent memory across coding sessions. |
+| [ship-agent-context](ship-agent-context/) | In-repo memory for AI agents. Manages `docs/agent/` — committed plans, decisions, in-flight status, open questions, and incident scars — so the next agent (or human) walks into context, not a blank slate. Standalone; complements `AGENTS.md`/`CLAUDE.md`. |
 
 ## Installation
 

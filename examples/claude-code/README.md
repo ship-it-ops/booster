@@ -4,14 +4,27 @@
 
 ### 1. Install a skill
 
+The recommended path in Claude Code is the plugin marketplace — it's the only mechanism that activates plugin-bundled hooks (e.g., `ship-agent-context`'s auto-activation hook):
+
 ```bash
-# Quickest — one command via npx
+# One-time: register the marketplace
+/plugin marketplace add ship-it-ops/booster
+
+# Install a specific skill
+/plugin install <skill-name>@booster
+
+# Examples
+/plugin install ship-agent-context@booster      # in-repo agent memory + auto-activation hook
+/plugin install ship-it-ops@booster             # obsidian-knowledge-graph (legacy plugin name)
+```
+
+Alternatives (files-only, no bundled hooks):
+
+```bash
+# Quick npx install — files only, no hooks
 npx skills add ship-it-ops/booster --skill <skill-name>
 
-# Or install globally (all projects)
-npx skills add ship-it-ops/booster --skill <skill-name> -g
-
-# Or manually copy into your project
+# Manual copy into your project
 cp -r skills/<skill-name>/ your-project/.claude/skills/<skill-name>/
 ```
 
