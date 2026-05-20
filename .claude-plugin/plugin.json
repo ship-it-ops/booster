@@ -6,5 +6,5 @@
     "name": "ship-it-ops"
   },
   "license": "MIT",
-  "skills": ["./skills/obsidian-knowledge-graph"]
+  "skills": ["./skills/obsidian-knowledge-graph", "./skills/ship-agent-context"]
 }
