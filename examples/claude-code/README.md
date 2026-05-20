@@ -14,8 +14,8 @@ The recommended path in Claude Code is the plugin marketplace — it's the only 
 /plugin install <skill-name>@booster
 
 # Examples
-/plugin install ship-agent-context@booster      # in-repo agent memory + auto-activation hook
-/plugin install ship-it-ops@booster             # obsidian-knowledge-graph (legacy plugin name)
+/plugin install ship-agent-context@booster        # in-repo agent memory + auto-activation hook
+/plugin install obsidian-knowledge-graph@booster  # AI-managed knowledge graph in your Obsidian vault
 ```
 
 Alternatives (files-only, no bundled hooks):

@@ -12,10 +12,12 @@ Booster's plugin layout differs from ship-code's:
     `skills: ["../../skills/<name>"]` array — no per-file symlinks.
   - `plugins/<dir>/hooks/hooks.json` (optional) ships bundled hooks.
   - `.claude-plugin/marketplace.json` lists plugin entries with a `source` field
-    pointing at `./<dir>`. The marketplace plugin `name` may legitimately differ
-    from the directory basename (e.g., `ship-it-ops` plugin sources from
-    `./obsidian-knowledge-graph/`); we only enforce that the marketplace `name`
-    matches whatever the plugin.json itself declares.
+    pointing at `./plugins/<dir>`. The full `./plugins/` prefix is required
+    because Claude Code's installer resolves `source` relative to the
+    marketplace root and silently ignores `metadata.pluginRoot`. The marketplace
+    plugin `name` may legitimately differ from the directory basename; we only
+    enforce that the marketplace `name` matches whatever the plugin.json itself
+    declares.
 
 Checks performed:
 
@@ -542,15 +544,18 @@ def validate_marketplace(errors: Errors, skill_dirs: list[Path]) -> None:
                 )
 
         source = entry.get("source", "")
-        if not source.startswith("./"):
+        if not source.startswith("./plugins/"):
             errors.add(
-                "Marketplace source not relative",
+                "Marketplace source not under ./plugins/",
                 f".claude-plugin/marketplace.json plugin {entry.get('name')!r}: "
-                f"`source` must begin with './' (got {source!r})",
+                f"`source` must begin with './plugins/' (got {source!r}). "
+                f"Claude Code's installer resolves `source` relative to the "
+                f"marketplace root and does not honor `metadata.pluginRoot`, "
+                f"so the full path must be inlined.",
             )
             continue
 
-        plugin_basename = source[2:].rstrip("/")
+        plugin_basename = source[len("./plugins/"):].rstrip("/")
         plugin_dirs_seen.add(plugin_basename)
         plugin_path = PLUGINS_DIR / plugin_basename
         if not plugin_path.is_dir():
@@ -592,7 +597,7 @@ def validate_marketplace(errors: Errors, skill_dirs: list[Path]) -> None:
             errors.add(
                 "Skill plugin not in marketplace",
                 f"plugins/{sname}/ exists but no marketplace.json entry sources from "
-                f"./{sname}",
+                f"./plugins/{sname}",
             )
         else:
             errors.add(
@@ -601,11 +606,9 @@ def validate_marketplace(errors: Errors, skill_dirs: list[Path]) -> None:
                 f"marketplace entry)",
             )
 
-    # Every plugin dir referenced by the marketplace should be in skills/ OR
-    # explicitly call out the legacy/alias mapping (we don't enforce strict
-    # plugin-dir == skill-dir here because the booster marketplace allows
-    # plugin name != source basename — e.g. legacy `ship-it-ops` plugin sources
-    # from `obsidian-knowledge-graph/`).
+    # Every plugin dir referenced by the marketplace should be in skills/.
+    # We don't enforce strict plugin-dir == skill-dir here because the booster
+    # marketplace allows plugin name to differ from source basename.
     extant_plugin_dirs = (
         {p.name for p in PLUGINS_DIR.iterdir() if p.is_dir()}
         if PLUGINS_DIR.is_dir()
@@ -618,7 +621,7 @@ def validate_marketplace(errors: Errors, skill_dirs: list[Path]) -> None:
         errors.add(
             "Plugin dir not referenced",
             f"plugins/{pdir}/ exists but no marketplace.json entry sources from "
-            f"./{pdir}",
+            f"./plugins/{pdir}",
         )
 
 
