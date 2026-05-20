@@ -6,10 +6,14 @@ and bundled hooks of every skill in this repo.
 Run locally: `python3 scripts/validate-skills.py` (or `--verbose` for more detail).
 Exits non-zero on any violation. CI runs this on every PR; treat failures as blocking.
 
-Booster's plugin layout differs from ship-code's:
+Booster's plugin layout (matches Anthropic's official marketplace + ship-code):
 
-  - `plugins/<dir>/.claude-plugin/plugin.json` references the source skill via a
-    `skills: ["../../skills/<name>"]` array — no per-file symlinks.
+  - `plugins/<dir>/.claude-plugin/plugin.json` does NOT have a `skills` field.
+    Claude Code's installer rejects it ("Validation errors: skills: Invalid
+    input"). Skills are auto-discovered from `<plugin>/skills/<name>/SKILL.md`.
+  - `plugins/<dir>/skills/<name>/` contains per-file symlinks back to the
+    source skill at `skills/<name>/` so we keep a single source of truth while
+    presenting the standard auto-discovery layout to the installer.
   - `plugins/<dir>/hooks/hooks.json` (optional) ships bundled hooks.
   - `.claude-plugin/marketplace.json` lists plugin entries with a `source` field
     pointing at `./plugins/<dir>`. The full `./plugins/` prefix is required
@@ -36,7 +40,9 @@ Checks performed:
     - For each skill, `plugins/<skill-name>/.claude-plugin/plugin.json` exists
       and parses
     - plugin.json has `name`, `description`, valid semver `version`
-    - plugin.json `skills` array points at the source skill directory
+    - plugin.json has NO `skills` field (Claude Code's installer rejects it)
+    - `plugins/<skill-name>/skills/<skill-name>/SKILL.md` exists for
+      auto-discovery (typically a symlink to ../../../../skills/<name>/SKILL.md)
     - If `plugins/<skill-name>/hooks/` exists, `hooks.json` parses and conforms
       to the Claude Code hook schema (event name, matcher, hooks[].type/command)
 
@@ -399,32 +405,31 @@ def validate_plugin_layout(errors: Errors, skill_name: str) -> dict | None:
             f"is not a valid semver (X.Y.Z)",
         )
 
-    # Validate `skills` array points at the source skill
-    skills_refs = manifest.get("skills", [])
-    if not isinstance(skills_refs, list) or not skills_refs:
+    # Claude Code's plugin schema rejects a `skills` field on plugin.json
+    # (validated against the official marketplace + observed install failure
+    # "Validation errors: skills: Invalid input"). Skills are auto-discovered
+    # from `<plugin>/skills/<skill-name>/SKILL.md` instead.
+    if "skills" in manifest:
         errors.add(
-            "Plugin missing skills array",
-            f"plugins/{skill_name}/.claude-plugin/plugin.json: `skills` must be a "
-            f"non-empty array referencing source skill dirs (e.g., "
-            f'["../../skills/{skill_name}"])',
+            "Plugin manifest has `skills` field",
+            f"plugins/{skill_name}/.claude-plugin/plugin.json: remove the "
+            f"`skills` field — Claude Code's installer rejects it with "
+            f"'Validation errors: skills: Invalid input'. Auto-discovery uses "
+            f"plugins/{skill_name}/skills/{skill_name}/SKILL.md (typically a "
+            f"symlink to ../../../../skills/{skill_name}/).",
         )
-    else:
-        for ref in skills_refs:
-            # The booster convention treats `skills` refs as relative to the
-            # plugin root directory (where the plugin conceptually lives), NOT
-            # relative to .claude-plugin/. Try both interpretations and pass if
-            # either resolves — older skills may use either form.
-            candidates = [
-                (plugin_dir / ref).resolve(),
-                (plugin_manifest.parent / ref).resolve(),
-            ]
-            if not any(c.is_dir() and (c / "SKILL.md").exists() for c in candidates):
-                errors.add(
-                    "Plugin skill ref broken",
-                    f"plugins/{skill_name}/.claude-plugin/plugin.json: `skills` ref "
-                    f"{ref!r} does not resolve to a directory containing SKILL.md "
-                    f"(tried: {[str(c) for c in candidates]})",
-                )
+
+    # Verify the auto-discovery path exists and resolves to a SKILL.md
+    plugin_skill_dir = plugin_dir / "skills" / skill_name
+    plugin_skill_md = plugin_skill_dir / "SKILL.md"
+    if not plugin_skill_md.exists():
+        errors.add(
+            "Plugin missing auto-discovery skill",
+            f"plugins/{skill_name}/skills/{skill_name}/SKILL.md is missing. "
+            f"Create it (typically as a symlink): "
+            f"plugins/{skill_name}/skills/{skill_name}/SKILL.md -> "
+            f"../../../../skills/{skill_name}/SKILL.md",
+        )
 
     # Optional: validate bundled hooks.json if present
     hooks_path = plugin_dir / "hooks" / "hooks.json"
@@ -627,7 +632,9 @@ def validate_marketplace(errors: Errors, skill_dirs: list[Path]) -> None:
 
 def validate_root_plugin_json(errors: Errors, skill_dirs: list[Path]) -> None:
     """Validate the root `.claude-plugin/plugin.json` that declares the repo as
-    a single plugin. Its `skills` array must list every skill in skills/.
+    a single plugin. Claude Code's installer rejects a `skills` field, so
+    skills must be auto-discoverable from `skills/<name>/SKILL.md` at the
+    plugin root — which they already are, since `skills/` lives at repo root.
 
     The root plugin.json is optional (some marketplace-only repos don't have it)
     — skip silently if absent.
@@ -640,21 +647,22 @@ def validate_root_plugin_json(errors: Errors, skill_dirs: list[Path]) -> None:
         errors.add("Invalid root plugin.json", f".claude-plugin/plugin.json: {e}")
         return
 
-    listed = set(root.get("skills", []))
-    expected = {f"./skills/{s.name}" for s in skill_dirs}
+    if "skills" in root:
+        errors.add(
+            "Root plugin.json has `skills` field",
+            f".claude-plugin/plugin.json: remove the `skills` field — Claude "
+            f"Code's installer rejects it with 'Validation errors: skills: "
+            f"Invalid input'. Skills at skills/<name>/SKILL.md are "
+            f"auto-discovered when the root is installed as a plugin.",
+        )
 
-    for missing in sorted(expected - listed):
-        errors.add(
-            "Skill not in root plugin.json",
-            f".claude-plugin/plugin.json `skills` array does not include {missing!r} "
-            f"(every skill in skills/ must be listed here)",
-        )
-    for extra in sorted(listed - expected):
-        errors.add(
-            "Root plugin.json lists missing skill",
-            f".claude-plugin/plugin.json `skills` lists {extra!r} but no matching "
-            f"skill directory exists",
-        )
+    for s in skill_dirs:
+        if not (s / "SKILL.md").exists():
+            errors.add(
+                "Root skill missing SKILL.md",
+                f"skills/{s.name}/SKILL.md is missing — auto-discovery from "
+                f"the root plugin.json requires it",
+            )
 
     if "version" in root and not SEMVER_PATTERN.match(str(root["version"])):
         errors.add(

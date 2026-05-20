@@ -1,0 +1,1 @@
+../../../../skills/obsidian-knowledge-graph/SKILL.md

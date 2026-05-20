@@ -5,6 +5,5 @@
   "author": {
     "name": "ship-it-ops"
   },
-  "license": "MIT",
-  "skills": ["../../skills/ship-agent-context"]
+  "license": "MIT"
 }
