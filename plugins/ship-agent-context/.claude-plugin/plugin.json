@@ -1,7 +1,7 @@
 {
   "name": "ship-agent-context",
-  "description": "In-repo memory for AI agents. Captures plans, decisions, in-flight status, open questions, and incident scars in docs/agent/ so the next agent (or human) walks into context, not a blank slate.",
-  "version": "1.0.0",
+  "description": "In-repo memory for AI agents. Captures plans, decisions, in-flight status, standing user instructions, open questions, and incident scars in docs/agent/ so the next agent (or human) walks into context, not a blank slate.",
+  "version": "1.1.0",
   "author": {
     "name": "ship-it-ops"
   },

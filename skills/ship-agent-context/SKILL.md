@@ -2,19 +2,22 @@
 name: ship-agent-context
 description: >
   ALWAYS activate at session start in any repository to check for `docs/agent/`
-  — the in-repo memory of plans, decisions, in-flight status, open questions,
-  patterns, and incident scars left by prior agents. Read `MANIFEST.md` and
-  every file under `status/` before answering, planning, deciding, implementing,
-  debugging, investigating, refactoring, reviewing, or fixing code. Activate
-  whenever the user says "what did we decide", "what's in flight", "what's the
-  plan for X", "any known issues / scars / blockers", "is anyone working on Y",
-  "pick up where the last agent left off", or mentions prior agents, handoffs,
-  or past incidents. Also activate to capture new context after a decision is
-  made, a plan is finalized, a root cause is identified, a workaround is
-  chosen, or a scar is earned — even when `docs/agent/` does not yet exist
-  (offer to scaffold). Complements AGENTS.md / CLAUDE.md (static rules) by
-  holding dynamic, branch-tracked state. Standalone — no external vault or
-  other skill required.
+  — the in-repo memory of plans, decisions, in-flight status, standing user
+  instructions, open questions, patterns, and incident scars left by prior
+  agents. Read `MANIFEST.md` and every file under `status/` and `instructions/`
+  before answering, planning, deciding, implementing, debugging, investigating,
+  refactoring, reviewing, or fixing code. Activate whenever the user says
+  "what did we decide", "what's in flight", "what's the plan for X", "any known
+  issues / scars / blockers", "is anyone working on Y", "pick up where the
+  last agent left off", or mentions prior agents, handoffs, or past incidents.
+  Also activate to capture new context after a decision is made, a plan is
+  finalized, a root cause is identified, a workaround is chosen, a scar is
+  earned, or the user gives a standing instruction ("don't push without
+  asking", "always run tests first", "from now on X", "never X", "remember
+  to X") — even when `docs/agent/` does not yet exist (offer to scaffold).
+  Complements AGENTS.md / CLAUDE.md (static project rules curated by a
+  maintainer) by holding dynamic, branch-tracked state and user-captured
+  behavior rules. Standalone — no external vault or other skill required.
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash(mkdir -p *), Bash(mv docs/agent/*)
 ---
 
@@ -57,9 +60,10 @@ This guarantees activation in repos that need it, independent of description mat
 **Before making decisions during a session:**
 - Choosing a library, pattern, or architecture? → Check `docs/agent/decisions/` and `docs/agent/patterns/`.
 - Debugging a bug? → Check `docs/agent/investigations/` and `docs/agent/scars/` for prior root causes and tripwires.
+- About to commit, push, deploy, or take any irreversible action? → Check `docs/agent/instructions/` for a standing rule the user already gave.
 - Starting work in an area? → Check `docs/agent/status/` — a sibling agent may already be in that area.
 - Hitting an unknown? → Check `docs/agent/open-questions/` — it may already be tracked.
-- User states a preference that should outlive this session? → That belongs in `AGENTS.md`/`CLAUDE.md`, not here.
+- User states a behavior preference that should outlive this session ("don't push without asking", "always run tests first")? → Capture it in `docs/agent/instructions/` (see [Auto-Capturing User Instructions](#auto-capturing-user-instructions)). Static project rules curated by a maintainer ("use pnpm", "tests live in `__tests__/`") still belong in `AGENTS.md` / `CLAUDE.md`.
 
 **If you skip the check, you risk:**
 - Repeating work another agent completed last week.
@@ -93,12 +97,13 @@ docs/agent/
   investigations/          ← bug hunts, root cause analyses
   patterns/                ← codebase conventions discovered by agents
   status/                  ← IN-FLIGHT work (cleared on completion)
+  instructions/            ← STANDING USER INSTRUCTIONS, read every session
   open-questions/          ← blockers awaiting human/maintainer answer
   scars/                   ← incidents and tripwires ("don't do X because Y")
   archive/                 ← superseded/deprecated content
 ```
 
-Create with: `mkdir -p docs/agent/{decisions,plans,investigations,patterns,status,open-questions,scars,archive}`
+Create with: `mkdir -p docs/agent/{decisions,plans,investigations,patterns,status,instructions,open-questions,scars,archive}`
 
 Then write `docs/agent/MANIFEST.md` with the starter content shown in the [MANIFEST.md Format](#manifestmd-format) section. Also write a seed decision at `docs/agent/decisions/agent-context-initialized.md` documenting that this folder was set up and why (this becomes the first MANIFEST entry, proving the system works).
 
@@ -118,6 +123,9 @@ Read `docs/agent/MANIFEST.md`. It indexes every note: slug, type, status, import
 ### Step 2 — Read all of `status/`
 Always read every file in `docs/agent/status/`. It is bounded in size (typically <5 entries) and is the single most important signal: it tells you what other agents are doing *right now*. Skipping this is how parallel agents collide.
 
+### Step 2.5 — Read all of `instructions/`
+Always read every file in `docs/agent/instructions/`. These are standing user instructions captured in prior sessions — behavior rules the user gave Claude that must persist across sessions, branches, and agents (e.g., "don't push without asking", "always run the linter before opening a PR"). Like `status/`, the folder is bounded in size and every file is opened. Any `importance: core` instruction must be acknowledged in your opening response to the user so they can see the rule was loaded.
+
 ### Step 3 — Read `core` decisions
 For any note with `importance: core` in the MANIFEST, read the full file. These are foundational — you should know them by default.
 
@@ -133,6 +141,7 @@ If the MANIFEST didn't surface what you need, Grep `docs/agent/` for keywords. T
 ### Rules
 - **NEVER** glob-read every file in `docs/agent/`. Use the MANIFEST.
 - **ALWAYS** check `status` before trusting a note. Skip `deprecated`. Treat `superseded` as a pointer to its replacement.
+- **ALWAYS** apply every `active` instruction in `instructions/` for the duration of the session. They are not advisory — they are standing orders from the user.
 - **DO NOT** read `archive/` at session start — it's intentionally cold storage.
 - **READ AGENTS.md and CLAUDE.md normally** — they hold static rules, not agent state. This skill does not duplicate them.
 
@@ -149,6 +158,7 @@ If the MANIFEST didn't surface what you need, Grep `docs/agent/` for keywords. T
 - **Investigations** — bug root causes, especially non-obvious ones.
 - **Patterns** — codebase conventions you discovered while reading code.
 - **Status** — short-lived "I am working on X on branch Y" entries, cleared on completion.
+- **Instructions** — standing behavior rules the user gave you in conversation ("don't push without asking", "always run the linter first"). Auto-captured when the user uses persistent-intent phrasing — see [Auto-Capturing User Instructions](#auto-capturing-user-instructions) for the trigger rules.
 - **Open questions** — blockers you can't resolve and the person/source that could.
 - **Scars** — incidents that produced a lesson. Must name the tripwire ("if you see X, stop").
 
@@ -178,6 +188,7 @@ If the MANIFEST didn't surface what you need, Grep `docs/agent/` for keywords. T
 | `investigation` | `investigations/` |
 | `pattern` | `patterns/` |
 | `status` | `status/` |
+| `instruction` | `instructions/` |
 | `open-question` | `open-questions/` |
 | `scar` | `scars/` |
 
@@ -330,6 +341,85 @@ Link to the decision, plan, or issue driving this.
 
 **Lifecycle**: when the work merges or is abandoned, change `status` to `completed` and move the file from `status/` to `archive/` (or delete if it added no durable knowledge). `status/` should rarely have more than 3–5 active entries at once.
 
+### Instruction
+
+A standing behavior rule the user gave Claude in conversation that should persist across sessions, branches, and agents. Distinct from `decisions/` (which capture *why* a choice was made) — instructions capture *what the user told the agent to do or not do*.
+
+Extra required fields:
+
+```yaml
+type: instruction
+status: active | superseded | revoked
+source: user-instruction           # always — distinguishes from agent-authored notes
+scope: always | when-X | branch:feature/y | until:YYYY-MM-DD
+```
+
+```markdown
+# {The rule, phrased as a sentence}
+
+## Instruction
+Verbatim or near-verbatim what the user said.
+
+## Why
+(Optional — reason the user gave, if any. Captures intent so future agents can judge edge cases.)
+
+## How to apply
+Concrete: when does this kick in, what does the agent do differently.
+
+## Source
+- Session: <session-id or date>
+- Captured from: "<short paraphrase of the user's exact words>"
+
+## To revoke
+The phrasing the user can use to turn this off (e.g., "forget the push rule", "you can commit without asking now").
+```
+
+**Lifecycle**:
+- `active` → in force.
+- `superseded` → replaced by another instruction on the same topic; the new file links back via `## Related`.
+- `revoked` → the user turned it off. Move the file from `instructions/` to `archive/`. Keep the history; do not delete.
+
+#### Auto-Capturing User Instructions
+
+When the user uses persistent-intent phrasing in conversation, capture it as an instruction **without asking first**. This is the explicit design — confirm prompts add friction that defeats the purpose of remembering across sessions.
+
+**Triggers (capture)** — phrasings that signal a persistent rule:
+
+- "never X" / "don't ever X" / "stop X-ing"
+- "always X" / "from now on X" / "going forward X"
+- "remember to X" / "remember that X"
+- "ask before X" / "X without asking" (paired with a recurring action like commit, push, deploy)
+- "for this repo X" / "in this codebase X" / "in this project X"
+- "I want you to X" / "I need you to X" (when X is a behavior, not a one-off task)
+
+**Anti-triggers (do not capture; treat as one-off)** — phrasings that look similar but are scoped to the current turn:
+
+- "just this time X" / "for this turn X" / "for now X" / "this once X" / "in this case X"
+- Imperatives plainly tied to the current task with no temporal/scope marker — e.g., "don't use ESM here" while editing a CJS-only file. That's a momentary correction, not a standing rule.
+
+When uncertain whether a phrase is a standing rule or a one-off, **default to NOT capturing** and continue with the task. Over-capturing pollutes the always-read surface; under-capturing just means the user re-states the rule (and likely uses stronger persistent-intent language the second time).
+
+**Behavior when a trigger fires:**
+
+1. Write the file immediately — no confirm prompt. Slug from the rule, not the user's verbatim words. Put it at `docs/agent/instructions/{slug}.md`.
+2. Update `MANIFEST.md` under the `## Instructions` section (positioned right after `## Status`).
+3. In the same response, tell the user in one line where the file lives and how to revoke it. Example:
+   > "Saved as a standing instruction: `docs/agent/instructions/dont-push-without-asking.md`. Say 'forget the push rule' anytime to revoke."
+
+   This single line is mandatory — it is the safety net that makes silent auto-capture acceptable. Without it the user has no signal that a file was created on their behalf.
+4. **Cap at one auto-capture per user turn.** If multiple triggers fire in the same message, write the most explicit one and surface the others as one-line candidates: "I also heard 'always run tests before push' — want me to save that too?" Prevents runaway captures from a single message.
+
+**Revocation:** when the user says "forget X" / "you can X without asking now" / "ignore that rule":
+1. Find the matching `instructions/` file.
+2. Set `status: revoked`, bump `updated`.
+3. Move the file from `instructions/` to `archive/` (preserves what was asked-then-rescinded).
+4. Remove the entry from `## Instructions` in MANIFEST.
+5. Confirm in one line.
+
+**Conflict with `AGENTS.md`/`CLAUDE.md`:** if an active instruction contradicts a rule in `AGENTS.md` or `CLAUDE.md`, **do not** silently overwrite either side. Surface the conflict and ask the user which wins. The user's in-session instruction is typically more current, but `AGENTS.md` may carry team-wide weight the user didn't intend to override.
+
+**Promotion:** when an instruction has been `active` for ~30+ days and the repo has an `AGENTS.md`, suggest copying the rule there as a permanent project rule. The skill never edits `AGENTS.md` itself — that's a deliberate human-curation boundary.
+
 ### Open Question
 
 A blocker awaiting an answer. Extra required fields:
@@ -404,6 +494,9 @@ Last updated: YYYY-MM-DD | Total notes: N
 ## Status (in-flight)
 <!-- always-read at session start -->
 
+## Instructions
+<!-- standing user instructions — always-read at session start -->
+
 ## Decisions
 ## Plans
 ## Investigations
@@ -412,7 +505,7 @@ Last updated: YYYY-MM-DD | Total notes: N
 ## Scars
 ```
 
-Sections appear only when they have entries. Order is fixed — `Status` always first.
+Sections appear only when they have entries. Order is fixed — `Status` always first, `Instructions` second (both are always-read at session start).
 
 When the file exceeds ~100 entries, split per-section into `MANIFEST-decisions.md`, `MANIFEST-plans.md`, etc. Keep `MANIFEST.md` as the entrypoint with the 10 most recent per section plus all `core` importance entries.
 
@@ -422,10 +515,18 @@ When the file exceeds ~100 entries, split per-section into `MANIFEST-decisions.m
 
 This skill **does not modify or duplicate** `AGENTS.md` or `CLAUDE.md`.
 
-- `AGENTS.md` / `CLAUDE.md` = **static rules** the project asks agents to follow ("use pnpm", "tests live in `__tests__/`", "never commit without running lint").
-- `docs/agent/` = **dynamic state** captured during work (decisions made, plans in flight, scars earned).
+| Layer | What it holds | Curated by | Lifetime |
+|---|---|---|---|
+| `AGENTS.md` / `CLAUDE.md` | **Static project rules** ("use pnpm", "tests live in `__tests__/`", "never commit without running lint") | A maintainer, deliberately | Until manually edited |
+| `docs/agent/instructions/` | **User-captured behavior rules** the user said in conversation ("don't push without asking", "always run linter first") | Auto-captured by the agent, on the fly | Until the user revokes |
+| `docs/agent/{decisions,plans,…}` | **Dynamic agent state** — decisions made, plans in flight, scars earned | The agent, during work | Until superseded |
 
-If a rule emerges from a captured decision — e.g., a `decisions/` note concludes "we now standardize on pnpm" — that rule belongs in `AGENTS.md`. The skill should suggest the update, not perform it silently. The decision note links to the rule; the rule links back to the decision.
+The boundary between `instructions/` and `AGENTS.md` is friction and authority. `instructions/` is the *low-friction* surface — the user states a rule in conversation and it sticks immediately, no editing required. `AGENTS.md` is the *high-authority* surface — once a rule is stable and clearly project-wide, the skill should suggest promoting it to `AGENTS.md` so it carries the weight of a maintainer-curated rule.
+
+Two promotion paths:
+
+- **From a decision** — if a `decisions/` note concludes "we now standardize on pnpm," that rule belongs in `AGENTS.md`. The skill should suggest the update, not perform it silently. The decision note links to the rule; the rule links back to the decision.
+- **From an instruction** — if an `instructions/` note has been `active` for ~30+ days and the repo has `AGENTS.md`, suggest copying the rule there as a permanent project rule. The skill never edits `AGENTS.md` itself — that boundary is intentional.
 
 ---
 
@@ -453,10 +554,11 @@ The folder must not become a dumping ground. Apply these filters every time you 
 1. **5-minute rule**: If a future agent could re-derive this in under 5 minutes from code or `git log`, don't write it.
 2. **No duplication**: If it's in `AGENTS.md`, `CLAUDE.md`, `README.md`, or a code comment, link to it instead.
 3. **No routine logging**: Code changes are in `git log`. Tasks are in your tool's task list. Neither belongs here.
-4. **One topic, one note**: Update the existing note instead of creating a near-duplicate.
+4. **One topic, one note**: Update the existing note instead of creating a near-duplicate. For `instructions/` specifically: if a new user instruction overlaps an existing one, edit the existing file (bump `updated`) instead of creating a sibling.
 5. **Status entries expire**: If `status/` has entries older than 14 days that haven't been touched, flag them. Stale `status/` is the #1 failure mode.
 6. **Open questions age out**: 30 days `active` → ask the user if it's still open.
 7. **Tags are search keys**: 3–5 tags per note. Reuse tags from existing notes — consistency makes search work.
+8. **Revoked instructions are archived, not deleted**: when the user revokes an instruction, move the file to `archive/` rather than deleting it. Preserves the history of what was asked-then-rescinded, which is itself useful context.
 
 ---
 
@@ -466,21 +568,23 @@ The folder must not become a dumping ground. Apply these filters every time you 
 1. `Glob: docs/agent/MANIFEST.md`. If missing, note and skip to user's request (do not auto-scaffold).
 2. Read `MANIFEST.md`.
 3. Read every file in `docs/agent/status/`.
-4. Read every `importance: core` note.
-5. Scan `open-questions/` for anything matching the user's request.
-6. Begin work.
+4. Read every file in `docs/agent/instructions/`. Acknowledge any `importance: core` instruction in your opening response so the user can see the rule was loaded.
+5. Read every `importance: core` note.
+6. Scan `open-questions/` for anything matching the user's request.
+7. Begin work — and apply every `active` instruction for the rest of the session.
 
 ### During Work
-7. Before each major decision: check `decisions/` and `patterns/` for prior art.
-8. Before debugging: check `investigations/` and `scars/`.
-9. Within 5 minutes of starting non-trivial work: create a `status/` entry.
-10. On every milestone (decision made, root cause found, plan finalized, scar earned): apply the Write Protocol immediately. Don't defer to end-of-session.
-11. Reference captured knowledge in responses — tell the user what you found.
+8. Before each major decision: check `decisions/` and `patterns/` for prior art.
+9. Before debugging: check `investigations/` and `scars/`.
+10. Within 5 minutes of starting non-trivial work: create a `status/` entry.
+11. On every milestone (decision made, root cause found, plan finalized, scar earned): apply the Write Protocol immediately. Don't defer to end-of-session.
+12. When the user uses persistent-intent phrasing (see [Auto-Capturing User Instructions](#auto-capturing-user-instructions)): silently write the instruction, then announce the file path and revocation phrase in one line.
+13. Reference captured knowledge in responses — tell the user what you found.
 
 ### End of Session
-12. Review: any decision, plan, root cause, or scar uncaptured? Write it.
-13. Update your `status/` entry: complete it (and archive), or update its current state.
-14. If you flagged stale notes during the session, summarize them for the user before finishing.
+14. Review: any decision, plan, root cause, scar, or standing user instruction uncaptured? Write it.
+15. Update your `status/` entry: complete it (and archive), or update its current state.
+16. If you flagged stale notes during the session, summarize them for the user before finishing.
 
 ---
 
