@@ -112,6 +112,122 @@ What signal would have caught this earlier.
 Guards added to the codebase or CI that should prevent recurrence.
 ```
 
+### Instruction — extended fields
+
+The base `Instruction` template in `SKILL.md` covers the common case. These extra fields handle nuance:
+
+```yaml
+---
+type: instruction
+status: active
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+author: claude-session-…
+source: user-instruction
+scope: always | when-X | branch:feature/y | until:YYYY-MM-DD
+tags: [git, safety]
+importance: core | standard
+confirmed-on: YYYY-MM-DD          # last time the user re-affirmed this rule
+supersedes: prior-slug            # when replacing an earlier instruction
+adjacent-rule: agents-md          # set when the instruction echoes an AGENTS.md rule (use the adjacent rule's anchor / heading)
+---
+```
+
+Optional body sections beyond the base template:
+
+```markdown
+## Examples
+- Triggered: "About to `git push` after a commit — the agent paused and asked."
+- Not triggered: "Squashing local commits before pushing — no remote action yet."
+
+## Exceptions
+Cases where the rule does NOT apply (e.g., "documentation-only branches on `docs/*` are exempt").
+
+## Promotion History
+- 2026-07-04 — suggested promotion to AGENTS.md; user deferred ("not yet, still trialing").
+```
+
+#### Scope grammar
+
+`scope:` is parsed as a small DSL:
+
+| Scope | Meaning | Auto-revoke trigger |
+|---|---|---|
+| `always` | This repo, every branch, every session, indefinitely | Only on explicit user revocation |
+| `when-X` | Active only when context X applies (`when-deploying`, `when-touching-migrations`) | Only on explicit user revocation |
+| `branch:NAME` | Active only on the named branch | Branch deleted or merged into main |
+| `until:YYYY-MM-DD` | Time-bounded | Date passes — move to archive automatically |
+
+Infer the scope from the user's wording: "on the deploy branch, never force-push" → `branch:deploy`. "Until the freeze ends Friday" → `until:<that-friday-as-iso>`. When ambiguous, default to `always` — the user can always say "actually that was just for the migration branch" later.
+
+#### Confirmed-on
+
+When an active instruction comes up during a session (the agent applied it, the user affirmed it implicitly by accepting the behavior, or the user re-stated it), bump `confirmed-on` to today. This is the signal that distinguishes living rules from forgotten ones. Stale `confirmed-on` (>90 days) is a candidate for asking the user "is this still the rule?"
+
+---
+
+## User-Instruction Capture — Edge Cases
+
+The SKILL.md trigger/anti-trigger lists cover the common cases. These are the harder calls.
+
+### Worked examples — capture or skip?
+
+| User said | Capture? | Why |
+|---|---|---|
+| "Don't push without asking first." | **Yes** | Indefinite verb + push (recurring action). |
+| "Don't push this branch." | **No** | Scope is "this branch" + current task. Capture only as `scope: branch:<current-branch>` if the user explicitly says "from now on this branch". |
+| "Never use ESM in this repo." | **Yes** | "Never" + "this repo" = persistent, repo-wide. |
+| "Don't use ESM here." | **No** | "Here" most likely refers to the current file or current edit. Momentary correction. |
+| "Always run the tests before opening a PR." | **Yes** | "Always" + recurring action. |
+| "Run the tests." | **No** | Single imperative for now, no temporal marker. |
+| "Remember that we use pnpm." | **Yes**, with one caveat | Capture, then suggest promotion to `AGENTS.md` — "we use pnpm" is the canonical kind of static project rule. |
+| "For now, skip the linter." | **No** | "For now" is an anti-trigger. |
+| "Ask me before deploying to production." | **Yes** | "Ask before" + deploy = clear standing rule. |
+| "Don't refactor this function." | **No** | Scoped to the current function. |
+| "Don't ever refactor without tests." | **Yes** | "Don't ever" + general rule about refactoring. |
+
+The shared property of the **Yes** rows: an unbounded scope plus an action class the user expects to recur. The shared property of the **No** rows: scope tied to "here / this / now / this {file,branch,function}" without a temporal marker.
+
+### Overlap with existing instructions
+
+When a trigger fires but `instructions/` already has a file on the same topic:
+
+1. Read the existing file.
+2. If the new statement **refines** the existing rule (adds a condition, adds an example, narrows the scope), edit the existing file and bump `updated` and `confirmed-on`.
+3. If the new statement **contradicts** the existing rule, do not silently overwrite. Ask: "You have a standing instruction that says X. Now you've said Y. Should I replace, narrow, or revoke the old one?"
+4. If the new statement is identical, just bump `confirmed-on`.
+
+### Conflict with AGENTS.md / CLAUDE.md
+
+The conflict-resolution rule in SKILL.md (don't overwrite, surface the conflict, ask which wins) needs nuance for two common shapes:
+
+- **Direct contradiction** — AGENTS.md says "always push immediately after commit"; user says "ask before pushing." Surface explicitly: "AGENTS.md says X, you just said Y — which wins for this repo?" Capture the answer in the instruction's `## Why` and `adjacent-rule:` frontmatter.
+- **Refinement** — AGENTS.md says "use pnpm"; user says "use pnpm with `--frozen-lockfile` in CI." No conflict — this is a refinement. Capture the instruction with `adjacent-rule: agents-md-pnpm`, link in `## Related`.
+
+### Promotion to AGENTS.md
+
+When an instruction satisfies all of the following, suggest promotion:
+
+1. Status has been `active` for 30+ days without revocation.
+2. The repo has an `AGENTS.md` (or `CLAUDE.md`).
+3. The rule is *general* — it would apply to any contributor or any agent, not just the user who set it.
+
+Suggested promotion script (model output, not literal):
+
+> "The instruction at `docs/agent/instructions/run-linter-before-pr.md` has been active for 38 days without revocation. It reads as a general project rule — I'd suggest copying it into `AGENTS.md` under a 'Pre-PR checks' section so it carries the same weight for every contributor. Want me to draft the AGENTS.md change for you to review?"
+
+The skill never edits `AGENTS.md` itself. Drafting a proposed change is fine; committing it requires the user.
+
+### One-per-turn cap — rationale
+
+The cap exists because a single user message can contain several persistent-intent phrases (e.g., "always run tests, never force push, and remember to ask before deploys"). Writing three files silently in one turn would:
+
+- Trigger three filesystem writes the user didn't see coming.
+- Make the single-line "saved as…" confirmation grow into a paragraph, which dilutes its safety-net value.
+- Create three MANIFEST entries that may want different scopes or importances — better surfaced one at a time.
+
+The cap forces the agent to capture the most explicit/important one silently, then surface the others as one-line "want me to save that too?" offers. The user can accept all of them, but with visibility.
+
 ---
 
 ## Multi-Instance Mode (ledger writes)
