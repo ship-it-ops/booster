@@ -1,5 +1,5 @@
 # Agent Context
-Last updated: 2026-06-02 | Total notes: 5
+Last updated: 2026-06-10 | Total notes: 9
 
 <!--
   This file is the index for `docs/agent/`. Agents read it at session start.
@@ -11,11 +11,25 @@ Last updated: 2026-06-02 | Total notes: 5
 
 (none yet — the agent will auto-capture entries here when the user uses persistent-intent phrasing like "always X", "never X", "ask before X")
 
+## Status
+<!-- in-flight work and handoffs — always-read at session start -->
+
+- [ship-better-plans-handoff](status/ship-better-plans-handoff.md) | status | active | core | 2026-06-09 | Mid-brainstorm handoff for ship-better-plans skill
+
+## Plans
+
+- [ship-better-plans-design](plans/ship-better-plans-design.md) | plan | in-progress | core | 2026-06-10 | Design CLOSED (Q1-Q7 + D5-D7 resolved); build-only remains
+
 ## Decisions
 
 - [agent-context-initialized](decisions/agent-context-initialized.md) | decision | active | core | 2026-05-20 | Adopt docs/agent as in-repo agent memory
 - [plugin-name-matches-source-dir](decisions/plugin-name-matches-source-dir.md) | decision | active | standard | 2026-05-20 | Marketplace plugin name matches source directory basename
 - [add-user-instructions-to-skill](decisions/add-user-instructions-to-skill.md) | decision | active | core | 2026-06-02 | Add instructions/ content type for standing user rules
+- [ship-better-plans-architecture](decisions/ship-better-plans-architecture.md) | decision | active | core | 2026-06-10 | Parallel skill, Workflow audit, plan-mode + opt-in control flow (D1-D7)
+
+## Investigations
+
+- [ship-better-plans-design-audit](investigations/ship-better-plans-design-audit.md) | investigation | active | core | 2026-06-09 | Audit found plan unbuildable as written; layout+control-flow fixes
 
 ## Scars
 
