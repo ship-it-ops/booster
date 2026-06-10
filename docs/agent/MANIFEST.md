@@ -14,11 +14,11 @@ Last updated: 2026-06-10 | Total notes: 9
 ## Status
 <!-- in-flight work and handoffs — always-read at session start -->
 
-- [ship-better-plans-handoff](status/ship-better-plans-handoff.md) | status | active | core | 2026-06-09 | Mid-brainstorm handoff for ship-better-plans skill
+(none — ship-better-plans shipped; its handoff is in archive/)
 
 ## Plans
 
-- [ship-better-plans-design](plans/ship-better-plans-design.md) | plan | in-progress | core | 2026-06-10 | Design CLOSED (Q1-Q7 + D5-D7 resolved); build-only remains
+- [ship-better-plans-design](plans/ship-better-plans-design.md) | plan | completed | core | 2026-06-10 | SHIPPED (commit 47be8cc): audited plan-producing skill + plugin
 
 ## Decisions
 

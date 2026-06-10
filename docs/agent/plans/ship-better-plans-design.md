@@ -1,8 +1,8 @@
 ---
 type: plan
-status: in-progress
+status: completed
 created: 2026-06-09
-updated: 2026-06-09
+updated: 2026-06-10
 author: claude-opus-4-7
 tags: [skill, plugin, planning, audit, workflow]
 importance: core
@@ -10,7 +10,7 @@ importance: core
 
 # Plan: `ship-better-plans` skill + plugin
 
-> ✅ **Design closed 2026-06-10.** Audit findings ([ship-better-plans-design-audit](../investigations/ship-better-plans-design-audit.md)) addressed: control-flow conflicts resolved as D5–D7 in [ship-better-plans-architecture](../decisions/ship-better-plans-architecture.md); all 7 open questions resolved (see "Resolved Design Decisions" below); the plugin layout below is now the **corrected** one. Remaining work is **build-only** — the A-blockers from the audit are mechanical and folded into the layout. Build the CI-green vertical slice mirroring `plugins/ship-agent-context/`.
+> ✅ **SHIPPED 2026-06-10 (commit `47be8cc`, branch `ship-plans`).** Skill + plugin built at `skills/ship-better-plans/` + `plugins/ship-better-plans/`, validated clean (validate-skills.py, check-skill-links.py, markdownlint). Design closed: control-flow resolved as D5–D7 in [ship-better-plans-architecture](../decisions/ship-better-plans-architecture.md); all 7 open questions resolved (table below); the layout below is the corrected one that was built. Not yet merged to `main` / not yet install-tested via `/plugin install` (see Verification).
 
 ## Context
 
