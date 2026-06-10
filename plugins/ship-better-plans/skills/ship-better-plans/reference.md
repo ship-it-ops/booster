@@ -1,0 +1,1 @@
+../../../../skills/ship-better-plans/reference.md

@@ -1,0 +1,9 @@
+{
+  "name": "ship-better-plans",
+  "description": "Produce bulletproof, fully-specified, audited implementation plans. Structured intake, automatic docs/agent + codebase discovery, scored tradeoffs, numbered specs with edge cases, a parallelizable task DAG with subagent delegation, and a multi-persona Workflow audit (adversarial/pragmatist/production) before the plan is written to docs/agent/plans/.",
+  "version": "1.0.0",
+  "author": {
+    "name": "ship-it-ops"
+  },
+  "license": "MIT"
+}

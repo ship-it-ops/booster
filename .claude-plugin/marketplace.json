@@ -31,6 +31,18 @@
       "license": "MIT",
       "keywords": ["agent-context", "repo-memory", "handoff", "decisions", "plans", "instructions", "scars", "open-questions", "ai-agent"],
       "category": "knowledge-management"
+    },
+    {
+      "name": "ship-better-plans",
+      "source": "./plugins/ship-better-plans",
+      "description": "Produce bulletproof, fully-specified, audited implementation plans. Structured intake, automatic docs/agent + codebase discovery, scored tradeoffs, numbered specs with edge cases, a parallelizable task DAG with subagent delegation, and a multi-persona Workflow audit (adversarial/pragmatist/production) before the plan is written to docs/agent/plans/.",
+      "version": "1.0.0",
+      "author": {
+        "name": "ship-it-ops"
+      },
+      "license": "MIT",
+      "keywords": ["planning", "implementation-plan", "audit", "workflow", "task-dag", "tradeoffs", "spec", "ai-agent"],
+      "category": "knowledge-management"
     }
   ]
 }
