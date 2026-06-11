@@ -1,6 +1,6 @@
 ---
 type: plan
-status: in-progress
+status: completed
 created: 2026-06-11
 updated: 2026-06-11
 author: claude-opus-4-8
@@ -48,7 +48,7 @@ Mirror `plugins/ship-better-plans/` exactly (symlink convention + scars):
 
 ## Status
 
-In progress — building the CI-green vertical slice first (root SKILL.md + plugin.json + symlinks + marketplace entry), then enriching. Validate with `validate-skills.py`, `check-skill-links.py`, `markdownlint-cli2`, and `node --check` on the workflow.
+SHIPPED 2026-06-11 (commit `0eeeba8`, branch `ship-plans`). Built at `skills/ship-execute/` + `plugins/ship-execute/`; validated clean (validate-skills.py, check-skill-links.py, markdownlint, node --check). Not yet merged to `main` / not yet install-tested via `/plugin install` or exercised end-to-end on a real plan.
 
 ## Related
 

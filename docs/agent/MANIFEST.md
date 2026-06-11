@@ -19,7 +19,7 @@ Last updated: 2026-06-11 | Total notes: 11
 ## Plans
 
 - [ship-better-plans-design](plans/ship-better-plans-design.md) | plan | completed | core | 2026-06-10 | SHIPPED (commit 47be8cc): audited plan-producing skill + plugin
-- [ship-execute-design](plans/ship-execute-design.md) | plan | in-progress | core | 2026-06-11 | DAG-aware execution engine; fleet + per-step verify + vet
+- [ship-execute-design](plans/ship-execute-design.md) | plan | completed | core | 2026-06-11 | SHIPPED (commit 0eeeba8): DAG-aware execution engine + plugin
 
 ## Decisions
 
