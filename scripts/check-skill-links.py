@@ -43,7 +43,7 @@ INLINE_CODE = re.compile(r"`[^`\n]+`")
 # Match backtick file references that look like paths (heuristic — contains
 # `/` or a known extension)
 INLINE_FILE_REF = re.compile(
-    r"`(?P<path>[a-zA-Z0-9_\-./]+(?:/[a-zA-Z0-9_\-./]+|\.(?:md|py|sh|ts|tsx|js|jsx|json|yml|yaml|toml))(?:[a-zA-Z0-9_\-./]*))`"
+    r"`(?P<path>[a-zA-Z0-9_\-./]+(?:/[a-zA-Z0-9_\-./]+|\.(?:md|py|sh|ts|tsx|js|jsx|java|sql|json|yml|yaml|toml))(?:[a-zA-Z0-9_\-./]*))`"
 )
 
 EXTERNAL_SCHEMES = (

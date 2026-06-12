@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Added
 
+- **Migrated all 6 plugins from `ship-it-ops/ship-code`** — booster is now the single marketplace: **ship-clean-code** 1.1.0, **ship-tested-code** 1.1.0, **ship-debugged-code** 1.0.0, **ship-secure-code** 1.0.0, **ship-reviewed-prs** 1.3.1 (with the `/ship-reviewed-prs:review-pr` command), **ship-devops** 0.2.0. Versions carried over unchanged; install with `<plugin>@booster`.
+- **PR dogfood workflow** — `.github/workflows/pr-review.yml` (from ship-code) runs ship-reviewed-prs against PRs to this repo. Requires the `CLAUDE_CODE_OAUTH_TOKEN` repo secret.
+- **Validator checks ported from ship-code** — plugin file-parity (every skill file must have a plugin symlink; orphans are errors), `${SKILL_DIR}` leakage detection, test-fixture parity, and plugin.json name == directory basename. Plus a `plugin-symlinks` CI job that verifies symlinks survive checkout.
+- ship-code's `docs/agent/` knowledge (decisions, patterns, scars, open questions about the migrated skills) merged into booster's `docs/agent/`.
+
 - Initial project structure with skills, agents, workflows, templates, and examples directories
 - Contributing guidelines
 - Starter templates for creating new skills, agents, and workflows

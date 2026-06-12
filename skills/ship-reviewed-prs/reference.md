@@ -1,0 +1,627 @@
+# PR Review Reference
+
+Detailed rubrics, command reference, and submission protocol. Persona deep-dive lives in `reference-personas.md`; comment-lifecycle algorithm in `reference-lifecycle.md`.
+
+---
+
+## 1. Fetch Phase — `gh` Command Reference
+
+### PR metadata and file list
+
+```bash
+gh pr view <n> --json title,body,headRefName,baseRefName,author,labels,files,statusCheckRollup,commits,isDraft,mergeable,reviewDecision
+```
+
+Key fields used:
+- `title`, `body` — searched for "fixes #N" (bugfix delegation), "WIP"/"DRAFT" markers, "out of scope" declarations
+- `headRefName`, `baseRefName` — needed for diff and inline-comment positioning
+- `labels` — `wip`, `do-not-merge`, etc.
+- `files[].path`, `files[].additions`, `files[].deletions` — triage classification
+- `statusCheckRollup` — CI status; required for the APPROVE/CI-green check
+- `commits` — for the "addressed in later commit" lifecycle heuristic
+- `isDraft` — degrades decision to COMMENT
+- `mergeable` — flag if `false`
+
+### Diff
+
+```bash
+gh pr diff <n>
+```
+
+Plain unified diff. Pipe to a length-cap (e.g., `head -c 200000`) for very large PRs; persona passes only need diff context, not the full patch on monorepo-scale PRs.
+
+### CI status
+
+```bash
+gh pr checks <n>
+```
+
+Returns each check with status (`pass`, `fail`, `pending`, `skipping`). Decision matrix uses overall pass/fail/pending; details only flagged for IN5 CI-PIPELINE findings on a failing job. `pending` checks are listed by name in the APPROVE body's "Awaiting CI" caveat — checks irrelevant to the diff (e.g. CodeQL language jobs on a markdown-only PR) may still be flagged; the human reviewer is the arbiter of what to wait for.
+
+### Review threads (GraphQL — only way to get `isResolved`/`isOutdated`)
+
+```bash
+gh api graphql -f query='
+query($owner: String!, $repo: String!, $number: Int!, $threadCursor: String, $commentCursor: String) {
+  repository(owner: $owner, name: $repo) {
+    pullRequest(number: $number) {
+      reviewThreads(first: 100, after: $threadCursor) {
+        pageInfo { hasNextPage endCursor }
+        nodes {
+          id
+          isResolved
+          isOutdated
+          path
+          line
+          originalLine
+          comments(first: 50, after: $commentCursor) {
+            pageInfo { hasNextPage endCursor }
+            nodes {
+              databaseId
+              body
+              author { login }
+              authorAssociation
+              createdAt
+              reactions(first: 20) {
+                nodes { content user { login } }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}' -f owner=<owner> -f repo=<repo> -F number=<n>
+```
+
+`authorAssociation` distinguishes OWNER / MEMBER / COLLABORATOR / CONTRIBUTOR / NONE — used to identify maintainers for won't-fix marker detection.
+
+**Pagination is mandatory, not optional.** The lifecycle algorithm depends on seeing *every* thread's *latest* comment to detect won't-fix markers, ADDRESSED commits, and STALE status. On long-lived PRs (the exact case where lifecycle suppression matters most), a single `first: 100` / `first: 50` page misses data and silently produces wrong decisions. Implementation must:
+
+1. Loop the outer `reviewThreads` connection until `pageInfo.hasNextPage` is `false`, passing `endCursor` as the next `threadCursor`.
+2. For each thread, loop the inner `comments` connection until exhausted, using `commentCursor`.
+3. Aggregate results before classifying. Never short-circuit on the first page.
+
+If the skill cannot complete pagination (rate limit, network failure), tag the output with `lifecycle_quality: degraded` and refuse to APPROVE — the suppression algorithm is unreliable without complete data.
+
+REST `/pulls/{n}/comments` does NOT return resolution state. Use GraphQL.
+
+### Review-level submissions (history)
+
+```bash
+gh api repos/<owner>/<repo>/pulls/<n>/reviews --paginate
+```
+
+Used to see prior APPROVED / CHANGES_REQUESTED / COMMENTED reviews. A REQUEST_CHANGES that was later dismissed is informational; one still in effect blocks merge regardless of this skill's decision.
+
+---
+
+## 2. Triage Pass — File Bucketing
+
+Classify each changed file into exactly one bucket:
+
+| Bucket | Heuristic |
+|--------|-----------|
+| `test` | Path matches `test/`, `tests/`, `__tests__/`, `*.test.*`, `*.spec.*`, `*_test.go`, `*Test.java`, `*Spec.*` |
+| `infra` | Path matches infra triggers (see SKILL.md DA/IN-deep activation lists) |
+| `schema` | Path matches schema triggers (see SKILL.md DA activation list) |
+| `docs` | Path matches `*.md`, `*.rst`, `*.txt`, `docs/`, `README*`, `CHANGELOG*` |
+| `generated` | Path matches `*.generated.*`, `*.pb.go`, `*.pb.ts`, `*_pb2.py`, files with `@generated` header in first 20 lines |
+| `vendor` | Path matches `vendor/`, `node_modules/`, `third_party/`, `external/` |
+| `code` | Everything else (default) |
+
+Persona file selectivity:
+- SE: `code`, `docs` (for API docs / public signature changes)
+- SC: `code`, `schema`, `infra`, `docs` (scans everything for secrets)
+- IN-light: `code` (flags missing timeouts/retries)
+- IN-deep: `infra`
+- DA: `schema`
+- FE: `code` (TSX/JSX-shaped files, plus adjacent test/index/css.ts and `.changeset/` files for context)
+- TS: `code` (to compute the test-coverage ratio)
+
+`generated` and `vendor` are skipped by all personas. Count them in the output ("12 generated, 3 vendor files skipped").
+
+---
+
+## 3. Persona Passes — Ordering and Bracketing
+
+Always-on personas run sequenced in the orchestrator's context:
+
+```
+## SE pass
+<orchestrator reads diff with SE rubric only; emits SE1-SE7 findings>
+
+## SC pass
+<orchestrator reads diff with SC rubric only; emits SC1-SC7 findings>
+
+## IN-light pass
+<orchestrator reads diff with IN rubric (network calls, observability gaps) without going deep on infra files>
+
+## TS pass
+<orchestrator computes coverage ratio: prod files modified vs. test files added/modified. Emits TS1 if ratio is bad and the prod file is in the `code` bucket. Emits TS2 if PR body matches "fixes #N" and no file in the `test` bucket was added or modified.>
+```
+
+Bracketing is intentional. It keeps each persona's voice distinct without isolating context. The model reads its rubric, scans the diff, emits, and moves on.
+
+Conditional personas (DA, IN-deep) escalate to Explore subagents because they need to read *adjacent* files (existing schema, downstream consumers, related infra) that the orchestrator hasn't fetched. The subagent receives:
+- The activated files (schema files for DA, infra files for IN-deep)
+- The persona rubric (just that one section of `reference-personas.md`)
+- Repo root path
+- Instructions to return a structured findings block, not chatty prose
+
+Subagent timeout: 5 minutes per subagent. On timeout, fall back to a single in-context pass with a confidence flag.
+
+---
+
+## 4. Merge Phase — Deduplication and Priority Ordering
+
+### Deduplication
+
+Every emitted finding gets a fingerprint:
+
+```
+fingerprint = (path, floor(line / 5), root_cause_token)
+```
+
+Where `root_cause_token` is a normalized form of the finding's category (e.g., `MISSING_AUTH`, `SQL_INJECTION`, `NO_TIMEOUT`, `BACKFILL_MISSING`). The skill's prompt defines the canonical token list; new categories are added explicitly, not invented at runtime.
+
+Conflict resolution:
+- Higher-priority persona wins. Within tiers: SC > FE > IN > DA > SE > TS.
+- Exception: on schema files (DA-activated), DA wins over IN.
+- Exception: on TSX/JSX files (FE-activated), FE2-CONTROLLED-STATE-DESYNC wins over SE2-CONTRACT-DRIFT — both can fingerprint to the same `CONTRACT_DRIFT` root cause, but the FE2 framing ("undo unusable") is more actionable for component consumers than the generic SE2 framing.
+- Lower-priority finding is dropped; not merged. The reviewer sees one finding, with the strongest framing.
+
+### Priority sort
+
+After dedup, sort:
+1. By severity tier: Critical (priorities 1-2), Important (3-5), Suggestions (6-7).
+2. Within tier, by priority number ascending.
+3. Within same number, by persona prefix alphabetical (DA → FE → IN → SC → SE → TS — happens to match severity weight on most schema/infra-heavy PRs).
+4. Within same persona, by `path` then `line`.
+
+### 10-finding cap
+
+If after sort there are more than 10 findings:
+- Show the top 10 in priority order.
+- *1 findings (SC1/IN1/DA1/SE1/TS1) are NEVER suppressed by the cap. If 11 findings exist and one is SC1, drop something else.
+- Summarize the rest by tier: `+ 5 more findings (3 P6-readability, 2 P7-style)`. Reviewers who want the complete list re-run with `--json` to get the unfiltered finding array.
+
+---
+
+## 5. Decision Matrix — Elaboration
+
+The decision is a function of:
+- `critical_count` (unsuppressed findings with priority 1-2)
+- `important_count` (priority 3-5)
+- `suggestion_count` (priority 6-7)
+- `delegation_count`
+- `open_thread_count` (lifecycle state OPEN)
+- `possibly_addressed_count` (lifecycle state ADDRESSED)
+- `ci_state` (`green`, `red`, `pending`)
+- `is_draft` (PR is in draft state or WIP-labelled)
+
+Evaluated top-down — the first matching row wins:
+
+| Condition | Decision |
+|-----------|----------|
+| `is_draft` | `COMMENT` |
+| `critical_count > 0` (priority 1-2) | `REQUEST_CHANGES` |
+| `important_count > 0` (priority 3-5) | `COMMENT` (advisory) — never `APPROVE` |
+| `ci_state == red` | `COMMENT` (with "CI must pass before approval" note) |
+| `lifecycle_quality == degraded` | `COMMENT` (suppression unreliable; cannot guarantee correctness) |
+| `possibly_addressed_count > 0` | `COMMENT` (with "Confirm addressed items to escalate" note) |
+| Otherwise (any combination of `suggestion_count`, `delegation_count`, `open_thread_count`, and `ci_state == pending`) | `APPROVE` — caveats noted inline |
+
+The "Otherwise" APPROVE may attach any of three optional caveat sections to the review body, in this order:
+
+1. **"Suggestions (improve when convenient)"** — emitted when `suggestion_count > 0`. Lists each P6/P7 finding with its persona prefix, file:line, and one-sentence rationale. Identical formatting to the COMMENT-decision suggestions block.
+2. **"Delegations"** — emitted when `delegation_count > 0`. Same format as today's Delegations section (advisory pointers to sibling skills).
+3. **"Awaiting CI"** — emitted when `ci_state == pending`. Phrase as: *"Recommend awaiting CI completion before merge — N check(s) still running: `<comma-separated check names>`. APPROVE stands; this is advisory."*
+
+These caveats are body content, not verdict modifiers. They do not change the submitted `event` (always `APPROVE`). The bot disclosure prefix from Principle 11 is still emitted.
+
+APPROVE is the default when nothing important is wrong. Critical findings deny; Important findings comment; suggestions, delegations, and pending CI annotate without blocking. This avoids the "always-one-nitpick" trap where any sufficiently thorough reviewer prevents APPROVE indefinitely.
+
+---
+
+## 6. Submission Protocol
+
+GitHub's pending-review API ensures atomicity: inline comments + summary are submitted as a single review object. Use this protocol whenever the submission has **one or more** inline comments. Every Critical and Important finding with a `file:line` target is an inline comment by default — see SKILL.md "Submission Protocol" for the obligation.
+
+**Exception — inline-less APPROVE only.** When the decision is APPROVE *and* the inline-comment count is exactly zero (clean PR, summary body only), the simpler `gh pr review <n> --approve --body "<summary>"` form is allowed for brevity. REQUEST_CHANGES, COMMENT, and any APPROVE that includes at least one inline comment must use the three-step pending-review protocol below.
+
+### Step 1: Create pending review
+
+```bash
+REVIEW_ID=$(gh api -X POST "repos/<owner>/<repo>/pulls/<n>/reviews" \
+  -f body="" \
+  --jq '.id')
+```
+
+When `event` is omitted, the review is created in PENDING state.
+
+### Step 2: Post each inline comment
+
+```bash
+gh api -X POST "repos/<owner>/<repo>/pulls/<n>/reviews/${REVIEW_ID}/comments" \
+  -f path="<file>" \
+  -F line=<line> \
+  -f side="RIGHT" \
+  -f body="<finding body>"
+```
+
+For multi-line range comments (a finding that spans lines):
+
+```bash
+gh api -X POST "repos/<owner>/<repo>/pulls/<n>/reviews/${REVIEW_ID}/comments" \
+  -f path="<file>" \
+  -F line=<end_line> \
+  -F start_line=<start_line> \
+  -f start_side="RIGHT" \
+  -f side="RIGHT" \
+  -f body="<finding body>"
+```
+
+### Step 2a: Embed a `suggestion` fence (when the fix qualifies)
+
+When the fix is a small, self-contained, mechanical edit and the comment's line range exactly matches the lines being replaced, embed the replacement in a GitHub `suggestion` fence so the author can hit "Commit suggestion" instead of editing by hand. Qualify / disqualify rules are in the checklist below; the alignment requirement at the end of this subsection is the hard constraint.
+
+**Worked example — IN1-PROD-OUTAGE-RISK on `services/billing.ts:5`.** The diff line is:
+
+```typescript
+  const user = await fetch(`https://billing.internal/users/${userId}`).then(r => r.json());
+```
+
+The inline-comment body posted via Step 2 looks like:
+
+````markdown
+**[IN1-PROD-OUTAGE-RISK]** `fetch("https://billing.internal/users/...")` has
+no timeout. A slow billing-internal will hang this function indefinitely,
+blocking the calling request and exhausting connection-pool capacity.
+
+```suggestion
+  const user = await fetch(`https://billing.internal/users/${userId}`, { signal: AbortSignal.timeout(5000) }).then(r => r.json());
+```
+````
+
+Posted with:
+
+```bash
+gh api -X POST "repos/<owner>/<repo>/pulls/<n>/reviews/${REVIEW_ID}/comments" \
+  -f path="services/billing.ts" \
+  -F line=5 \
+  -f side="RIGHT" \
+  -f body="$(cat <<'EOF'
+**[IN1-PROD-OUTAGE-RISK]** `fetch("https://billing.internal/users/...")` has
+no timeout. A slow billing-internal will hang this function indefinitely,
+blocking the calling request and exhausting connection-pool capacity.
+
+\`\`\`suggestion
+  const user = await fetch(\`https://billing.internal/users/\${userId}\`, { signal: AbortSignal.timeout(5000) }).then(r => r.json());
+\`\`\`
+EOF
+)"
+```
+
+(The backticks and `${}` inside a `bash -c` heredoc need to be escaped — `\`\`\`` and `\${}` — so the shell does not interpret them. If posting via a language SDK or a JSON-only path, no escaping is needed.)
+
+**Suggestion qualify / disqualify checklist:**
+
+| Qualifies (use a fence) | Disqualifies (keep as prose) |
+|-------------------------|------------------------------|
+| Add `signal: AbortSignal.timeout(5000)` to an existing `fetch()` | Add a new metric counter (needs new import from `lib/observability.ts`) |
+| Swap `var` → `const` on a single declaration | Refactor a function into smaller helpers |
+| Add `requireAuth` middleware to a single route declaration | Restructure a module across three files |
+| Replace `console.log(user)` with `logger.info("...", { user_id })` *if* the structured logger is already imported in the file | Replace `console.log` with a logger that needs a new import |
+| Fix a typo in a string literal | "Consider using async iteration here" — an opinion, not a textual edit |
+
+**Alignment requirement.** If a comment contains a `suggestion` fence, the comment's `line` (and `start_line` for multi-line ranges) MUST equal the lines being replaced. GitHub renders the fence inline with the existing diff and a one-click "Commit suggestion" button — a misaligned range produces a button that either replaces the wrong lines or fails to apply.
+
+### Step 3: Submit the review
+
+```bash
+gh api -X POST "repos/<owner>/<repo>/pulls/<n>/reviews/${REVIEW_ID}/events" \
+  -f event="APPROVE|REQUEST_CHANGES|COMMENT" \
+  -f body="<summary>"
+```
+
+### Error handling
+
+- If step 1 fails: exit `3`, no cleanup needed (no resources created).
+- If a single Step 2 call fails with **422** (line outside the diff, file not in PR, invalid `start_line`) or **404** (path not found on the head ref): demote that finding into its tier's anchor sub-list as an anchorless bullet (`- \`<finding-id>\` <one-line body>. (no inline anchor — original target <path>:<line> rejected by gh)`), log the failure to stderr with the persona/finding ID and the gh error message, and continue posting the remaining inline comments. A single bad inline range must not abort the entire review.
+- If Step 2 fails for an unrelated reason (5xx, network, rate limit) AND retry with backoff also fails: dismiss the pending review with `gh api -X DELETE "repos/.../reviews/${REVIEW_ID}"`. Exit `3`. Never leave a half-formed pending review attached.
+- If step 3 fails: same cleanup as the unrelated-Step-2 case. Pending reviews are visible to the author and confusing.
+
+### Bot identity prefix (CI mode)
+
+Prepend to the `body` of step 3:
+
+```
+Posted by ship-reviewed-prs (bot). Reasoning available in this comment;
+ask the author/oncall for human judgment on disputed findings.
+
+---
+<actual summary>
+```
+
+The prefix line is configurable via `overrides.md` (`ci_bot_identity_prefix`).
+
+### Step 4: Auto-resolve bot-authored threads (when the finding no longer fires)
+
+Runs **after** Step 3 succeeds. Never before — a half-resolved thread set with no surfaced review is confusing. If Step 3 errors, skip Step 4 entirely.
+
+For each unresolved review thread on the PR, compute the predicate:
+
+```
+authored_by_bot AND NOT isResolved AND NOT current_run_re_emitted_fingerprint
+```
+
+- `authored_by_bot` = the thread's *first* comment's `author.login` equals the configured `bot_identity_login` (default `claude[bot]`), OR the first comment's body starts with `**[<persona-id>-<finding-id>]**` (the bot's content marker — useful when login varies across auth modes).
+- `NOT isResolved` is read from the GraphQL `reviewThreads` query already fetched in the orchestrator's Fetch phase.
+- `NOT current_run_re_emitted_fingerprint` = no finding in this run's merged list shares the same `(path, line ± 5, finding-id)` fingerprint as the bot's original comment.
+
+For each thread that passes the predicate:
+
+```bash
+# Reply with a one-line resolution marker (gives humans an audit trail and a re-open target)
+gh api -X POST "repos/<owner>/<repo>/pulls/<n>/comments/<original_comment_id>/replies" \
+  -f body="✅ Resolved by ship-reviewed-prs — finding no longer fires at this anchor (run ${HEAD_SHA:0:7})."
+
+# Resolve via GraphQL
+gh api graphql -F threadId="<thread_node_id>" -f query='
+  mutation($threadId: ID!) {
+    resolveReviewThread(input: { threadId: $threadId }) {
+      thread { id isResolved }
+    }
+  }'
+```
+
+The resolution reply body MUST start with the literal token `✅ Resolved by ship-reviewed-prs` so the skill can detect its own prior resolutions on later runs (see BOT_RESOLVED_REOPENED handling below).
+
+**BOT_RESOLVED_REOPENED detection.** A bot-authored thread that is currently `isResolved: false` BUT whose comment history contains a `✅ Resolved by ship-reviewed-prs` reply from the bot is a thread the bot resolved on a prior run and a human un-resolved since. Do **not** re-resolve. Re-classify as OPEN with the note "maintainer reopened prior bot resolution — re-emitting finding is expected." If the same fingerprint still fires this run, emit the finding normally; the un-resolve is the human's signal that they didn't agree the concern was addressed.
+
+**Permissions.** `pull-requests: write` (already required for posting reviews) is sufficient for both `resolveReviewThread` and the reply comment. No new token scope.
+
+**Counter.** Track resolved count in the orchestrator and add to:
+
+- Summary body: `Resolved N stale bot-authored threads this run.` — one trailing line below the `Suppressed N findings...` line in the Comment lifecycle section. Render only when `N > 0`.
+- JSON output: `submission.threads_resolved: number` and `submission.threads_resolved_reopened: number`.
+
+**Disabling.** Set `auto_resolve_own_threads: false` in `overrides.md` to skip Step 4 entirely. Useful for the first 1-2 weeks of rollout to build trust, or for repos that prefer manual thread management.
+
+**Error handling.** A failed reply-post or `resolveReviewThread` mutation for any single thread logs a warning to stderr and continues with the rest. Step 4 failures never affect exit code — the review's verdict is already on the record from Step 3. A blanket auth failure (401/403) on the GraphQL mutation aborts Step 4 entirely; subsequent runs will retry.
+
+---
+
+## 6a. Summary Body Rendering Details
+
+Full rendering rules for the summary body whose template lives in `SKILL.md` → `## Review Output Format` → `### Summary body`. SKILL.md carries the rule list in stub form; this section is the load-bearing detail.
+
+### Verdict labels
+
+The markdown surface uses friendly labels; the JSON output and exit codes keep the formal `APPROVE` / `REQUEST_CHANGES` / `COMMENT` keywords.
+
+| Markdown label | Formal decision | When |
+|---|---|---|
+| `LGTM` | APPROVE | No findings of any tier, green CI, no open or possibly-addressed threads |
+| `LGTM (with caveats)` | APPROVE | Suggestion-tier (Nit) findings, pending CI, or non-blocking advisory text present |
+| `Changes requested` | REQUEST_CHANGES | Any unsuppressed *1-*2 finding |
+| `Comment` | COMMENT | CI red, lifecycle degraded, possibly-addressed items, or open *3-*5 findings |
+
+The friendly label feeds the markdown `**Verdict: …**` bold paragraph and the JSON `verdict_label` enum (`LGTM` / `LGTM_WITH_CAVEATS` / `CHANGES_REQUESTED` / `COMMENT`).
+
+### `Personas activated` table
+
+- Always rendered with all six rows in canonical order: SE, SC, IN, DA, FE, TS. Consistent shape across PRs makes reviews visually comparable.
+- `Status` is exactly one of three values — no synonyms, no glyph variants:
+  - `✅ active` — persona ran and produced ≥1 finding (any tier, incl. suggestions).
+  - `✅ pass` — persona ran and produced 0 findings.
+  - `⏭ skip` — persona did not run (conditional trigger missed, or disabled by override).
+- `Reason` is a short lowercase noun phrase, no trailing period. Examples: `core code change`, `no schema/migration touched`, `IN-light only — no infra files`, `committed runtime lock file (SC3)`.
+- For IN, the Reason names whether `light` or `deep` mode ran (deep escalates to a subagent).
+- **There is no `A11y` persona.** A11y concerns belong to `FE`. Reviewer models that emit an `A11y` row have regressed; correct it to `FE`.
+
+### `Findings` table + per-tier anchor sub-lists
+
+The Findings surface has two parts: a compact two-column counts table that's always rendered, and per-tier `**<Tier> anchors:**` bullet sub-lists that follow the table only for tiers with a non-zero count.
+
+**Table.** Always rendered with three rows Must-fix / Should-fix / Nits and exactly two columns: `Severity`, `Count`. Severity mapping is fixed and machine-checkable:
+
+- `Must-fix` = priority 1-2 (Critical)
+- `Should-fix` = priority 3-5 (Important)
+- `Nits` = priority 6-7 (Suggestion)
+
+GitHub's markdown renderer squeezes narrow tables to fit the widest column, which means a third "Inline anchors" column wraps the Severity/Count headers awkwardly. Keeping the table at two columns lets it render compactly; anchors live in normal bullet lists below where line wraps don't fight the table.
+
+**Per-tier anchor sub-lists.** For each tier with `Count > 0`, render a `**<Tier> anchors:**` line followed by one bullet per finding in that tier. Bullet format:
+
+- Inline-anchored finding: `` - `<persona-id>` <path>:<line> — see inline comment `` (e.g., `` - `SC1` api/users.ts:42 — see inline comment ``).
+- Anchorless finding (architectural / cross-cutting, no `file:line` target): `` - `<finding-id>` <one-line body summary>. (no inline anchor)`` (e.g., `` - `SE4-MODULE-SHAPE` BillingClient + BillingCache + BillingMetrics should split. (no inline anchor)``).
+
+The anchorless body lives inline in the sub-list — there is no separate `### Findings without inline anchor` section. Keep the body to one line; if it needs more, post it as an inline comment on the most relevant file even if the line target is approximate.
+
+**Overflow rule.** If a tier exceeds ~10 inline-anchored findings, list the top 10 by priority and append a single bullet `- … +N more (see --json)`. The Findings-table `Count` always reflects the full count; only the sub-list truncates. Never suppress *1 findings due to the cap.
+
+**Empty tiers.** When a tier has `Count = 0`, do not render its `**<Tier> anchors:**` heading at all. The zero in the table is sufficient.
+
+### Conditional sections
+
+| Section | Rendered when |
+|---|---|
+| `**<Tier> anchors:**` sub-list under the Findings table | The corresponding tier's `Count > 0` |
+| `### Delegations` | ≥ 1 delegation emitted |
+| `### Stale comments needing reply` | ≥ 1 STALE thread |
+| `### Open threads (still need author response)` | ≥ 1 OPEN thread that matches a candidate finding (suppressed into the open thread) |
+| `### Awaiting CI` | CI state is pending and the verdict is `LGTM (with caveats)` |
+
+Never render these with `(none)` placeholders. Omit them entirely when their predicate is false.
+
+### Always-rendered sections
+
+In order, every review carries: Verdict line, Confidence, Personas activated table, Findings table, Comment lifecycle table, What's solid. Even when counts are zero across the board, these surfaces stay present so reviewers can scan multiple reviews side-by-side.
+
+---
+
+## 6b. Monthly Eval
+
+Each month, pick 3-5 PRs from the prior month that received human review or an external bot (Copilot, Codacy, etc.) review. Re-run `ship-reviewed-prs` against those PRs locally — it's just `gh` calls + the skill, takes 2-3 minutes per PR. Track in a CSV:
+
+| pr_url | skill_findings | external_findings | overlap | skill_missed | skill_extra |
+|--------|---------------|--------------------|---------|--------------|-------------|
+
+After 3 months the trend tells you whether new finding IDs are needed. The FE persona itself was added because this kind of eval caught a 10-finding gap on a single design-system PR. If a category (e.g., FE, IN-deep) is consistently catching fewer findings than the external review, that category's rubric likely has gaps; extend `lang-*.md` or `reference-personas.md` accordingly.
+
+Do not build a full automated corpus eval. The 3-5-PR manual cadence is enough signal for a six-month horizon and avoids the trap of optimizing for a fixed test set (Goodhart's law).
+
+---
+
+## 7. Repository Discovery
+
+The skill needs `<owner>` and `<repo>` for GraphQL and REST calls. Derive in order:
+
+1. PR URL provided: parse `https://github.com/<owner>/<repo>/pull/<n>`.
+2. PR number only + run from inside a git checkout: `gh repo view --json owner,name`.
+3. PR number only + not in a checkout: error, exit `3` with hint to provide a full URL.
+
+For GitHub Enterprise: respect `GH_HOST` env var. `gh` CLI handles routing automatically.
+
+---
+
+## 8. JSON Output Schema (`--json`)
+
+```json
+{
+  "pr": {
+    "owner": "ship-it-ops",
+    "repo": "booster",
+    "number": 47,
+    "title": "Add login retry",
+    "url": "https://github.com/ship-it-ops/booster/pull/47",
+    "head_sha": "abc123...",
+    "is_draft": false
+  },
+  "decision": "REQUEST_CHANGES",
+  "decision_reason": "1 SC1-AUTH-MISSING, 1 DA1-SCHEMA-BREAK",
+  "ci_state": "green",
+  "exit_code": 1,
+  "findings": [
+    {
+      "id": "SC1-AUTH-MISSING",
+      "persona": "SC",
+      "priority": 1,
+      "severity": "critical",
+      "path": "api/users.ts",
+      "line": 42,
+      "body": "New POST /admin/users has no auth middleware.",
+      "suggestion": "Add requireAdmin middleware; see api/admin/*.ts."
+    }
+  ],
+  "delegations": [
+    {
+      "skill": "ship-tested-code",
+      "path": "services/billing.test.ts",
+      "reason": "TS1: production file changed with no corresponding test."
+    }
+  ],
+  "lifecycle": {
+    "resolved": 3,
+    "outdated": 1,
+    "wont_fix": 2,
+    "addressed": 1,
+    "stale": 0,
+    "open": 1,
+    "suppressed_findings": 4
+  },
+  "whats_good": [
+    "Migration includes backfill + rollback plan.",
+    "BillingClient is constructor-injected."
+  ],
+  "submission": {
+    "submitted": true,
+    "submitted_event": "REQUEST_CHANGES",
+    "review_url": "https://github.com/ship-it-ops/booster/pull/47#pullrequestreview-1234567",
+    "inline_comments_posted": 3,
+    "suggestion_blocks_used": 1,
+    "inline_comments_failed": 0
+  }
+}
+```
+
+See `examples/ci-output-json.md` for a fully worked sample with all fields populated.
+
+---
+
+## 9. Pragmatism in Practice
+
+### Generated and vendored code
+Skipped by every persona. Reported as a count: "skipped 12 generated, 3 vendor files."
+
+### Docs-only PRs
+SC still runs (links to internal infra, leaked URLs, env-var names that reveal architecture). SE/IN/DA/TS skip. Decision: APPROVE or COMMENT only — never REQUEST_CHANGES for docs-only.
+
+### WIP / Draft PRs
+- `isDraft: true` → COMMENT only.
+- Title contains `WIP`, `DRAFT`, `[WIP]`, `[DRAFT]` → COMMENT only.
+- Label `wip`, `do-not-merge`, `draft` → COMMENT only.
+
+### Trivial PRs (≤ 5 changed lines, no new files)
+- Skip subagent escalation regardless of triggers.
+- If no findings: APPROVE on green CI.
+
+### Long-lived PRs (≥ 50 comments OR ≥ 30 commits)
+- Lead the output with the lifecycle summary line (move it above the Confidence section).
+- Suppression should match `path` only (drop the line component) for older threads — review threads drift as the diff evolves.
+
+### Repos without `gh` CLI
+Exit `3` with a clear message: "gh CLI required. Install: https://cli.github.com/" — no graceful degradation. The skill is fundamentally about GitHub PRs.
+
+### Repos without GraphQL access (rare, mostly self-hosted GHE with strict scopes)
+Fall back to REST-only mode. Lose `isResolved`/`isOutdated` signal. Tag the output with `"lifecycle_quality": "degraded"` in JSON. Local prose mode adds a warning.
+
+---
+
+## 10. Failure Modes and Recovery
+
+| Failure | Behavior |
+|---------|----------|
+| `gh` not installed | Exit `3`, message |
+| `gh auth status` fails (local) or `GH_TOKEN` missing (CI) | Exit `3`, message |
+| PR not found / no access | Exit `3`, message |
+| PR is closed/merged | Exit `2`, COMMENT with "PR is no longer open" |
+| GraphQL rate-limited | Wait + retry once with exponential backoff; on second failure fall back to REST and tag `lifecycle_quality: degraded` |
+| Diff too large (>500K) | Process in chunks. Personas read 50K-line windows sequentially. Note in Confidence section. |
+| Subagent timeout | Fall back to in-context pass for that persona. Note in Confidence section. |
+| Pending review cleanup fails | Log to stderr. Do NOT exit `0`. Exit `3` with the orphaned review ID for manual cleanup. |
+
+---
+
+## Quick-Reference Checklist
+
+| Step | Action |
+|------|--------|
+| 1 | Fetch PR metadata, diff, threads, CI status |
+| 2 | Triage files into buckets |
+| 3 | Run SE → SC → IN-light → TS passes in-context |
+| 4 | If DA/IN-deep activate, spawn subagent(s) |
+| 5 | Merge findings (dedup, priority sort, 10-cap) |
+| 6 | Classify threads (RESOLVED / OUTDATED / WONT_FIX / ADDRESSED / STALE / OPEN) |
+| 7 | Suppress findings matching RESOLVED/OUTDATED/WONT_FIX fingerprints |
+| 8 | Compute decision from matrix |
+| 9 | Render output (or JSON) |
+| 10 | Local: prompt for confirmation. CI: submit immediately. |
+| 11 | Exit with appropriate code |
+
+---
+
+## Sources
+
+- **OWASP Top 10** (2021 + ongoing) — Security findings (SC) reference OWASP categories.
+- **OWASP API Security Top 10** (2023) — API-specific auth/authz failures.
+- **Site Reliability Engineering** — Beyer, Jones, Petoff, Murphy (2016). Source for IN persona principles around observability, error budgets, and graceful degradation.
+- **Database Reliability Engineering** — Laine Campbell, Charity Majors (2017). Source for DA persona principles around migration safety, schema evolution, and operational data integrity.
+- **Building Secure and Reliable Systems** — Adkins, Beyer, Blankinship, Lewandowski, Oprea, Stubblefield (Google, 2020). Source for the security-and-reliability integration philosophy.
+- **GitHub Pull Request Review API documentation** — Submission protocol details, the pending-review state model.
+- **The Linux kernel review process / well-run open-source projects** — Comment lifecycle conventions, won't-fix marker culture.
+- **Industry consensus on bot-author review etiquette** — Bot disclosure, asymmetric automation rules, decision-matrix-driven verdicts (e.g., Reviewable, Reviewdog, Danger.js conventions).
+
+The skill's specific design choices — five-persona model, two-letter prefix system, fingerprinted suppression algorithm, asymmetric `--auto-approve` semantics — are original to this repo and chosen for review legibility and operational safety.
