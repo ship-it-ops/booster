@@ -1,0 +1,9 @@
+{
+  "name": "ship-execute",
+  "description": "Execute a written implementation plan with a fleet of expert subagents. Runs the plan's task DAG (parallel where independent, worktree-isolated), validates every step with real evidence (build + tests + acceptance criteria), vets the whole result via ship-reviewed-prs, then hands off for review or PR. Delegates coding depth to the ship-code skills.",
+  "version": "1.0.0",
+  "author": {
+    "name": "ship-it-ops"
+  },
+  "license": "MIT"
+}

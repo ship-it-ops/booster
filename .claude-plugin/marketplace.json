@@ -31,6 +31,30 @@
       "license": "MIT",
       "keywords": ["agent-context", "repo-memory", "handoff", "decisions", "plans", "instructions", "scars", "open-questions", "ai-agent"],
       "category": "knowledge-management"
+    },
+    {
+      "name": "ship-better-plans",
+      "source": "./plugins/ship-better-plans",
+      "description": "Produce bulletproof, fully-specified, audited implementation plans. Structured intake, automatic docs/agent + codebase discovery, scored tradeoffs, numbered specs with edge cases, a parallelizable task DAG with subagent delegation, and a multi-persona Workflow audit (adversarial/pragmatist/production) before the plan is written to docs/agent/plans/.",
+      "version": "1.0.0",
+      "author": {
+        "name": "ship-it-ops"
+      },
+      "license": "MIT",
+      "keywords": ["planning", "implementation-plan", "audit", "workflow", "task-dag", "tradeoffs", "spec", "ai-agent"],
+      "category": "knowledge-management"
+    },
+    {
+      "name": "ship-execute",
+      "source": "./plugins/ship-execute",
+      "description": "Execute a written implementation plan with a fleet of expert subagents. Runs the plan's task DAG (parallel where independent, worktree-isolated), validates every step with real evidence (build + tests + acceptance criteria), vets the whole result via ship-reviewed-prs, then hands off for review or PR. Delegates coding depth to the ship-code skills.",
+      "version": "1.0.0",
+      "author": {
+        "name": "ship-it-ops"
+      },
+      "license": "MIT",
+      "keywords": ["execution", "implementation", "task-dag", "subagents", "worktree", "verification", "code-review", "ai-agent"],
+      "category": "knowledge-management"
     }
   ]
 }
