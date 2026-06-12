@@ -17,4 +17,8 @@ tags: [marketplace, migration, plugins]
 
 ## Why
 
-User decision 2026-06-11: consolidate the two marketplaces into booster. Plan at `~/.claude/plans/greedy-sniffing-clock.md`; decision note to follow at `../decisions/merge-ship-code-into-booster.md`.
+User decision 2026-06-11: consolidate the two marketplaces into booster. Decision note: `../decisions/merge-ship-code-into-booster.md`.
+
+## Current state
+
+Implementation complete; PR open: https://github.com/ship-it-ops/booster/pull/6 (commit ba9ce90). All local validation green. Remaining after merge: add `CLAUDE_CODE_OAUTH_TOKEN` repo secret, then decide ship-code repo deprecation. When the PR merges, complete this entry and move it to archive/.
