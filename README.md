@@ -42,6 +42,25 @@ npx skills add ship-it-ops/booster --skill ship-agent-context
 
 The two are independent. Use the in-repo one for handoff context that should travel with branches, and the obsidian one for cross-repo pattern reuse.
 
+## Code-Quality Skills
+
+Production-quality review and engineering-practice skills, migrated here from the former `ship-it-ops/ship-code` marketplace. They compose: `ship-reviewed-prs` delegates depth to the others (security → `ship-secure-code`, infra → `ship-devops`, code quality → `ship-clean-code`, tests → `ship-tested-code`).
+
+| Skill | What it covers |
+|-------|----------------|
+| **ship-clean-code** | Clean code principles for Python/TypeScript/Java — naming, functions, classes, error handling, 66 cataloged code smells |
+| **ship-tested-code** | Test design, TDD, mocking, integration testing, flaky-test management, 49 cataloged test smells |
+| **ship-debugged-code** | Systematic debugging — reproduction, hypothesis-driven investigation, bisection, root-cause analysis, postmortems |
+| **ship-secure-code** | Application security (SEC1–SEC12) — auth, injection, XSS, crypto, secrets, supply chain, SSRF, and more |
+| **ship-reviewed-prs** | Multi-persona PR review with lifecycle-aware suppression and decisive APPROVE/REQUEST_CHANGES/COMMENT submission; works locally and fully automated in CI |
+| **ship-devops** | DevOps/CI-CD review (DEV1–DEV12) for Terraform, Kubernetes, Docker, and GitHub Actions |
+
+```bash
+/plugin install ship-clean-code@booster
+/plugin install ship-reviewed-prs@booster   # includes the /ship-reviewed-prs:review-pr command
+# ...same pattern for ship-tested-code, ship-debugged-code, ship-secure-code, ship-devops
+```
+
 ## Installation
 
 ### Option 1: Add as a marketplace (recommended — get all current and future skills + bundled hooks)

@@ -4,8 +4,8 @@
     "name": "ship-it-ops"
   },
   "metadata": {
-    "description": "Boost your AI agents with powerful tools. Skills, agents, and workflows for supercharging AI-assisted development.",
-    "version": "1.0.0"
+    "description": "Boost your AI agents with powerful tools. Skills, agents, and workflows for supercharging AI-assisted development — plus production-quality code-quality skills for clean code, testing, debugging, security, DevOps, and PR review.",
+    "version": "1.1.0"
   },
   "plugins": [
     {
@@ -55,6 +55,78 @@
       "license": "MIT",
       "keywords": ["execution", "implementation", "task-dag", "subagents", "worktree", "verification", "code-review", "ai-agent"],
       "category": "knowledge-management"
+    },
+    {
+      "name": "ship-clean-code",
+      "source": "./plugins/ship-clean-code",
+      "description": "Apply clean code principles when writing or reviewing production-quality Python, TypeScript/JavaScript, or Java code. Covers naming, functions, classes, error handling, testing, formatting, and 66 cataloged code smells.",
+      "version": "1.1.0",
+      "author": {
+        "name": "ship-it-ops"
+      },
+      "license": "MIT",
+      "keywords": ["clean-code", "code-review", "refactoring", "python", "typescript", "java", "code-quality"],
+      "category": "code-quality"
+    },
+    {
+      "name": "ship-tested-code",
+      "source": "./plugins/ship-tested-code",
+      "description": "Apply testing best practices when writing or reviewing tests for Python, TypeScript/JavaScript, or Java code. Covers test design, TDD, test strategy, mocking, integration testing, flaky test management, and 49 cataloged test smells.",
+      "version": "1.1.0",
+      "author": {
+        "name": "ship-it-ops"
+      },
+      "license": "MIT",
+      "keywords": ["testing", "tdd", "test-review", "test-strategy", "python", "typescript", "java", "code-quality"],
+      "category": "code-quality"
+    },
+    {
+      "name": "ship-debugged-code",
+      "source": "./plugins/ship-debugged-code",
+      "description": "Apply systematic debugging practices when investigating, isolating, or fixing bugs in Python, TypeScript/JavaScript, or Java code. Covers reproduction, hypothesis-driven investigation, bisection, root-cause analysis, observability, regression-test design, and postmortems.",
+      "version": "1.0.0",
+      "author": {
+        "name": "ship-it-ops"
+      },
+      "license": "MIT",
+      "keywords": ["debugging", "incident-response", "root-cause-analysis", "postmortem", "python", "typescript", "java", "code-quality"],
+      "category": "code-quality"
+    },
+    {
+      "name": "ship-reviewed-prs",
+      "source": "./plugins/ship-reviewed-prs",
+      "description": "Multi-persona pull-request review (senior engineer, senior security, senior infra/SRE/DevOps, senior data engineer, senior frontend engineer, test-coverage signal) with comment-lifecycle suppression and decisive APPROVE/REQUEST_CHANGES/COMMENT submission. Runs locally with confirmation gating and in CI fully automated. Composes with the other ship-* skills via delegation: SC → ship-secure-code, IN → ship-devops, SE → ship-clean-code, TS → ship-tested-code.",
+      "version": "1.3.1",
+      "author": {
+        "name": "ship-it-ops"
+      },
+      "license": "MIT",
+      "keywords": ["pr-review", "code-review", "github", "security-review", "approval-workflow", "ci", "multi-persona", "code-quality"],
+      "category": "code-quality"
+    },
+    {
+      "name": "ship-secure-code",
+      "source": "./plugins/ship-secure-code",
+      "description": "Application-security review (SEC1-SEC12: auth, input validation, injection, XSS, CSRF/origin, crypto, secrets, supply chain, PII/logging, resource exhaustion, path traversal, deserialization/SSRF) for Python, TypeScript/JavaScript, and Java. Sibling to ship-clean-code; serves as the depth target when ship-reviewed-prs SC persona delegates.",
+      "version": "1.0.0",
+      "author": {
+        "name": "ship-it-ops"
+      },
+      "license": "MIT",
+      "keywords": ["security", "appsec", "owasp", "code-review", "vulnerability", "injection", "xss", "ssrf", "python", "typescript", "java", "code-quality"],
+      "category": "code-quality"
+    },
+    {
+      "name": "ship-devops",
+      "source": "./plugins/ship-devops",
+      "description": "DevOps and CI/CD review (DEV1-DEV12: CI pipelines, deployment safety, IaC immutability, container images, secrets/config sourcing, observability, release management, schema migrations, health/readiness, SLO/performance, incident hygiene, and flow/batch signals). Sibling to ship-secure-code; serves as the depth target when the ship-reviewed-prs IN (Senior Infra / SRE / DevOps) persona delegates.",
+      "version": "0.2.0",
+      "author": {
+        "name": "ship-it-ops"
+      },
+      "license": "MIT",
+      "keywords": ["devops", "ci-cd", "code-review", "kubernetes", "terraform", "docker", "github-actions", "observability", "sre", "deployment", "code-quality"],
+      "category": "code-quality"
     }
   ]
 }

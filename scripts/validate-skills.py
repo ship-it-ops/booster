@@ -40,9 +40,13 @@ Checks performed:
     - For each skill, `plugins/<skill-name>/.claude-plugin/plugin.json` exists
       and parses
     - plugin.json has `name`, `description`, valid semver `version`
+    - plugin.json `name` matches the plugin directory basename
     - plugin.json has NO `skills` field (Claude Code's installer rejects it)
     - `plugins/<skill-name>/skills/<skill-name>/SKILL.md` exists for
       auto-discovery (typically a symlink to ../../../../skills/<name>/SKILL.md)
+    - Every file/dir in `skills/<name>/` has a matching entry under
+      `plugins/<name>/skills/<name>/` (catches new skill files shipped without
+      a plugin symlink), and orphan/stale symlinks are errors
     - If `plugins/<skill-name>/hooks/` exists, `hooks.json` parses and conforms
       to the Claude Code hook schema (event name, matcher, hooks[].type/command)
 
@@ -55,6 +59,14 @@ Checks performed:
       marketplace entry whose source points at it
     - Required marketplace fields: `name`, `source`, `description`, `version`,
       `category`
+
+  CONTENT HYGIENE
+    - No bare ${SKILL_DIR} references in any skills/**/*.md (use
+      ${CLAUDE_SKILL_DIR} or relative paths)
+
+  FIXTURE PARITY
+    - If skills/<name>/tests/fixture-N/ exists, it contains both input.* and
+      expected-output.md
 
 Exit codes:
   0 — all checks pass
@@ -390,6 +402,13 @@ def validate_plugin_layout(errors: Errors, skill_name: str) -> dict | None:
             "Plugin missing name",
             f"plugins/{skill_name}/.claude-plugin/plugin.json: `name` is required",
         )
+    elif manifest["name"] != skill_name:
+        errors.add(
+            "Plugin name mismatch",
+            f"plugins/{skill_name}/.claude-plugin/plugin.json: name "
+            f"{manifest['name']!r} != directory name {skill_name!r} "
+            f"(see docs/agent/decisions/plugin-name-matches-source-dir.md)",
+        )
 
     if "description" not in manifest:
         errors.add(
@@ -430,6 +449,30 @@ def validate_plugin_layout(errors: Errors, skill_name: str) -> dict | None:
             f"plugins/{skill_name}/skills/{skill_name}/SKILL.md -> "
             f"../../../../skills/{skill_name}/SKILL.md",
         )
+
+    # Every file/dir in the source skill directory must have a matching entry
+    # under the plugin wrapper. Otherwise plugin-installed users get a partial
+    # copy that's missing things SKILL.md references (overrides.example.md,
+    # tests/, etc.). This regression slipped past ship-code's CI once; the
+    # check came over with the marketplace merge.
+    src_skill_dir = SKILLS_DIR / skill_name
+    if src_skill_dir.is_dir() and plugin_skill_dir.is_dir():
+        src_entries = {p.name for p in src_skill_dir.iterdir()}
+        plugin_entries = {p.name for p in plugin_skill_dir.iterdir()}
+        for missing in sorted(src_entries - plugin_entries):
+            errors.add(
+                "Plugin missing file",
+                f"plugins/{skill_name}/skills/{skill_name}/{missing} does not exist "
+                f"but skills/{skill_name}/{missing} does. Add a symlink: "
+                f"`ln -s ../../../../skills/{skill_name}/{missing} "
+                f"plugins/{skill_name}/skills/{skill_name}/{missing}`",
+            )
+        for extra in sorted(plugin_entries - src_entries):
+            errors.add(
+                "Plugin has orphan file",
+                f"plugins/{skill_name}/skills/{skill_name}/{extra} exists but "
+                f"skills/{skill_name}/{extra} does not — stale symlink?",
+            )
 
     # Optional: validate bundled hooks.json if present
     hooks_path = plugin_dir / "hooks" / "hooks.json"
@@ -671,6 +714,53 @@ def validate_root_plugin_json(errors: Errors, skill_dirs: list[Path]) -> None:
         )
 
 
+def validate_no_skill_dir_leakage(errors: Errors) -> None:
+    """The bare ${SKILL_DIR} variable is not the documented form. Use ${CLAUDE_SKILL_DIR} or relative paths."""
+    if not SKILLS_DIR.is_dir():
+        return
+    bad_pattern = re.compile(r"\$\{SKILL_DIR\}")
+    for md in SKILLS_DIR.rglob("*.md"):
+        try:
+            text = md.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        for match in bad_pattern.finditer(text):
+            line_no = text[: match.start()].count("\n") + 1
+            errors.add(
+                "${SKILL_DIR} leakage",
+                f"{md.relative_to(REPO_ROOT)}:{line_no}: use ${{CLAUDE_SKILL_DIR}} or a "
+                f"relative path; bare ${{SKILL_DIR}} is not the documented variable",
+            )
+
+
+def validate_fixture_parity(errors: Errors, skill_dirs: list[Path]) -> None:
+    for skill_dir in skill_dirs:
+        tests_dir = skill_dir / "tests"
+        if not tests_dir.is_dir():
+            continue
+        for fixture in sorted(tests_dir.iterdir()):
+            if not fixture.is_dir():
+                continue
+            if not fixture.name.startswith("fixture-"):
+                continue
+            input_files = [
+                p
+                for p in fixture.iterdir()
+                if p.is_file() and (p.stem == "input" or p.name.startswith("input."))
+            ]
+            expected = fixture / "expected-output.md"
+            if not input_files:
+                errors.add(
+                    "Fixture missing input",
+                    f"{fixture.relative_to(REPO_ROOT)}: no `input.*` file found",
+                )
+            if not expected.exists():
+                errors.add(
+                    "Fixture missing expected-output",
+                    f"{fixture.relative_to(REPO_ROOT)}: no `expected-output.md` file found",
+                )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate booster skills")
     parser.add_argument(
@@ -699,6 +789,8 @@ def main() -> int:
 
     validate_marketplace(errors, skill_dirs)
     validate_root_plugin_json(errors, skill_dirs)
+    validate_no_skill_dir_leakage(errors)
+    validate_fixture_parity(errors, skill_dirs)
 
     errors.report()
     return 1 if errors.any() else 0
