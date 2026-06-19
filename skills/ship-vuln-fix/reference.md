@@ -16,7 +16,9 @@ discipline. `SKILL.md` is the lean dispatcher; read this before the first run. P
    confidence floor (don't deprioritize a Tier-1 on a low-confidence "unreachable").
 3. **Tier each finding** apply-safe vs advise-risky against the six-clause gate (SKILL.md § apply gate).
 4. **Confirm.** Present the apply set + the advise set to the user and get a go before editing.
-5. **Apply-safe set:** run the per-fix atomic protocol (below), one finding at a time.
+5. **Apply-safe set:** run the per-fix atomic protocol (below), one finding at a time — **recipe-first**
+   (prefer a trusted recipe/tool from [`ecosystem-recipes.md`](ecosystem-recipes.md), fall back to the
+   manual minimal edit), then the unchanged verify gate.
 6. **Advise-risky set:** produce exact diffs + verification steps; for no-fix, a mitigation or a VEX
    with expiry (VF7).
 7. **Report:** what was applied (with audit records), what was advised, what was skipped and why, and
@@ -73,7 +75,7 @@ One finding at a time:
 
 ```
 snapshot = HEAD                       # clean tree guaranteed by clause 1
-apply minimal edit (Edit: lockfile/manifest only)
+produce fix: trusted recipe/tool if available (ecosystem-recipes.md) else minimal edit (Edit: lockfile/manifest)
 install --ignore-scripts
 verify (VF5)
   green → git commit  (single fix)  +  append audit record
@@ -102,7 +104,8 @@ supplied by the caller — the skill does not invent them):
   "advisory_ids": ["GHSA-35jh-r3h4-6jhm"],
   "scanner": { "engine": "osv-scanner", "version": "1.9.2", "db_snapshot_id": "osv-2026-06-18" },
   "change": { "ecosystem": "npm", "package": "lodash", "from": "4.17.11", "to": "4.17.21",
-              "mechanism": "direct-bump | override" },
+              "mechanism": "direct-bump | override | recipe" },
+  "fix_source": "manual | npm-audit-fix | pip-audit-fix | openrewrite@<recipe-id> | snyk-fix",
   "evidence": {
     "changelog_reviewed": true,
     "breaking_change": false,

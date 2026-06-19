@@ -50,8 +50,8 @@ Internalize these three before the rest:
    no NEW vuln appeared in the changed subtree, and the build + full tests are green under a clean
    frozen install.
 
-The detailed references (`reference.md`, `reference-categories.md`, the resolution files) assume the
-`ship-vuln-scan` `contract.md` and familiarity with lockfile resolution.
+The detailed references (`reference.md`, `reference-categories.md`, `ecosystem-recipes.md`, the
+resolution files) assume the `ship-vuln-scan` `contract.md` and familiarity with lockfile resolution.
 
 ## Mode Detection
 
@@ -70,8 +70,9 @@ gate) only when ALL of these hold:**
 
 1. **Clean tree.** The working tree is clean before any edit. A dirty tree → refuse (rollback would be
    undefined). This is a hard precondition, not a warning.
-2. **Mechanical fix exists.** The fix is a dependency version change or a transitive
-   override/resolution/constraint — not a code edit.
+2. **A safe fix source exists.** Either a mechanical edit (dependency version change or transitive
+   override/resolution/constraint) OR a **proven recipe** from a trusted catalog (see § Recipe-first).
+   Not an ad-hoc code edit.
 3. **Changelog reviewed, no breaking/behavioral change.** The release notes between installed and fixed
    version are read and show no breaking API or behavioral change. Absent/unreadable changelog → advise.
 4. **No new install scripts.** The fixed package version introduces no new `postinstall`/`setup.py`/
@@ -83,7 +84,9 @@ gate) only when ALL of these hold:**
    frozen install + full tests green (see VF5).
 
 **Everything else is ADVISE-ONLY** — an exact diff + verification steps, no edit:
-- major/breaking upgrades (changelog shows API change, or only a major release fixes it),
+- major/breaking upgrades (changelog shows API change, or only a major release fixes it) — **unless** a
+  trusted recipe performs the migration AND clause 6 passes AND recipe-assisted-breaking is opted in
+  (see § Recipe-first; default is still advise),
 - code-level mitigations (config change, feature-disable, network control),
 - no-fix-available (→ mitigation or VEX with expiry),
 - any finding on a `degraded`/`not-scanned` surface,
@@ -92,41 +95,96 @@ gate) only when ALL of these hold:**
 The gate is **evidence-based, not semver-based** (rule 1). A "patch" bump that fails any clause is
 advised, not applied.
 
+## Recipe-first remediation (hybrid)
+
+Before hand-rolling an edit, **prefer a proven remediation recipe/tool when one exists for this
+CVE + ecosystem** — then fall back to the manual minimal-edit when none does. This mirrors how
+`ship-vuln-scan` prefers a real scanner and falls back to manual lockfile analysis: the recipe is a
+*stronger source of evidence and a better fix generator* than a hand-read changelog, because a good
+recipe is **tested, deterministic, and AST-aware** (it can carry the API migration a raw version bump
+cannot). See `ecosystem-recipes.md` for the catalog and per-tool detail.
+
+```
+for each finding (apply-eligible):
+    recipe = lookup a recipe/tool for (cve, ecosystem)             # ecosystem-recipes.md
+    if recipe and recipe coordinate is on the PINNED allowlist (group:artifact:version + checksum):
+        run recipe with NO network + NO credential env (recipe code is third-party — see rule 2)
+        provenance.fix_source = recipe@pinned-coordinate
+    else:
+        manual minimal edit (VF1) or transitive override (VF2)    # native fixers: NON-force only
+        provenance.fix_source = manual | <native-fixer>
+    --- THE EVIDENCE GATE IS UNCHANGED ---
+    verify (VF5): frozen install + full tests + re-scan closure + no-new-vuln
+```
+
+**Hard rules so recipes never become a bypass (each closes a real attack):**
+1. **A recipe does not skip verification.** It changes *how the fix is generated*, never *whether it is
+   proven*. Clause 6 (tests + re-scan closure) runs the same; a recipe that breaks tests is reverted.
+2. **The recipe *process* is untrusted code — treat it like an install script.** `mvn rewrite:run` /
+   `mod` download and execute third-party recipe code on your tree with full privileges, BEFORE the
+   sandboxed install. So: run recipes **offline (no network) with no credential env**, and **only from a
+   pinned allowlist** (`group:artifact:version` + checksum/signature — a self-declared "catalog id" is
+   not trust). A recipe that cannot run sandboxed/offline, or whose coordinate is not pinned-and-verified
+   → **advise**, exactly like clause 4's install-script trigger.
+3. **No `--force`.** Native fixers run non-`--force` only (`--force` does SemVer-major bumps AND runs
+   lifecycle scripts, violating clause 4/6). Any `--force`-class change → advise.
+4. **Recipe-assisted breaking upgrades are opt-in, bounded, and coverage-gated.** A trusted recipe may
+   move a breaking upgrade from always-advise to apply-eligible ONLY when: pinned-and-verified recipe;
+   AST migration is its declared purpose; clause 6 passes; the changed API surface clears a **coverage/
+   reachability floor** (a green *thin* suite is not proof); and the project opted in
+   **per-package/per-recipe** (`recipe_assisted_breaking` is not a global on-switch). Default: **advise**.
+5. **Recipe edits write source files — stage them fully.** Unlike the manual manifest-only path, an AST
+   recipe rewrites import/call sites. Stage the *entire* recipe output before verify so the snapshot
+   revert is total, and disclose that the breaking-upgrade path's write surface is source, not just
+   manifests. Bound each recipe run's scope (max packages/files) and re-scan **after each recipe step**,
+   not just between findings, so the convergence bound (VF6) sees recipe-internal churn.
+
+**Runnable-locally vs configure-for-CI** (detail in `ecosystem-recipes.md`):
+- *Runnable now* (the skill can invoke and verify): OpenRewrite (`mvn`/`gradle rewrite:run` or the
+  Moderne `mod` CLI) — pinned + sandboxed per rule 2; native fixers (`npm audit fix`, `pip-audit --fix`)
+  non-`--force`; `snyk fix`.
+- *Configure-for-CI* (the skill recommends, does not run): Renovate / Dependabot — grouped upgrade PRs in
+  CI. Their **compatibility score is non-gating context only** (it reflects *other* repos' CI, not your
+  API usage) — display it, never feed it into the apply decision. The skill emits config, does not run them.
+
 ## Core Principles — Always Apply
 
-These 12 rules apply to ALL remediation:
+These 13 rules apply to ALL remediation:
 
 1. **Consume the contract, don't re-detect.** Start from a `ship-vuln-scan` artifact. Re-detecting ad
    hoc loses provenance, triage, and coverage flags the gate depends on.
-2. **Tier before touch.** Classify apply-safe vs advise-risky for every finding before editing anything.
-3. **Clean tree or refuse.** No edits on a dirty/uncommitted tree — rollback must be well-defined.
-4. **Evidence over semver.** The apply decision keys on changelog + tests + install-script check, never
+2. **Recipe-first, manual-fallback.** Prefer a tested recipe/tool (OpenRewrite/Moderne, native fixers)
+   when one exists for the CVE+ecosystem; fall back to a manual minimal edit. A recipe is a stronger
+   fix source — but it never skips the verify gate (§ Recipe-first).
+3. **Tier before touch.** Classify apply-safe vs advise-risky for every finding before editing anything.
+4. **Clean tree or refuse.** No edits on a dirty/uncommitted tree — rollback must be well-defined.
+5. **Evidence over semver.** The apply decision keys on changelog + tests + install-script check, never
    on patch/minor/major alone.
-5. **Scripts disabled on install.** Run package installs with lifecycle scripts disabled or sandboxed;
+6. **Scripts disabled on install.** Run package installs with lifecycle scripts disabled or sandboxed;
    an install script in the fixed version is an advise trigger, not a mechanical bump.
-6. **Per-fix atomic.** Apply ONE fix, verify it, then commit or revert+reinstall — never batch many
+7. **Per-fix atomic.** Apply ONE fix, verify it, then commit or revert+reinstall — never batch many
    fixes then revert the batch. A failed fix must not strand good ones (VF6).
-7. **Manifest + lockfile stay consistent.** Every apply produces a self-consistent pair that survives a
+8. **Manifest + lockfile stay consistent.** Every apply produces a self-consistent pair that survives a
    clean frozen install (`npm ci` / `pip install --require-hashes` / `--frozen-lockfile` /
    `go mod verify`) — not just an incremental install in the agent's environment.
-8. **Verify by re-scan, not by edit.** Closure means `ship-vuln-scan` (same engine, replayed
+9. **Verify by re-scan, not by edit.** Closure means `ship-vuln-scan` (same engine, replayed
    `db_snapshot_id`) shows the target CVE gone AND no new finding in the changed subtree — plus green
    build/tests. A weaker/absent verify engine cannot prove closure → advise.
-9. **Prioritize by exploitability.** Fix order is KEV → EPSS → CVSS × reachability (VF6). Don't burn the
-   apply budget on a low-EPSS dev-only CVE before a KEV-listed one.
-10. **Convergence is bounded.** If fixes oscillate (a bump re-opens another CVE via a peer-dep
+10. **Prioritize by exploitability.** Fix order is KEV → EPSS → CVSS × reachability (VF6). Don't burn the
+    apply budget on a low-EPSS dev-only CVE before a KEV-listed one.
+11. **Convergence is bounded.** If fixes oscillate (a bump re-opens another CVE via a peer-dep
     conflict) or the re-scan delta stops decreasing, STOP and advise — the tree needs a human/global
     solver. No infinite apply→revert loops (VF6).
-11. **Audit every apply.** Each auto-applied fix emits a structured remediation record (below). No
+12. **Audit every apply.** Each auto-applied fix emits a structured remediation record (below). No
     silent mutations.
-12. **Advise loudly, never fake.** When advising, produce the exact diff and verification steps. Never
+13. **Advise loudly, never fake.** When advising, produce the exact diff and verification steps. Never
     claim a fix was applied that wasn't, and never claim closure that wasn't verified.
 
 ## The 8-Category Catalog
 
 | ID | Label | Covers |
 |----|-------|--------|
-| VF1 | UPGRADE-STRATEGY | Minimal-fix vs latest; risk classified by **evidence** (changelog/tests), not semver delta. |
+| VF1 | UPGRADE-STRATEGY | **Recipe-first** (prefer a trusted recipe/tool — OpenRewrite/Moderne, native fixers — then manual fallback). Minimal-fix vs latest; risk classified by **evidence** (changelog/tests/recipe), not semver delta. See `ecosystem-recipes.md`. |
 | VF2 | TRANSITIVE-RESOLUTION | npm `overrides`, yarn `resolutions`, pnpm `overrides`, pip constraints, maven `dependencyManagement`, go `replace` — keeping manifest+lockfile self-consistent. |
 | VF3 | BREAKING-CHANGE | Changelog/migration analysis; test-gated. Determines apply vs advise for non-trivial bumps. |
 | VF4 | MITIGATION | No-fix-available: config change, feature-disable, network control, backport/patch. Always advise. |
@@ -145,7 +203,8 @@ For each finding, in priority order, within the confirmation-gated apply set:
 ```
 assert working tree clean                          # else refuse the whole run
 snapshot = current commit
-edit manifest/lockfile (minimal fix or override)   # Edit, lockfile/manifest paths only
+fix = run a trusted recipe/tool if one exists       # OpenRewrite / native fixer (ecosystem-recipes.md)
+      else edit manifest/lockfile (minimal fix or override)   # Edit, lockfile/manifest paths only
 install with scripts disabled                       # npm ci --ignore-scripts / pip --no-build-isolation etc.
 verify:                                             # VF5
   - clean frozen install consistent?
@@ -162,8 +221,9 @@ if re-scan delta not monotonically decreasing across fixes: STOP, advise the res
 Every auto-applied fix appends a structured record — **NOT to `docs/agent/`** (that tree is owned by
 `ship-agent-context`), but to a dedicated **`docs/security/vuln-remediation/<date>-<cve>.json`** with
 its own append-only index. Each record carries: CVE/advisory id, matching scanner + version +
-`db_snapshot_id`, old → new version, the changelog evidence consulted, the verify evidence (tests run +
-result, re-scan engine), and the gate approver. This is the symmetric counterpart to VF7's VEX
+`db_snapshot_id`, old → new version, the **fix source** (`recipe@catalog-id` or `manual`), the changelog
+evidence consulted, the verify evidence (tests run + result, re-scan engine), and the gate approver.
+This is the symmetric counterpart to VF7's VEX
 (documenting what was *not* fixed): an immutable trail of what *was* changed and why, for incident
 response and supply-chain attestation.
 
@@ -176,6 +236,9 @@ response and supply-chain attestation.
   So "Edit only lockfiles/manifests" and "installs run scripts-disabled" are **disciplines this skill
   follows**, not a sandbox. It must not edit source files or run arbitrary commands. A future version
   may add path/command scoping once the surface is stable.
+- **Recipe tools run via `Bash`** (OpenRewrite `mvn rewrite:run`, native fixers) under the same
+  discipline — only the recipe runners in `ecosystem-recipes.md`, never arbitrary commands. Renovate /
+  Dependabot are NOT run; the skill emits their config and reads their compatibility score as evidence.
 
 ## Anti-overlap & related skills
 
@@ -191,6 +254,8 @@ response and supply-chain attestation.
 ## Verification (self-check before reporting)
 
 - Every finding was tiered apply-safe vs advise-risky; the gate's six clauses were each checked.
+- A trusted recipe/tool was preferred where one existed; the `fix_source` is recorded; a recipe never
+  skipped the verify gate, and any recipe-assisted breaking upgrade was opt-in + verified.
 - No edit happened on a dirty tree; every applied fix is an atomic commit with a passing verify.
 - Closure was proven by re-scan (same engine + replayed snapshot), not asserted from the edit.
 - No new vuln was introduced in any changed subtree.

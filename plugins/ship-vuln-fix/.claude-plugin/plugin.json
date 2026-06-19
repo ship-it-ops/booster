@@ -1,5 +1,5 @@
 {
   "name": "ship-vuln-fix",
   "description": "Remediate the CVEs that ship-vuln-scan finds. Tiered and evidence-gated: auto-applies only mechanical, reversible fixes (minimal dependency bumps, transitive overrides/resolutions) behind a confirmation gate and verifies them by re-scan + build/tests + a clean frozen install; advises only (exact plan, never edits) for breaking/major upgrades, code-level mitigations, and no-fix cases. The apply decision is driven by evidence (reviewed changelog, no new install scripts, green tests), never the semver delta. Every auto-apply emits a remediation audit record. Sibling ship-vuln-scan detects and verifies.",
-  "version": "0.1.0"
+  "version": "0.2.0"
 }

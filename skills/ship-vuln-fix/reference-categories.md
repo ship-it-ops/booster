@@ -7,8 +7,14 @@ to `reference.md`, the resolution files, and `ship-vuln-scan`'s `contract.md`.
 
 ## VF1 — UPGRADE-STRATEGY
 
-Choose the target version. Prefer the **minimal fix** (lowest non-affected release ≥ installed) over
-"latest" — smaller diff, lower breaking-change risk, easier to verify.
+**Recipe-first:** before hand-rolling the change, prefer a trusted, tested remediation recipe/tool when
+one exists for the CVE + ecosystem (OpenRewrite/Moderne, native fixers, or a Dependabot
+compatibility-scored upgrade) — see [`ecosystem-recipes.md`](ecosystem-recipes.md). Fall back to the
+manual minimal edit when none is available. The recipe is a *stronger source of evidence and a better
+fix generator*; it never skips the verify gate.
+
+Then choose the target version. Prefer the **minimal fix** (lowest non-affected release ≥ installed)
+over "latest" — smaller diff, lower breaking-change risk, easier to verify.
 
 ### Decision
 - Minimal patch/minor with a clean changelog and green tests → **apply** candidate (still subject to

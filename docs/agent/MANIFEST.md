@@ -24,7 +24,7 @@ Last updated: 2026-06-18 | Total notes: 31
 
 ## Decisions
 
-- [ship-vuln-skills-architecture](decisions/ship-vuln-skills-architecture.md) | decision | active | core | 2026-06-18 | Two skills, hybrid exec, evidence-gated apply, per-surface contract (V1-V9)
+- [ship-vuln-skills-architecture](decisions/ship-vuln-skills-architecture.md) | decision | active | core | 2026-06-19 | Two skills, hybrid exec, evidence-gated apply, recipe-first (V1-V10)
 - [agent-context-initialized](decisions/agent-context-initialized.md) | decision | active | core | 2026-05-20 | Adopt docs/agent as in-repo agent memory
 - [plugin-name-matches-source-dir](decisions/plugin-name-matches-source-dir.md) | decision | active | standard | 2026-05-20 | Marketplace plugin name matches source directory basename
 - [add-user-instructions-to-skill](decisions/add-user-instructions-to-skill.md) | decision | active | core | 2026-06-02 | Add instructions/ content type for standing user rules

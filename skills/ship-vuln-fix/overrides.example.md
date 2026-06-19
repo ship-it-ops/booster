@@ -27,6 +27,27 @@ install_scripts: disabled        # disabled (default) | sandboxed
 frozen_install_cmd: npm ci --ignore-scripts
 ```
 
+## Recipe-first (VF1 — see ecosystem-recipes.md)
+```
+# preferred recipe/tool per ecosystem (the skill probes availability and falls back to manual)
+recipes:
+  java:   openrewrite           # mvn rewrite:run / mod CLI (non-force native fixers for npm/pip)
+  npm:    npm-audit-fix         # NON-force only; or: manual
+  python: pip-audit-fix         # or: manual
+# PINNED recipe coordinates the skill will verify (group:artifact:version + checksum) and run sandboxed.
+# A coordinate not on this list is NOT trusted — the skill falls through to a manual edit.
+trusted_recipe_coordinates:
+  - "org.openrewrite.recipe:rewrite-java-dependencies:1.x.y"   # + sha256 in your lockfile/checksum store
+# run recipe tools offline with no credentials (recipe code is third-party — default true; do not relax)
+recipe_sandbox: { network: off, credentials: off }
+# allow a PINNED recipe to auto-apply a BREAKING upgrade. Default off → advise. Scoped PER PACKAGE,
+# not a global switch; only honored when AST-migration + coverage floor + clause 6 all pass.
+recipe_assisted_breaking:
+  enabled_for: []               # e.g. ["org.springframework.boot:spring-boot-starter"]
+  coverage_floor: 0.8           # min coverage over the CHANGED API surface; below → advise
+  max_changed_files: 50         # bound a single recipe run's blast radius; over → advise
+```
+
 ## Convergence bound
 ```
 max_fix_iterations: 10           # stop + advise if the apply loop exceeds this

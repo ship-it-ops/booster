@@ -8,7 +8,7 @@ tags: [skills, security, vulnerability, architecture, allowed-tools]
 importance: core
 ---
 
-# ship-vuln-scan + ship-vuln-fix — Architecture Decisions (V1–V9)
+# ship-vuln-scan + ship-vuln-fix — Architecture Decisions (V1–V10)
 
 ## Context
 booster needed coverage for **known CVEs / supply-chain vulnerabilities** — a gap left by
@@ -55,6 +55,15 @@ load-bearing decisions; the full spec lives in
 - **V9. Remediation audit log lives outside `docs/agent/`** (round-2 family-03) — that tree is owned
   by `ship-agent-context` (fixed taxonomy + MANIFEST + bounded `status/`). The unbounded per-fix log
   goes to a dedicated `docs/security/vuln-remediation/` path with its own index.
+- **V10. Recipe-first remediation (ship-vuln-fix 0.2.0).** Prefer a tested recipe/tool
+  (OpenRewrite/Moderne, non-`--force` native fixers, Dependabot scores as *context only*) over a manual
+  edit, mirroring the scanner-then-fallback hybrid — but the recipe is a *fix source*, never a
+  verification bypass. Hardened after a focused adversarial pass (7 findings): the recipe **process is
+  untrusted code** → pinned+checksum-verified coordinate allowlist, run **offline with no credentials**
+  (executes pre-install); no `--force`; compatibility score is non-gating; recipe-assisted *breaking*
+  upgrades require **per-package opt-in + a coverage floor + scope bound** (a green thin suite is not
+  proof); recipe runs write *source* files (not just manifests) → stage-for-total-revert + re-scan per
+  step. `fix_source` recorded in the audit log.
 
 ## Alternatives Considered
 - **One skill, two modes** — rejected: bloats SKILL.md past the 500-line target, muddies the
