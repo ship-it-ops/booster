@@ -14,11 +14,11 @@ Last updated: 2026-06-18 | Total notes: 31
 ## Status
 <!-- in-flight work and handoffs — always-read at session start -->
 
-- [ship-vuln-skills](status/ship-vuln-skills.md) | status | active | standard | 2026-06-18 | v1 ship-vuln-scan SHIPPED (branch); v2 ship-vuln-fix pending
+- [ship-vuln-skills](status/ship-vuln-skills.md) | status | active | standard | 2026-06-19 | Both ship-vuln-scan + ship-vuln-fix BUILT (branch); pending PR/merge
 
 ## Plans
 
-- [ship-vuln-skills-design](plans/ship-vuln-skills-design.md) | plan | active | core | 2026-06-18 | Twice-audited plan: ship-vuln-scan (v1) + ship-vuln-fix (v2)
+- [ship-vuln-skills-design](plans/ship-vuln-skills-design.md) | plan | completed | core | 2026-06-19 | BUILT: ship-vuln-scan + ship-vuln-fix (branch, APPROVE)
 - [ship-better-plans-design](plans/ship-better-plans-design.md) | plan | completed | core | 2026-06-10 | SHIPPED (commit 47be8cc): audited plan-producing skill + plugin
 - [ship-execute-design](plans/ship-execute-design.md) | plan | completed | core | 2026-06-11 | SHIPPED (commit 0eeeba8): DAG-aware execution engine + plugin
 

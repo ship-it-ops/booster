@@ -1,8 +1,8 @@
 ---
 type: plan
-status: active
+status: completed
 created: 2026-06-18
-updated: 2026-06-18
+updated: 2026-06-19
 author: claude-opus-4-8
 tags: [skills, security, vulnerability, cve, sca, remediation, marketplace]
 importance: core
@@ -200,10 +200,11 @@ VF7's VEX-for-unfixed.
 - `CHANGELOG.md`, `README.md`, `docs/agent/` (decisions, MANIFEST)
 
 ## Status
-Planning complete and **audited twice** (standard: 10 findings; adversarial-only re-pass: 14 findings;
-all folded in). **v1 (`ship-vuln-scan`) EXECUTED and shipped** to branch `feature/ship-vuln-scan`
-(commit 779c638) via ship-execute — 9 tasks, validators green, ship-reviewed-prs APPROVE. **v2
-(`ship-vuln-fix`) remains to be built** per the VF1–VF8 spec above. Net of round-2, the heaviest remaining design work is **VS8/the contract**
+COMPLETED. Planning **audited twice** (standard: 10 findings; adversarial-only: 14 findings; all folded
+in), then **both milestones EXECUTED** via ship-execute on branch `feature/ship-vuln-scan`:
+- v1 `ship-vuln-scan` (commit 779c638) — 9 tasks, validators green, ship-reviewed-prs APPROVE.
+- v2 `ship-vuln-fix` (commit 9ca4ee4) — 5 tasks, validators green, ship-reviewed-prs APPROVE.
+The matched detect→fix pair is built and self-reviewed; pending the user's PR/merge decision. Net of round-2, the heaviest remaining design work is **VS8/the contract**
 (per-surface record types, per-tool version/exit-code/DB handling, alias resolution) and the
 **`validate-skills.py` tokenizing tool-policy rule** — both materially bigger than the first draft implied.
 

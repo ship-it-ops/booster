@@ -1,6 +1,6 @@
 ---
 type: status
-status: active
+status: completed
 created: 2026-06-19
 updated: 2026-06-19
 author: claude-opus-4-8
@@ -22,4 +22,5 @@ User chose to build v2 after v1 shipped (handoff option 4). Sequential mode, con
 `feature/ship-vuln-scan` so it can reference v1's contract.md.
 
 ## Current state
-Pre-flight done. Executing the 5-task v2 DAG sequentially, then ship-reviewed-prs final vetting.
+v2 BUILT. All 5 tasks done; validators green; ship-reviewed-prs final vetting = APPROVE
+(1 nit found + fixed). Both skills now on `feature/ship-vuln-scan`. Archived 2026-06-19.

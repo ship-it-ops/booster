@@ -21,8 +21,9 @@ Plan + decisions: [../plans/ship-vuln-skills-design.md](../plans/ship-vuln-skill
 [../decisions/ship-vuln-skills-architecture.md](../decisions/ship-vuln-skills-architecture.md).
 
 ## Current state
-**v1 (`ship-vuln-scan`) SHIPPED** on branch `feature/ship-vuln-scan` (commit 779c638): all 9 tasks
-built, both validators green, ship-reviewed-prs final vetting = APPROVE (2 Should-fix found + fixed in
-the rework loop). Not yet pushed/PR'd (awaiting user). **v2 (`ship-vuln-fix`) still pending** — the
-remediation half. Plan + decisions remain the source of truth; the heaviest v2 work is the
-evidence-gated apply engine (VF1–VF8) and the `docs/security/vuln-remediation/` audit log.
+**BOTH skills BUILT** on branch `feature/ship-vuln-scan` (not yet pushed/PR'd — awaiting user):
+- v1 `ship-vuln-scan` (commit 779c638) — detection, 9 tasks, APPROVE.
+- v2 `ship-vuln-fix` (commit 9ca4ee4) — remediation, 5 tasks, APPROVE.
+Both passed ship-reviewed-prs final vetting (findings found + fixed in rework each round). Marketplace
+at v1.3.0. The matched detect→fix pair is complete. Remaining: user decides PR/merge. Follow-on ideas
+(out of current scope): ecosystem expansion beyond npm+pip, executable-fixture CI job with scanners.
