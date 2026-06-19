@@ -21,8 +21,8 @@ Plan + decisions: [../plans/ship-vuln-skills-design.md](../plans/ship-vuln-skill
 [../decisions/ship-vuln-skills-architecture.md](../decisions/ship-vuln-skills-architecture.md).
 
 ## Current state
-**Planning complete and audited twice** (standard: 10 findings; adversarial-only re-pass: 14 findings
-incl. 3 factual corrections to repo claims; all folded in). No code written yet. Next: execute
-**v1 = ship-vuln-scan** first (recommended), then v2. Heaviest remaining design work flagged by
-round-2: VS8/the contract (per-surface record types, per-tool version/exit-code/DB handling) and the
-`validate-skills.py` tokenizing tool-policy rule.
+**v1 (`ship-vuln-scan`) SHIPPED** on branch `feature/ship-vuln-scan` (commit 779c638): all 9 tasks
+built, both validators green, ship-reviewed-prs final vetting = APPROVE (2 Should-fix found + fixed in
+the rework loop). Not yet pushed/PR'd (awaiting user). **v2 (`ship-vuln-fix`) still pending** — the
+remediation half. Plan + decisions remain the source of truth; the heaviest v2 work is the
+evidence-gated apply engine (VF1–VF8) and the `docs/security/vuln-remediation/` audit log.

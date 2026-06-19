@@ -201,8 +201,9 @@ VF7's VEX-for-unfixed.
 
 ## Status
 Planning complete and **audited twice** (standard: 10 findings; adversarial-only re-pass: 14 findings;
-all folded in). Ready for execution. **Recommend executing v1 (`ship-vuln-scan`) first** behind the
-v1 milestone, then v2. Net of round-2, the heaviest remaining design work is **VS8/the contract**
+all folded in). **v1 (`ship-vuln-scan`) EXECUTED and shipped** to branch `feature/ship-vuln-scan`
+(commit 779c638) via ship-execute — 9 tasks, validators green, ship-reviewed-prs APPROVE. **v2
+(`ship-vuln-fix`) remains to be built** per the VF1–VF8 spec above. Net of round-2, the heaviest remaining design work is **VS8/the contract**
 (per-surface record types, per-tool version/exit-code/DB handling, alias resolution) and the
 **`validate-skills.py` tokenizing tool-policy rule** — both materially bigger than the first draft implied.
 

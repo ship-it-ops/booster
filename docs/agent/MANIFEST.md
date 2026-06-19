@@ -1,5 +1,5 @@
 # Agent Context
-Last updated: 2026-06-18 | Total notes: 30
+Last updated: 2026-06-18 | Total notes: 31
 
 <!--
   This file is the index for `docs/agent/`. Agents read it at session start.
@@ -14,7 +14,7 @@ Last updated: 2026-06-18 | Total notes: 30
 ## Status
 <!-- in-flight work and handoffs — always-read at session start -->
 
-- [ship-vuln-skills](status/ship-vuln-skills.md) | status | active | standard | 2026-06-18 | Planning done; v1 ship-vuln-scan ready to execute
+- [ship-vuln-skills](status/ship-vuln-skills.md) | status | active | standard | 2026-06-18 | v1 ship-vuln-scan SHIPPED (branch); v2 ship-vuln-fix pending
 
 ## Plans
 
@@ -54,6 +54,7 @@ Last updated: 2026-06-18 | Total notes: 30
 
 ## Scars
 
+- [tool-policy-guard-bypassable-by-omission](scars/tool-policy-guard-bypassable-by-omission.md) | scar | active | standard | 2026-06-18 | Policy check that skips on missing field is bypassable
 - [marketplace-pluginroot-silently-ignored](scars/marketplace-pluginroot-silently-ignored.md) | scar | active | core | 2026-05-20 | Claude Code installer ignores marketplace pluginRoot field
 - [plugin-manifest-rejects-skills-field](scars/plugin-manifest-rejects-skills-field.md) | scar | active | core | 2026-05-20 | plugin.json skills field rejected by installer schema
 - [plugin-without-commands-runs-silently](scars/plugin-without-commands-runs-silently.md) | scar | active | core | 2026-05-25 | Skill-only plugin runs 5 min posting nothing

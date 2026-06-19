@@ -1,6 +1,6 @@
 ---
 type: status
-status: active
+status: completed
 created: 2026-06-18
 updated: 2026-06-18
 author: claude-opus-4-8
