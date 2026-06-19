@@ -1,5 +1,5 @@
 # Agent Context
-Last updated: 2026-06-12 | Total notes: 28
+Last updated: 2026-06-18 | Total notes: 31
 
 <!--
   This file is the index for `docs/agent/`. Agents read it at session start.
@@ -14,15 +14,17 @@ Last updated: 2026-06-12 | Total notes: 28
 ## Status
 <!-- in-flight work and handoffs — always-read at session start -->
 
-- [merge-ship-code-into-booster](status/merge-ship-code-into-booster.md) | status | active | standard | 2026-06-12 | Migrating all 6 ship-code plugins into booster
+- [ship-vuln-skills](status/ship-vuln-skills.md) | status | active | standard | 2026-06-19 | Both ship-vuln-scan + ship-vuln-fix BUILT (branch); pending PR/merge
 
 ## Plans
 
+- [ship-vuln-skills-design](plans/ship-vuln-skills-design.md) | plan | completed | core | 2026-06-19 | BUILT: ship-vuln-scan + ship-vuln-fix (branch, APPROVE)
 - [ship-better-plans-design](plans/ship-better-plans-design.md) | plan | completed | core | 2026-06-10 | SHIPPED (commit 47be8cc): audited plan-producing skill + plugin
 - [ship-execute-design](plans/ship-execute-design.md) | plan | completed | core | 2026-06-11 | SHIPPED (commit 0eeeba8): DAG-aware execution engine + plugin
 
 ## Decisions
 
+- [ship-vuln-skills-architecture](decisions/ship-vuln-skills-architecture.md) | decision | active | core | 2026-06-19 | Two skills, hybrid exec, evidence-gated apply, recipe-first (V1-V10)
 - [agent-context-initialized](decisions/agent-context-initialized.md) | decision | active | core | 2026-05-20 | Adopt docs/agent as in-repo agent memory
 - [plugin-name-matches-source-dir](decisions/plugin-name-matches-source-dir.md) | decision | active | standard | 2026-05-20 | Marketplace plugin name matches source directory basename
 - [add-user-instructions-to-skill](decisions/add-user-instructions-to-skill.md) | decision | active | core | 2026-06-02 | Add instructions/ content type for standing user rules
@@ -52,6 +54,7 @@ Last updated: 2026-06-12 | Total notes: 28
 
 ## Scars
 
+- [tool-policy-guard-bypassable-by-omission](scars/tool-policy-guard-bypassable-by-omission.md) | scar | active | standard | 2026-06-18 | Policy check that skips on missing field is bypassable
 - [marketplace-pluginroot-silently-ignored](scars/marketplace-pluginroot-silently-ignored.md) | scar | active | core | 2026-05-20 | Claude Code installer ignores marketplace pluginRoot field
 - [plugin-manifest-rejects-skills-field](scars/plugin-manifest-rejects-skills-field.md) | scar | active | core | 2026-05-20 | plugin.json skills field rejected by installer schema
 - [plugin-without-commands-runs-silently](scars/plugin-without-commands-runs-silently.md) | scar | active | core | 2026-05-25 | Skill-only plugin runs 5 min posting nothing

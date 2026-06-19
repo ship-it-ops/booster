@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Boost your AI agents with powerful tools. Skills, agents, and workflows for supercharging AI-assisted development — plus production-quality code-quality skills for clean code, testing, debugging, security, DevOps, and PR review.",
-    "version": "1.1.0"
+    "version": "1.3.1"
   },
   "plugins": [
     {
@@ -126,6 +126,30 @@
       },
       "license": "MIT",
       "keywords": ["devops", "ci-cd", "code-review", "kubernetes", "terraform", "docker", "github-actions", "observability", "sre", "deployment", "code-quality"],
+      "category": "code-quality"
+    },
+    {
+      "name": "ship-vuln-scan",
+      "source": "./plugins/ship-vuln-scan",
+      "description": "Detect known CVEs and supply-chain vulnerabilities across dependencies (SCA), container images, IaC, and secrets. Hybrid execution: orchestrates real scanners (osv-scanner, trivy, grype, pip-audit, npm/pnpm/yarn audit, checkov, gitleaks, syft) when present and falls back to manual lockfile/advisory analysis when absent — always recording scan provenance and a coverage flag so 'couldn't scan' is never reported as 'clean'. Triages by CVSS+EPSS+KEV+reachability (VS1-VS8) and emits a normalized findings artifact. Sibling ship-vuln-fix remediates what it finds; ship-reviewed-prs SC persona delegates here on lockfile/manifest changes.",
+      "version": "0.1.0",
+      "author": {
+        "name": "ship-it-ops"
+      },
+      "license": "MIT",
+      "keywords": ["vulnerability", "cve", "sca", "dependency-scanning", "supply-chain", "container-scanning", "sbom", "secrets", "osv", "trivy", "security"],
+      "category": "code-quality"
+    },
+    {
+      "name": "ship-vuln-fix",
+      "source": "./plugins/ship-vuln-fix",
+      "description": "Remediate the CVEs that ship-vuln-scan finds. Recipe-first + tiered + evidence-gated: prefers proven remediation recipes/tools (OpenRewrite/Moderne, npm/pip native fixers, Dependabot compatibility scores) and falls back to manual minimal edits, then auto-applies only mechanical, reversible fixes behind a confirmation gate and verifies them by re-scan + build/tests + a clean frozen install; advises only (exact plan, never edits) for breaking/major upgrades, code-level mitigations, and no-fix cases (VF1-VF8). The apply decision is driven by evidence (reviewed changelog/recipe, no new install scripts, green tests), never the semver delta. Every auto-apply emits a remediation audit record to docs/security/vuln-remediation/. Sibling ship-vuln-scan detects and verifies closure.",
+      "version": "0.2.0",
+      "author": {
+        "name": "ship-it-ops"
+      },
+      "license": "MIT",
+      "keywords": ["vulnerability", "cve", "remediation", "dependency-upgrade", "patch", "supply-chain", "sca", "auto-fix", "security"],
       "category": "code-quality"
     }
   ]

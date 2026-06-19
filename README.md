@@ -54,10 +54,14 @@ Production-quality review and engineering-practice skills, migrated here from th
 | **ship-secure-code** | Application security (SEC1–SEC12) — auth, injection, XSS, crypto, secrets, supply chain, SSRF, and more |
 | **ship-reviewed-prs** | Multi-persona PR review with lifecycle-aware suppression and decisive APPROVE/REQUEST_CHANGES/COMMENT submission; works locally and fully automated in CI |
 | **ship-devops** | DevOps/CI-CD review (DEV1–DEV12) for Terraform, Kubernetes, Docker, and GitHub Actions |
+| **ship-vuln-scan** | Known-CVE / vulnerability detection (VS1–VS8) across dependencies, container images, IaC, and secrets. Hybrid: orchestrates real scanners (osv-scanner, trivy, grype, pip-audit, checkov, gitleaks) when present, falls back to manual analysis, and never reports "clean" when it couldn't scan. Triages by CVSS/EPSS/KEV |
+| **ship-vuln-fix** | Vulnerability remediation (VF1–VF8) — the fix half of the pair. **Recipe-first** (prefers proven recipes/tools — OpenRewrite/Moderne, native fixers, Dependabot scores — then manual fallback) + tiered + evidence-gated: auto-applies only mechanical, reversible fixes behind a confirmation gate and verifies by re-scan + tests + clean frozen install; advises only for breaking upgrades, mitigations, and no-fix cases. Evidence-driven, not semver-driven; audits every apply |
 
 ```bash
 /plugin install ship-clean-code@booster
 /plugin install ship-reviewed-prs@booster   # includes the /ship-reviewed-prs:review-pr command
+/plugin install ship-vuln-scan@booster
+/plugin install ship-vuln-fix@booster
 # ...same pattern for ship-tested-code, ship-debugged-code, ship-secure-code, ship-devops
 ```
 

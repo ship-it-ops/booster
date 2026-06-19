@@ -1,6 +1,6 @@
 ---
 type: status
-status: active
+status: completed
 created: 2026-06-12
 updated: 2026-06-12
 author: claude-fable-5
@@ -21,4 +21,4 @@ User decision 2026-06-11: consolidate the two marketplaces into booster. Decisio
 
 ## Current state
 
-Implementation complete; PR open: https://github.com/ship-it-ops/booster/pull/6 (commit ba9ce90). All local validation green. Remaining after merge: add `CLAUDE_CODE_OAUTH_TOKEN` repo secret, then decide ship-code repo deprecation. When the PR merges, complete this entry and move it to archive/.
+COMPLETED — PR #6 merged as commit 5b40712 (main). Archived 2026-06-18. Follow-ups still open outside this entry: add `CLAUDE_CODE_OAUTH_TOKEN` repo secret; decide ship-code repo deprecation.

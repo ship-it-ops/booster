@@ -97,6 +97,15 @@ The delegation bullet does NOT count toward the decision matrix — same rule as
 
 This mirrors the TS → `ship-tested-code` pattern at `SKILL.md:71-76` — orchestrator does shallow detection, the depth target owns the rubric.
 
+#### Anti-overlap: `ship-secure-code` vs `ship-vuln-scan` (known-CVE depth)
+
+SC delegates to **two** security depth targets; they do not overlap:
+
+- **`ship-secure-code`** owns *code-pattern* supply-chain risk — install/`postinstall` scripts, typosquat/low-maintenance/unverifiable-publisher signals, integrity, and the SEC4–SEC12 categories. It reasons about *how a dependency-add looks in the diff*.
+- **`ship-vuln-scan`** owns *authoritative known-CVE matching* — when the PR changes a **lockfile or manifest** (`package-lock.json`, `pnpm-lock.yaml`, `requirements.txt`, `poetry.lock`, etc.), delegate the resolved-tree SCA match (direct + transitive CVEs, container/IaC/secret surfaces, CVSS/EPSS/KEV triage) here via `Run /ship-vuln-scan on <lockfile>`.
+
+**Arbiter rule:** a lockfile/manifest change → `ship-vuln-scan` (it is the known-CVE authority). A *code* diff that adds a risky dependency *pattern* (install script, typosquat) without a resolved-CVE → `ship-secure-code`. When both apply (a risky-looking add that also pulls a known-CVE), emit both delegation bullets — they answer different questions (pattern risk vs. confirmed CVE). SC5's "known CVE" sub-trigger is a shallow direct-emit hint only; the authoritative match is `ship-vuln-scan`'s.
+
 ### Finding IDs
 
 | ID | Label | When to fire |
