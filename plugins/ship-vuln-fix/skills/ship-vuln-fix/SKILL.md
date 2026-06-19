@@ -1,0 +1,1 @@
+../../../../skills/ship-vuln-fix/SKILL.md

@@ -1,0 +1,1 @@
+../../../../skills/ship-vuln-fix/resolution-npm.md
