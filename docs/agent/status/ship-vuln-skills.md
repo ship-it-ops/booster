@@ -25,5 +25,7 @@ Plan + decisions: [../plans/ship-vuln-skills-design.md](../plans/ship-vuln-skill
 - v1 `ship-vuln-scan` (commit 779c638) — detection, 9 tasks, APPROVE.
 - v2 `ship-vuln-fix` (commit 9ca4ee4) — remediation, 5 tasks, APPROVE.
 Both passed ship-reviewed-prs final vetting (findings found + fixed in rework each round). Marketplace
-at v1.3.0. The matched detect→fix pair is complete. Remaining: user decides PR/merge. Follow-on ideas
-(out of current scope): ecosystem expansion beyond npm+pip, executable-fixture CI job with scanners.
+at v1.3.0. The matched detect→fix pair is complete. **PR open: https://github.com/ship-it-ops/booster/pull/7**
+(commit 7fa26a7). When it merges, complete this entry and move it to archive/. Follow-on ideas (out of
+current scope): ecosystem expansion beyond npm+pip, executable-fixture CI job with scanners, recipe
+breadth beyond OpenRewrite/native fixers.
