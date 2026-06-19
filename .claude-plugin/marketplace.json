@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Boost your AI agents with powerful tools. Skills, agents, and workflows for supercharging AI-assisted development — plus production-quality code-quality skills for clean code, testing, debugging, security, DevOps, and PR review.",
-    "version": "1.1.0"
+    "version": "1.2.0"
   },
   "plugins": [
     {
@@ -126,6 +126,18 @@
       },
       "license": "MIT",
       "keywords": ["devops", "ci-cd", "code-review", "kubernetes", "terraform", "docker", "github-actions", "observability", "sre", "deployment", "code-quality"],
+      "category": "code-quality"
+    },
+    {
+      "name": "ship-vuln-scan",
+      "source": "./plugins/ship-vuln-scan",
+      "description": "Detect known CVEs and supply-chain vulnerabilities across dependencies (SCA), container images, IaC, and secrets. Hybrid execution: orchestrates real scanners (osv-scanner, trivy, grype, pip-audit, npm/pnpm/yarn audit, checkov, gitleaks, syft) when present and falls back to manual lockfile/advisory analysis when absent — always recording scan provenance and a coverage flag so 'couldn't scan' is never reported as 'clean'. Triages by CVSS+EPSS+KEV+reachability (VS1-VS8) and emits a normalized findings artifact. Sibling ship-vuln-fix remediates what it finds; ship-reviewed-prs SC persona delegates here on lockfile/manifest changes.",
+      "version": "0.1.0",
+      "author": {
+        "name": "ship-it-ops"
+      },
+      "license": "MIT",
+      "keywords": ["vulnerability", "cve", "sca", "dependency-scanning", "supply-chain", "container-scanning", "sbom", "secrets", "osv", "trivy", "security"],
       "category": "code-quality"
     }
   ]

@@ -68,6 +68,14 @@ Checks performed:
     - If skills/<name>/tests/fixture-N/ exists, it contains both input.* and
       expected-output.md
 
+  TOOL POLICY
+    - Pure-rubric review skills (ship-clean-code, ship-tested-code,
+      ship-secure-code, ship-devops) declare only Read/Grep/Glob — they never
+      gain write/exec access. (ship-reviewed-prs is the orchestrator and is
+      intentionally exempt.)
+    - ship-vuln-scan is detect-only: may run scanners (Bash) but must not
+      declare Write/Edit (remediation is ship-vuln-fix's job).
+
 Exit codes:
   0 — all checks pass
   1 — structural violations
@@ -761,6 +769,108 @@ def validate_fixture_parity(errors: Errors, skill_dirs: list[Path]) -> None:
                 )
 
 
+# --- Tool-policy enforcement ---------------------------------------------
+#
+# The `allowed-tools` frontmatter is stored as one scalar string (e.g.
+# "Read, Grep, Bash(npm ci *)"). These rules machine-enforce two trust
+# invariants that were previously only convention:
+#
+#   1. The pure-rubric REVIEW skills never gain write/exec access. A future
+#      copy-paste must not silently let a "this only reads my code" skill edit
+#      files or run commands. NOTE: ship-reviewed-prs is intentionally NOT in
+#      this set — it is the orchestrator (declares Task/Bash/TodoWrite to spawn
+#      personas and submit via gh). The guarded set is the four pure-rubric
+#      depth skills only.
+#   2. ship-vuln-scan is detect-only: it may run scanners (Bash) but must not
+#      declare Write/Edit. Remediation (editing manifests) is ship-vuln-fix.
+
+READ_ONLY_REVIEW_SKILLS = {
+    "ship-clean-code",
+    "ship-tested-code",
+    "ship-secure-code",
+    "ship-devops",
+}
+READ_ONLY_TOOLS = {"Read", "Grep", "Glob"}
+WRITE_TOOLS = {"Write", "Edit", "NotebookEdit"}
+
+
+def tokenize_allowed_tools(value: str) -> list[str]:
+    """Split an allowed-tools scalar into tool tokens, respecting Bash(...) scopes.
+
+    "Read, Grep, Bash(npm ci *), Edit" -> ["Read", "Grep", "Bash(npm ci *)", "Edit"]
+    """
+    tools: list[str] = []
+    depth = 0
+    cur = ""
+    for ch in value:
+        if ch == "(":
+            depth += 1
+            cur += ch
+        elif ch == ")":
+            depth = max(0, depth - 1)
+            cur += ch
+        elif ch == "," and depth == 0:
+            if cur.strip():
+                tools.append(cur.strip())
+            cur = ""
+        else:
+            cur += ch
+    if cur.strip():
+        tools.append(cur.strip())
+    return tools
+
+
+def tool_name(token: str) -> str:
+    """Bare tool name without any scope: 'Bash(npm ci *)' -> 'Bash'."""
+    return token.split("(", 1)[0].strip()
+
+
+def validate_tool_policy(errors: Errors, skill_dirs: list[Path]) -> None:
+    for skill_dir in skill_dirs:
+        name = skill_dir.name
+        if name not in READ_ONLY_REVIEW_SKILLS and name != "ship-vuln-scan":
+            continue
+        skill_md = skill_dir / "SKILL.md"
+        try:
+            text = skill_md.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        fm, _ = parse_frontmatter(text)
+        if not fm:
+            continue
+        if "allowed-tools" not in fm:
+            # Omitting allowed-tools grants UNRESTRICTED tools — that would silently
+            # bypass this guard, which exists precisely to prevent unnoticed privilege
+            # gain. A guarded skill must declare an explicit read-only/detect-only set.
+            errors.add(
+                "Guarded skill missing allowed-tools",
+                f"skills/{name}/SKILL.md: must declare an explicit `allowed-tools` "
+                f"(read-only for review skills, detect-only for ship-vuln-scan). "
+                f"Omitting it grants unrestricted tools and bypasses the tool-policy guard.",
+            )
+            continue
+        names = {tool_name(t) for t in tokenize_allowed_tools(str(fm["allowed-tools"]))}
+
+        if name in READ_ONLY_REVIEW_SKILLS:
+            extra = names - READ_ONLY_TOOLS
+            if extra:
+                errors.add(
+                    "Review skill is not read-only",
+                    f"skills/{name}/SKILL.md: pure-rubric review skills must declare only "
+                    f"{sorted(READ_ONLY_TOOLS)}; found extra tool(s) {sorted(extra)}. "
+                    f"A review skill must never gain write/exec access.",
+                )
+
+        if name == "ship-vuln-scan":
+            writes = names & WRITE_TOOLS
+            if writes:
+                errors.add(
+                    "Detection skill declares write tools",
+                    f"skills/{name}/SKILL.md: ship-vuln-scan is detect-only and must not declare "
+                    f"{sorted(writes)}. Editing manifests/lockfiles belongs to ship-vuln-fix.",
+                )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate booster skills")
     parser.add_argument(
@@ -791,6 +901,7 @@ def main() -> int:
     validate_root_plugin_json(errors, skill_dirs)
     validate_no_skill_dir_leakage(errors)
     validate_fixture_parity(errors, skill_dirs)
+    validate_tool_policy(errors, skill_dirs)
 
     errors.report()
     return 1 if errors.any() else 0

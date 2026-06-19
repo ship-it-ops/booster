@@ -1,0 +1,5 @@
+{
+  "name": "ship-vuln-scan",
+  "description": "Detect known CVEs and supply-chain vulnerabilities across dependencies (SCA), container images, IaC, and secrets. Hybrid: orchestrates real scanners (osv-scanner, trivy, grype, pip-audit, npm/pnpm/yarn audit, checkov, gitleaks, syft) when present, falls back to manual lockfile/advisory analysis otherwise, and always records scan provenance + a coverage flag so 'couldn't scan' is never reported as 'clean'. Triages by CVSS+EPSS+KEV+reachability into a normalized findings artifact. Sibling ship-vuln-fix remediates.",
+  "version": "0.1.0"
+}

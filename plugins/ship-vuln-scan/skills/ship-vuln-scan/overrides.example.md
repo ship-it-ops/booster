@@ -1,0 +1,1 @@
+../../../../skills/ship-vuln-scan/overrides.example.md

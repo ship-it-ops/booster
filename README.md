@@ -54,10 +54,12 @@ Production-quality review and engineering-practice skills, migrated here from th
 | **ship-secure-code** | Application security (SEC1–SEC12) — auth, injection, XSS, crypto, secrets, supply chain, SSRF, and more |
 | **ship-reviewed-prs** | Multi-persona PR review with lifecycle-aware suppression and decisive APPROVE/REQUEST_CHANGES/COMMENT submission; works locally and fully automated in CI |
 | **ship-devops** | DevOps/CI-CD review (DEV1–DEV12) for Terraform, Kubernetes, Docker, and GitHub Actions |
+| **ship-vuln-scan** | Known-CVE / vulnerability detection (VS1–VS8) across dependencies, container images, IaC, and secrets. Hybrid: orchestrates real scanners (osv-scanner, trivy, grype, pip-audit, checkov, gitleaks) when present, falls back to manual analysis, and never reports "clean" when it couldn't scan. Triages by CVSS/EPSS/KEV |
 
 ```bash
 /plugin install ship-clean-code@booster
 /plugin install ship-reviewed-prs@booster   # includes the /ship-reviewed-prs:review-pr command
+/plugin install ship-vuln-scan@booster
 # ...same pattern for ship-tested-code, ship-debugged-code, ship-secure-code, ship-devops
 ```
 

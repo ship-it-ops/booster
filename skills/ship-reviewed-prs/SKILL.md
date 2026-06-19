@@ -146,7 +146,8 @@ Personas defer to sibling skills rather than duplicating their rubrics. The deci
 | Naming, function size, magic numbers, dead code, error swallowing, readability | `Run /ship-clean-code on <file>` |
 | Test design, test coverage depth, flakiness, AAA structure, mocking strategy | `Run /ship-tested-code on <file>` |
 | Root cause of a bug the PR claims to fix (PR description contains "fixes #N") | `Run /ship-debugged-code on PR #N` |
-| Security depth (data-flow trace, framework-specific injection / XSS / SSRF / deserialization / supply chain / crypto / IDOR) beyond a one-line SC pattern match | `Run /ship-secure-code on <file>` |
+| Security depth (data-flow trace, framework-specific injection / XSS / SSRF / deserialization / crypto / IDOR, and *code-pattern* supply-chain risk — install scripts, typosquat, integrity) beyond a one-line SC pattern match | `Run /ship-secure-code on <file>` |
+| Known-CVE / vulnerability depth on a **lockfile or manifest change** (authoritative SCA match, transitive CVEs, container/IaC/secret scanning, triage by CVSS/EPSS/KEV) | `Run /ship-vuln-scan on <lockfile>` |
 | DevOps depth (deploy-path trace, multi-file pipeline review, platform-specific rubric for CI/CD/IaC/containers/k8s/observability/migrations/SLO) beyond a one-line IN pattern match | `Run /ship-devops on <file>` |
 
 A "Delegations" section in the output lists these. They do NOT count toward the decision matrix — they are advisory pointers.
