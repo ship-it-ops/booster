@@ -619,17 +619,17 @@ The folder must not become a dumping ground. Apply these filters every time you 
 8. Begin work — and apply every `active` instruction for the rest of the session.
 
 ### During Work
-8. Before each major decision: check `decisions/` and `patterns/` for prior art.
-9. Before debugging: check `investigations/` and `scars/`.
-10. Within 5 minutes of starting non-trivial work: create a `status/` entry.
-11. On every milestone (decision made, root cause found, plan finalized, scar earned): apply the Write Protocol immediately. Don't defer to end-of-session.
-12. When the user uses persistent-intent phrasing (see [Auto-Capturing User Instructions](#auto-capturing-user-instructions)): silently write the instruction, then announce the file path and revocation phrase in one line.
-13. Reference captured knowledge in responses — tell the user what you found.
+9. Before each major decision: check `decisions/` and `patterns/` for prior art.
+10. Before debugging: check `investigations/` and `scars/`.
+11. Within 5 minutes of starting non-trivial work: create a `status/` entry.
+12. On every milestone (decision made, root cause found, plan finalized, scar earned): apply the Write Protocol immediately. Don't defer to end-of-session.
+13. When the user uses persistent-intent phrasing (see [Auto-Capturing User Instructions](#auto-capturing-user-instructions)): silently write the instruction, then announce the file path and revocation phrase in one line.
+14. Reference captured knowledge in responses — tell the user what you found.
 
 ### End of Session
-14. Review: any decision, plan, root cause, scar, or standing user instruction uncaptured? Write it.
-15. Update your `status/` entry: complete it (and archive), or update its current state.
-16. If you flagged stale notes during the session, summarize them for the user before finishing.
+15. Review: any decision, plan, root cause, scar, or standing user instruction uncaptured? Write it.
+16. Update your `status/` entry: complete it (and archive), or update its current state.
+17. If you flagged stale notes during the session, summarize them for the user before finishing.
 
 ---
 
