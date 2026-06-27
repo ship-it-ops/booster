@@ -1,13 +1,17 @@
 ---
 type: status
-status: active
+status: completed
 created: 2026-06-18
-updated: 2026-06-18
+updated: 2026-06-26
 author: claude-opus-4-8
 branch: main
 agent: claude-session-2026-06-18
 tags: [skills, security, vulnerability, planning]
 ---
+
+> **Reconciled 2026-06-26**: `## Done when` anchor (PR #7 merged) verified `MERGED`
+> (2026-06-19, commit 536bee9). Work shipped; entry auto-archived per the
+> Reconciliation protocol.
 
 # Designing ship-vuln-scan + ship-vuln-fix skills
 

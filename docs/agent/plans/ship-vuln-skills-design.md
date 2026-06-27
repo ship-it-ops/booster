@@ -204,7 +204,7 @@ COMPLETED. Planning **audited twice** (standard: 10 findings; adversarial-only: 
 in), then **both milestones EXECUTED** via ship-execute on branch `feature/ship-vuln-scan`:
 - v1 `ship-vuln-scan` (commit 779c638) — 9 tasks, validators green, ship-reviewed-prs APPROVE.
 - v2 `ship-vuln-fix` (commit 9ca4ee4) — 5 tasks, validators green, ship-reviewed-prs APPROVE.
-The matched detect→fix pair is built and self-reviewed; pending the user's PR/merge decision. Net of round-2, the heaviest remaining design work is **VS8/the contract**
+The matched detect→fix pair shipped in PR #7 (merged 2026-06-19, commit 536bee9). Net of round-2, the heaviest design work was **VS8/the contract**
 (per-surface record types, per-tool version/exit-code/DB handling, alias resolution) and the
 **`validate-skills.py` tokenizing tool-policy rule** — both materially bigger than the first draft implied.
 

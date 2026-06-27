@@ -18,7 +18,7 @@ description: >
   Complements AGENTS.md / CLAUDE.md (static project rules curated by a
   maintainer) by holding dynamic, branch-tracked state and user-captured
   behavior rules. Standalone — no external vault or other skill required.
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(mkdir -p *), Bash(mv docs/agent/*)
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(mkdir -p *), Bash(mv docs/agent/*), Bash(gh pr view *), Bash(git ls-remote *), Bash(git merge-base *), Bash(git branch *)
 ---
 
 ## Purpose
@@ -42,7 +42,7 @@ The folder is committed to git. Every agent on every branch sees the same contex
 When installed via the booster plugin marketplace (`/plugin install ship-agent-context@booster`), this skill ships a bundled SessionStart hook at `hooks/hooks.json`. The hook fires at the start of every Claude Code session and:
 
 - Checks for `docs/agent/MANIFEST.md` in the current working directory.
-- If present, injects a system reminder telling the model to read MANIFEST + every file under `docs/agent/status/` before proceeding and to use this skill for new context.
+- If present, injects a system reminder telling the model to read MANIFEST + every file under `docs/agent/status/` and `docs/agent/instructions/`, **reconcile each status entry against its `## Done when` anchor** (archiving completed work, flagging the unverifiable), and use this skill to capture new context.
 - If absent, the hook is silent — installing the plugin imposes ~no cost in repos that don't use `docs/agent/`.
 
 This guarantees activation in repos that need it, independent of description matching. To disable, disable the plugin via `/plugin`. For users who installed the skill manually (npx / cp / symlink) rather than via the plugin marketplace, the hook is not present — anchor the skill in the repo's `AGENTS.md` or `CLAUDE.md` (see `examples/initialization-example.md`) for similar reliability.
@@ -120,8 +120,10 @@ When you need context, follow this order. Stop as soon as you have enough.
 ### Step 1 — Read MANIFEST
 Read `docs/agent/MANIFEST.md`. It indexes every note: slug, type, status, importance, date, 8-word summary. Scan for entries relevant to your task.
 
-### Step 2 — Read all of `status/`
+### Step 2 — Read AND reconcile all of `status/`
 Always read every file in `docs/agent/status/`. It is bounded in size (typically <5 entries) and is the single most important signal: it tells you what other agents are doing *right now*. Skipping this is how parallel agents collide.
+
+Then **reconcile each entry against ground truth before you trust it** — see [Reconciliation — Self-Healing Status](#reconciliation--self-healing-status). `status/` is the only always-read surface that rots *silently* (PRs merge and branches get deleted on the remote with no session running), so a one-command check per entry is what keeps it honest. Auto-archive the ones that are demonstrably complete; flag the ones you cannot verify.
 
 ### Step 2.5 — Read all of `instructions/`
 Always read every file in `docs/agent/instructions/`. These are standing user instructions captured in prior sessions — behavior rules the user gave Claude that must persist across sessions, branches, and agents (e.g., "don't push without asking", "always run the linter before opening a PR"). Like `status/`, the folder is bounded in size and every file is opened. Any `importance: core` instruction must be acknowledged in your opening response to the user so they can see the rule was loaded.
@@ -141,9 +143,44 @@ If the MANIFEST didn't surface what you need, Grep `docs/agent/` for keywords. T
 ### Rules
 - **NEVER** glob-read every file in `docs/agent/`. Use the MANIFEST.
 - **ALWAYS** check `status` before trusting a note. Skip `deprecated`. Treat `superseded` as a pointer to its replacement.
+- **VERIFY BEFORE YOU REPORT.** Never relay a note's *transient* claim — "PR is open", "X is in progress", "still on the todo list", "pending merge" — to the user as current fact without re-checking it when the check is cheap (a `gh`/`git`/file-system call). A note records what was true when it was written; only ground truth tells you what is true now. If you cannot verify, say so explicitly ("the note says X, unverified") rather than asserting it. See [Reconciliation — Self-Healing Status](#reconciliation--self-healing-status).
 - **ALWAYS** apply every `active` instruction in `instructions/` for the duration of the session. They are not advisory — they are standing orders from the user.
 - **DO NOT** read `archive/` at session start — it's intentionally cold storage.
 - **READ AGENTS.md and CLAUDE.md normally** — they hold static rules, not agent state. This skill does not duplicate them.
+
+---
+
+## Reconciliation — Self-Healing Status
+
+`status/` is the only always-read surface that goes stale **silently**. The events that complete a status entry — a PR merging, a branch being deleted, a commit landing on the default branch — happen on the remote, asynchronously, with no agent session running. Nothing inside the repo changes when they happen, so an `active` entry can keep describing work that shipped days ago. A future agent then reads it and reports it as in-flight *with full confidence*. This is the single biggest cause of context rot — and the reason a user has to keep pushing back with "are you sure that's still true?"
+
+The fix: verify each status entry against ground truth at session start, and self-heal the ones that are demonstrably done. Stale `status/` should correct itself, not accumulate.
+
+### Every status note carries a completion anchor
+
+So reconciliation is a cheap deterministic check and not a guess, every `status/` note MUST include a `## Done when` section naming a **machine-checkable** condition. Pick the one you can verify in a single command:
+
+| Anchor | Check | Complete when |
+|---|---|---|
+| `PR #123 merged` | `gh pr view 123 --json state -q .state` | prints `MERGED` |
+| `branch feature/x deleted on remote` | `git ls-remote --exit-code --heads origin feature/x` | exits non-zero |
+| `commit <sha> on <default-branch>` | `git merge-base --is-ancestor <sha> origin/main` | exits zero |
+
+Prefer the **PR-merged** check — it stays correct even when a merged branch lingers locally (exactly the trap that produced the ship-vuln staleness: branch still present, PR long merged).
+
+### At session start, reconcile before trusting
+
+For each file in `status/`, immediately after reading it:
+
+1. Run its `## Done when` check — one `gh`/`git` command.
+2. **Hard evidence of completion** (PR `MERGED`, branch gone, sha is an ancestor of the default branch) → **self-heal, no prompt:**
+   - set `status: completed`, bump `updated`;
+   - `mv` the file from `status/` to `archive/`;
+   - remove its line from the MANIFEST `## Status` section (decrement `Total notes`);
+   - tell the user in one line: *"Reconciled: `ship-vuln-skills` shipped (PR #7 merged) — moved to archive."*
+3. **No evidence, or not checkable** (offline, no anchor, inconclusive result) → **do NOT modify the file.** Flag it inline — *"`status/foo` may be stale (couldn't verify its Done-when) — verify before trusting it"* — and treat its claims as unverified for the rest of the session.
+
+This is bounded work: `status/` holds <5 entries, so it is at most a handful of cheap commands. Never skip it — it is what keeps the always-read surface honest. Only **hard evidence** triggers the silent archive; absence of evidence is a flag, never a deletion.
 
 ---
 
@@ -335,11 +372,17 @@ Files or areas being touched.
 ## Why
 Link to the decision, plan, or issue driving this.
 
+## Done when
+The one machine-checkable condition that means this work has shipped — `PR #123 merged`,
+`branch feature/x deleted on remote`, or `commit <sha> on main`. REQUIRED. This is the anchor
+the next session's reconciliation runs to auto-archive this entry. No anchor → it can never
+self-heal and will rot. See [Reconciliation](#reconciliation--self-healing-status).
+
 ## Blocked on
 (only if status: blocked) — what needs to resolve.
 ```
 
-**Lifecycle**: when the work merges or is abandoned, change `status` to `completed` and move the file from `status/` to `archive/` (or delete if it added no durable knowledge). `status/` should rarely have more than 3–5 active entries at once.
+**Lifecycle**: this entry is self-healing. The next agent to start a session runs its `## Done when` check and, on hard evidence of completion (PR merged, branch gone, sha on the default branch), auto-flips `status` to `completed` and moves the file to `archive/` — see [Reconciliation — Self-Healing Status](#reconciliation--self-healing-status). You don't have to rely on someone remembering to clean it up. If *you* are the one who finishes or abandons the work in-session, complete and archive it yourself rather than waiting. `status/` should rarely hold more than 3–5 active entries at once.
 
 ### Instruction
 
@@ -555,10 +598,11 @@ The folder must not become a dumping ground. Apply these filters every time you 
 2. **No duplication**: If it's in `AGENTS.md`, `CLAUDE.md`, `README.md`, or a code comment, link to it instead.
 3. **No routine logging**: Code changes are in `git log`. Tasks are in your tool's task list. Neither belongs here.
 4. **One topic, one note**: Update the existing note instead of creating a near-duplicate. For `instructions/` specifically: if a new user instruction overlaps an existing one, edit the existing file (bump `updated`) instead of creating a sibling.
-5. **Status entries expire**: If `status/` has entries older than 14 days that haven't been touched, flag them. Stale `status/` is the #1 failure mode.
+5. **Status entries self-heal, then expire**: reconcile every `status/` entry against its `## Done when` anchor at session start and auto-archive the completed ones ([Reconciliation](#reconciliation--self-healing-status)). For any that survive reconciliation but have sat untouched >14 days, flag them to the user. Stale `status/` is the #1 failure mode — reconciliation is the primary defense, the age check is the backstop.
 6. **Open questions age out**: 30 days `active` → ask the user if it's still open.
 7. **Tags are search keys**: 3–5 tags per note. Reuse tags from existing notes — consistency makes search work.
 8. **Revoked instructions are archived, not deleted**: when the user revokes an instruction, move the file to `archive/` rather than deleting it. Preserves the history of what was asked-then-rescinded, which is itself useful context.
+9. **Summaries state durable facts, not transient state**: a MANIFEST 8-word summary and a status body must describe what is *durably* true, anchored to something checkable — not a point-in-time snapshot that rots. Write `"detect→fix CVE skills; shipped in PR #7"`, not `"BUILT (branch); pending PR/merge"`. The first stays meaningful forever and is verifiable; the second is wrong the moment the PR merges and tempts the next agent to relay it. If you must record current state, reference its anchor (a PR number, a commit) so live status is always re-derivable rather than asserted.
 
 ---
 
@@ -568,10 +612,11 @@ The folder must not become a dumping ground. Apply these filters every time you 
 1. `Glob: docs/agent/MANIFEST.md`. If missing, note and skip to user's request (do not auto-scaffold).
 2. Read `MANIFEST.md`.
 3. Read every file in `docs/agent/status/`.
-4. Read every file in `docs/agent/instructions/`. Acknowledge any `importance: core` instruction in your opening response so the user can see the rule was loaded.
-5. Read every `importance: core` note.
-6. Scan `open-questions/` for anything matching the user's request.
-7. Begin work — and apply every `active` instruction for the rest of the session.
+4. **Reconcile** each `status/` entry against its `## Done when` anchor ([Reconciliation](#reconciliation--self-healing-status)): silently archive the demonstrably-complete ones (one-line note to the user each), flag the unverifiable ones as stale. Do this *before* you rely on any status entry.
+5. Read every file in `docs/agent/instructions/`. Acknowledge any `importance: core` instruction in your opening response so the user can see the rule was loaded.
+6. Read every `importance: core` note.
+7. Scan `open-questions/` for anything matching the user's request.
+8. Begin work — and apply every `active` instruction for the rest of the session.
 
 ### During Work
 8. Before each major decision: check `decisions/` and `patterns/` for prior art.

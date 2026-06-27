@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "test -f docs/agent/MANIFEST.md && echo 'docs/agent/ is present in this repo. Before proceeding, read docs/agent/MANIFEST.md, every file under docs/agent/status/, and every file under docs/agent/instructions/. Apply every active instruction for the rest of the session. Capture new decisions, plans, root causes, scars, open questions, and standing user instructions per the ship-agent-context skill as you go.' || true"
+            "command": "test -f docs/agent/MANIFEST.md && echo 'docs/agent/ is present in this repo. Before proceeding, read docs/agent/MANIFEST.md, every file under docs/agent/status/, and every file under docs/agent/instructions/. Reconcile each status/ entry against its Done-when anchor (gh pr view / git) before trusting it: silently archive work that is demonstrably complete (PR merged, branch gone, commit on the default branch) and flag any entry you cannot verify as stale rather than reporting it as current. Apply every active instruction for the rest of the session. Capture new decisions, plans, root causes, scars, open questions, and standing user instructions per the ship-agent-context skill as you go.' || true"
           }
         ]
       }

@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Boost your AI agents with powerful tools. Skills, agents, and workflows for supercharging AI-assisted development — plus production-quality code-quality skills for clean code, testing, debugging, security, DevOps, and PR review.",
-    "version": "1.3.1"
+    "version": "1.3.2"
   },
   "plugins": [
     {
@@ -24,7 +24,7 @@
       "name": "ship-agent-context",
       "source": "./plugins/ship-agent-context",
       "description": "In-repo memory for AI agents. Captures plans, decisions, in-flight status, standing user instructions, open questions, and incident scars in docs/agent/ so the next agent (or human) walks into context, not a blank slate.",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "author": {
         "name": "ship-it-ops"
       },

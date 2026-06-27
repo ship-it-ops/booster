@@ -1,5 +1,5 @@
 # Agent Context
-Last updated: 2026-06-18 | Total notes: 31
+Last updated: 2026-06-26 | Total notes: 30
 
 <!--
   This file is the index for `docs/agent/`. Agents read it at session start.
@@ -14,11 +14,11 @@ Last updated: 2026-06-18 | Total notes: 31
 ## Status
 <!-- in-flight work and handoffs — always-read at session start -->
 
-- [ship-vuln-skills](status/ship-vuln-skills.md) | status | active | standard | 2026-06-19 | Both ship-vuln-scan + ship-vuln-fix BUILT (branch); pending PR/merge
+(none — no work currently in flight)
 
 ## Plans
 
-- [ship-vuln-skills-design](plans/ship-vuln-skills-design.md) | plan | completed | core | 2026-06-19 | BUILT: ship-vuln-scan + ship-vuln-fix (branch, APPROVE)
+- [ship-vuln-skills-design](plans/ship-vuln-skills-design.md) | plan | completed | core | 2026-06-19 | SHIPPED (commit 536bee9): ship-vuln-scan + ship-vuln-fix CVE skills
 - [ship-better-plans-design](plans/ship-better-plans-design.md) | plan | completed | core | 2026-06-10 | SHIPPED (commit 47be8cc): audited plan-producing skill + plugin
 - [ship-execute-design](plans/ship-execute-design.md) | plan | completed | core | 2026-06-11 | SHIPPED (commit 0eeeba8): DAG-aware execution engine + plugin
 
