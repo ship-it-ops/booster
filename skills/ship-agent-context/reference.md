@@ -308,8 +308,8 @@ Never read `archive/` at session start. It exists for Grep fallback and human re
 
 ### Status entries that age out
 
-Stale `status/` entries are the most common rot. Apply this monthly:
-- Any `status/` entry untouched for 14 days → ask the user if the work is still live.
+Stale `status/` entries are the most common rot. The **primary** defense is the session-start Reconciliation pass in `SKILL.md` ("Reconciliation — Self-Healing Status"): every entry's `## Done when` anchor is verified against ground truth and the demonstrably-complete ones auto-archive — no waiting on an age threshold. The age check below is the **backstop** for entries that survive reconciliation (no checkable anchor, or work genuinely still open but idle):
+- Any `status/` entry that reconciliation could not resolve and is untouched for 14 days → ask the user if the work is still live.
 - If completed: move to `archive/` (preserves the work-was-done signal), remove from MANIFEST.
 - If abandoned: delete entirely.
 
@@ -326,7 +326,8 @@ The Read Protocol's normal path doesn't do a full vault scan for stale content �
 | **Contradiction** | Note's claim conflicts with current code | Flag — needs update or deprecation |
 | **Revisit trigger met** | A `## Revisit Triggers` condition has become true | Flag — the note predicted this |
 | **Open question stale** | `open-question` `active` > 30 days | Ask user if still open |
-| **Status stale** | `status` entry untouched > 14 days | Ask user if work is still live |
+| **Status unreconciled** | `status` entry whose `## Done when` shows hard evidence of completion (PR merged, branch gone, sha on default branch) | Auto-archive silently (see Reconciliation in SKILL.md) |
+| **Status stale** | `status` entry reconciliation couldn't resolve, untouched > 14 days | Ask user if work is still live |
 
 Apply only to notes you opened during the current session. Never scan the full folder for staleness — that's a separate maintenance task the user must invoke explicitly ("clean up docs/agent/").
 
