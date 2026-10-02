@@ -6,12 +6,14 @@ Full execution procedure, subagent prompts, status codes, the worktree/merge pro
 
 ## Stage 1 — Pre-flight (detail)
 
-1. **Resolve the plan.** Default `docs/agent/plans/<slug>.md`; accept an explicit path arg. Parse out:
-   - the **task DAG** (tasks + dependencies + the parallelizable set + critical path),
-   - **functional requirements** (FR-n) and **acceptance criteria** (mapped to FRs),
-   - **per-task verification** strategy and **per-phase budgets**,
-   - the **subagent-delegation map** (task → agent type).
-   If the file has no DAG (e.g. a non-ship-better-plans plan), build a minimal linear DAG from its task list and tell the user you did.
+1. **Resolve the plan.** Default `docs/agent/plans/<slug>.md`; accept an explicit path arg. From a `ship-better-plans` plan (`plan_format: 2` in the frontmatter) parse out:
+   - the **task cards**: `Depends on` (the DAG), `Covers`, `Files`, `Do`, `Verify`, `Kind`, `Reversibility`, `Gate`,
+   - the **"Conventions for every task"** block,
+   - **requirements** (FR-n) and **acceptance criteria** (AC-n) with their text,
+   - the **Verification** section: setup for a fresh checkout, build/test/lint commands, the baseline, the final check.
+   The cards are authoritative; the plan's "Execution order" is derived from them. If the file has no cards (an older or non-ship-better-plans plan), build a minimal linear DAG from its task list and tell the user you did.
+   **Approval.** If the frontmatter says `approval: draft`, the plan has not been approved: stop, say so, and continue only on the user's explicit yes.
+   **Freshness.** Compare the frontmatter `base` with the current commit. If files named in the cards changed since, tell the user and re-check those paths before the gate.
 2. **Plan-mode check.** If a plan-mode system reminder is present, STOP — explain that execution writes files and runs commands, which plan mode forbids, and wait for the user to exit plan mode.
 3. **ship-code check.** Probe for the `ship-code` skills (e.g. is `ship-reviewed-prs` available?). Record availability; if absent, warn once and set the degrade flag.
 4. **Isolation.** Create the working branch off the base branch. For parallel branches, prepare git worktrees (the Workflow tool's `isolation: 'worktree'` handles per-agent trees).
@@ -26,6 +28,7 @@ Full execution procedure, subagent prompts, status codes, the worktree/merge pro
 - **Critical path** runs sequentially on the integration branch.
 - **Independent branches** (a ready-set with >1 task and no inter-dependency) fan out via the Workflow tool, each task in its own worktree (`isolation: 'worktree'`). See `workflows/execute.workflow.js`.
 - **Sequential fallback.** If no ready-set ever has >1 independent task, or `solo` was passed, run everything sequentially on the integration branch — skip worktrees entirely.
+- **Gated tasks.** A task whose card has a `Gate` is taken out of any parallel set and run alone. Before it starts, show the user the gate text (and run the command it names, if any), and proceed only on an explicit yes. A no leaves the task and everything that depends on it unexecuted, reported at handoff.
 
 ### Integration-merge gate
 
@@ -38,11 +41,11 @@ When a parallel set completes, merge each branch back into the integration branc
 
 ## Stage 3 — Per-step gate (detail)
 
-Each task runs as a fresh subagent. Give it the task text, its FRs/acceptance criteria, and the relevant file paths (do NOT make it re-read the whole plan). The loop:
+Each task runs as a fresh subagent. Give it the task's card, the plan's "Conventions for every task" block, the text of exactly the ids the card lists under `Covers`, and the plan's setup command for a fresh checkout. Do not expand a covered requirement into its other criteria, and do not make the agent re-read the whole plan. The loop:
 
 1. **Implement.** If the plan specs tests for this task: TDD (write the failing test, see it fail, make it pass, refactor). Otherwise implement, then add the tests the acceptance criteria imply.
 2. **Run (evidence).** Execute the task's verification: typecheck/build, the task's tests, and a check of each acceptance criterion. Capture real command output + exit codes. Green is required.
-3. **Review.** For non-trivial changes, delegate to the matching `ship-code` skill (see SKILL.md delegation map). Address P1/Tier-1 findings before advancing; record minor ones.
+3. **Review.** For non-trivial changes, delegate to the matching `ship-code` skill (see SKILL.md delegation map; the card's `Kind` picks the row). Address P1/Tier-1 findings before advancing; record minor ones.
 4. **Rework loop.** On any red, loop (default `MAX_REWORK = 3`). For bugs, apply systematic-debugging (root cause before fix; no random patches). Past the limit → mark the task `BLOCKED` and escalate.
 
 ### Subagent status codes

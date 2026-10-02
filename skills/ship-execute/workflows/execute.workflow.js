@@ -8,7 +8,13 @@ export const meta = {
 
 // args (passed by the skill for ONE ready-set of mutually-independent tasks):
 //   { tasks: [{ id, prompt, acceptance, verifyCmd, paths }],
+//     conventions?: string,  // the plan's "Conventions for every task" block, given to every agent
+//     setup?: string,        // what a fresh checkout needs before anything runs (from the plan's Verification section)
 //     reworkMax?: number }   // bounded rework attempts per task (default 3)
+//
+// From a ship-better-plans card: prompt = the card's Do, acceptance = the text of the ids in
+// its Covers, verifyCmd = its Verify, paths = its Files (the files the task owns). A card with a Gate must not be passed
+// here: gated tasks run alone, after the user confirms.
 //
 // The caller (ship-execute main loop) is responsible for: computing ready-sets
 // from the DAG, merging each returned branch into the integration branch one at
@@ -16,6 +22,8 @@ export const meta = {
 
 const TASKS = (args && args.tasks) || []
 const REWORK_MAX = (args && args.reworkMax) || 3
+const CONVENTIONS = (args && args.conventions) || ''
+const SETUP = (args && args.setup) || ''
 
 const TASK_RESULT_SCHEMA = {
   type: 'object',
@@ -35,7 +43,9 @@ function taskPrompt(t) {
     ``,
     `TASK ${t.id}: ${t.prompt}`,
     t.acceptance ? `\nACCEPTANCE CRITERIA:\n${t.acceptance}` : ``,
-    t.paths ? `\nLIKELY FILES: ${(t.paths || []).join(', ')}` : ``,
+    t.paths ? `\nFILES THIS TASK OWNS (touch others only when unavoidable, and report them): ${(t.paths || []).join(', ')}` : ``,
+    CONVENTIONS ? `\nCONVENTIONS FOR EVERY TASK:\n${CONVENTIONS}` : ``,
+    SETUP ? `\nSETUP (your worktree is a fresh checkout): ${SETUP}` : ``,
     ``,
     `Discipline:`,
     `- If the task specifies tests, write the failing test first, watch it fail, then make it pass (TDD).`,

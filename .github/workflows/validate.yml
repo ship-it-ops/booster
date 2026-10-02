@@ -149,12 +149,34 @@ jobs:
           done
           exit $fail
 
+  plan-lint:
+    name: Plan linter tests and bundled example plans
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run the plan linter's unit tests
+        run: python3 -m unittest discover -s skills/ship-better-plans/tests -v
+
+      - name: The example plans must pass the linter they illustrate
+        run: |
+          set -e
+          for plan in skills/ship-better-plans/examples/example-plan-*.md; do
+            echo "lint: $plan"
+            python3 skills/ship-better-plans/scripts/lint_plan.py "$plan" --no-paths
+          done
+
   # Summary gate — branch protection can require this single job instead of
   # listing every individual check.
   all:
     name: All checks pass
     if: always()
-    needs: [structure, links, markdown, json, yaml, plugin-symlinks]
+    needs: [structure, links, markdown, json, yaml, plugin-symlinks, plan-lint]
     runs-on: ubuntu-latest
     steps:
       - name: Verify all required jobs succeeded
@@ -166,7 +188,8 @@ jobs:
             "${{ needs.markdown.result }}" \
             "${{ needs.json.result }}" \
             "${{ needs.yaml.result }}" \
-            "${{ needs.plugin-symlinks.result }}"
+            "${{ needs.plugin-symlinks.result }}" \
+            "${{ needs.plan-lint.result }}"
           do
             if [ "$status" != "success" ]; then
               fail=1

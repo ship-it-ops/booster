@@ -63,12 +63,13 @@ Bundled hooks fire automatically when the user installs the plugin via the marke
 
 ### Pre-PR Validation
 
-Every PR runs the [`Validate`](.github/workflows/validate.yml) GitHub Actions workflow, which checks SKILL.md structure, plugin manifests, marketplace consistency, bundled hooks, relative-link integrity, and JSON/YAML validity. Run the same checks locally before pushing:
+Every PR runs the [`Validate`](.github/workflows/validate.yml) GitHub Actions workflow, which checks SKILL.md structure, plugin manifests, marketplace consistency, bundled hooks, relative-link integrity, JSON/YAML validity, and the `ship-better-plans` plan linter (its unit tests, and that the bundled example plans pass it). Run the same checks locally before pushing:
 
 ```bash
 python3 scripts/validate-skills.py --verbose   # SKILL.md frontmatter, plugin layout, marketplace, hooks.json
 python3 scripts/check-skill-links.py           # relative links in skills/**/*.md
 npx --yes markdownlint-cli2                    # markdown lint (config in .markdownlint-cli2.yaml)
+python3 -m unittest discover -s skills/ship-better-plans/tests   # plan linter tests (only if you touched ship-better-plans)
 ```
 
 Each script exits non-zero on failures and prints what to fix.

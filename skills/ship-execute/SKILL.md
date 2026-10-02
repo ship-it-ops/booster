@@ -16,7 +16,7 @@ description: >
   for final review. Do NOT trigger for: planning new work (use
   `ship-better-plans`), trivial one-off edits, quick questions, or pure
   debugging of a single known bug; and do not run while in plan mode.
-allowed-tools: Task, Workflow, Read, Write, Edit, Glob, Grep, Bash, TodoWrite, AskUserQuestion
+allowed-tools: Agent, Workflow, Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion
 ---
 
 ## Purpose
@@ -50,7 +50,8 @@ Full procedure, subagent prompts, status codes, and the worktree/merge protocol 
 ## The 5 stages
 
 ### Stage 1 — Pre-flight
-- Load the plan (`docs/agent/plans/<slug>.md` by default). Parse: task DAG, FRs, acceptance criteria, per-task verification, subagent-delegation map. No plan? Suggest `/ship-plan` first; do not improvise a plan here.
+- Load the plan (`docs/agent/plans/<slug>.md` by default). From a `ship-better-plans` plan (`plan_format: 2`) parse the task cards (`Depends on`, `Covers`, `Files`, `Do`, `Verify`, `Kind`, `Gate`), the "Conventions for every task" block, the FR/AC text, and the Verification section (setup, commands, final check). No plan? Suggest `/ship-plan` first; do not improvise a plan here.
+- **Approval and freshness.** If the plan's frontmatter says `approval: draft`, stop and tell the user it has not been approved; continue only on an explicit yes. If its `base` commit is not the current one and files its cards name have changed since, say so before the gate.
 - Check for plan mode (rule 3). Check `ship-code` availability (rule 6).
 - Create a `docs/agent/status/` entry (coordination — sibling agents see the in-flight work).
 - Set up an isolated branch (and worktrees for parallel branches).
@@ -64,7 +65,8 @@ Full procedure, subagent prompts, status codes, and the worktree/merge protocol 
 ### Stage 2 — DAG execution (E2)
 - Run the **critical path sequentially**. Run **independent branches in parallel** via the Workflow tool with `isolation: 'worktree'` (parallel code-writers must not share a tree). Reconverge at an **integration-merge gate** (see reference).
 - **Fall back to sequential** automatically when the plan exposes no real parallel set, or when `solo` was passed.
-- Each task is owned by a fresh subagent per the plan's delegation map (Explore / feature-dev / a `ship-code` skill).
+- Each task is owned by a fresh subagent. Its briefing is the task's card, the plan's "Conventions for every task" block, and the text of exactly the ids the card lists under `Covers`.
+- **Gates.** A task whose card has a `Gate` never runs in a parallel wave. Before it starts, show the gate to the user and wait for an explicit yes; a no stops that branch.
 
 ### Stage 3 — Per-step gate (E3)
 For every task, in order:
@@ -93,7 +95,7 @@ Never choose [2] autonomously. On any path, update the plan status (executing �
 
 ## ship-code delegation
 
-For coding tasks, delegate depth to the `ship-code` sibling skills:
+For coding tasks, delegate depth to the `ship-code` sibling skills. Use the card's `Kind` to pick the row when the plan gives one:
 
 | Change kind | Per-step review |
 |-------------|-----------------|
