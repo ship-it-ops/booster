@@ -36,6 +36,7 @@ The 1.0 architecture is recorded as E1–E5 in [ship-execute-architecture](ship-
 - **X7 — Gates are enforced by the ledger.** A gated task cannot be marked running, and its briefing cannot be written for an agent, until the user's answer is recorded for the card as it is now; an approval covers one dispatch; a gated task never appears in a parallel wave, and the wave script refuses a briefing that carries a gate line. A card with no `Reversibility` field stops execution.
 - **X8 — The user's repository.** Uncommitted tracked changes stop the start and are never stashed. The uncommitted plan file straight after `/ship-plan` is committed as the branch's first commit. Discard deletes only what the run created and asks twice. A plan is marked `completed` only when it is.
 - **X9 — Narrowed tool pre-approval.** `allowed-tools` lists the plan reader and the specific safe shapes of the git commands a run needs (no wildcard `git branch`, `git worktree`, `git restore` or `git add`) instead of bare `Bash`; worktree removal goes through the script's `cleanup`, so the plan's own commands (tests, builds, anything a plan author wrote) go through the user's normal permission mode.
+- **X11 — E4 revised by the user (2026-10-04): "approve and build now" counts as the start confirmation.** When the user has just made that choice for the plan at the end of `ship-better-plans`, `ship-execute` shows its start summary and begins without a second question, unless its read-only look found something that needs a decision. In every other interactive case the start question is still asked.
 - **X10 — An unattended mode.** With nobody to answer, an explicit invocation on an approved plan is the go-ahead; gated tasks are left for the user; nothing is pushed or discarded.
 
 ## Alternatives Considered
@@ -43,7 +44,7 @@ The 1.0 architecture is recorded as E1–E5 in [ship-execute-architecture](ship-
 - **Sequential tasks in the main checkout, worktrees only for waves.** Simpler and cheaper per task, but it lets unverified commits land on the execution branch and leaves a failed task's debris in the user's checkout. Rejected after the second review round; kept only as the fallback when there is no Agent tool.
 - **Merge worktree branches instead of cherry-picking.** Rejected: merges of single-commit throwaway branches add merge commits and make "one commit per task" harder to read and revert.
 - **Undo a failed commit with `git reset --hard`.** Rejected in favour of `git revert`: reset in the user's checkout can destroy work if anything changed underneath.
-- **Skip the start confirmation after an explicit `/ship-execute` on an approved plan.** Two reviewers asked for this. Not done: E4 made the confirmation mandatory, and the question now carries real information (branch, gates, agent count). Worth revisiting.
+- **Skip the start confirmation after any explicit `/ship-execute` on an approved plan.** Two reviewers asked for this. Not done in general: the question carries real information (branch, gates, agent count). The narrower case was accepted; see X11.
 - **Keep the in-flight `docs/agent/status/` entry.** Rejected: see X5.
 
 ## Consequences
@@ -55,7 +56,6 @@ The 1.0 architecture is recorded as E1–E5 in [ship-execute-architecture](ship-
 
 ## Revisit Triggers
 
-- Users find the start question redundant after `/ship-plan`'s "approve and build now" → let that choice count as the start confirmation.
 - Per-task worktree setup makes small sequential plans slow → allow main-checkout execution for plans of a few small tasks, with the same acceptance checks.
 - The commit check's file patterns produce false failures on real projects → make them configurable from the plan's conventions.
 - The Workflow or Agent isolation behaviour changes (worktree location, branch naming, whether commits persist) → re-run the isolation probe and the live wave test.

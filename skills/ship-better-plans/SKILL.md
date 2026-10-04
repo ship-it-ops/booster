@@ -138,7 +138,7 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/lint_plan.py" <plan-file> --dag
 
 Present the plan for approval in one message: the summary, the decisions the user should look at, the assumptions still open, what the review changed, and where the plan is saved. A plan with a blocking open question is not ready; settle the question, or make settling it the first task with a gate. Ask one question with three choices:
 
-- approve and build now: `/ship-execute docs/agent/plans/<slug>.md` (add `solo` to run tasks one at a time). If `ship-execute` is not installed, offer to build it in this session card by card, and mention the plugin once.
+- approve and build now: `/ship-execute docs/agent/plans/<slug>.md` (add `solo` to run tasks one at a time). This choice also counts as `ship-execute`'s start confirmation, so say that the build will begin without a second question. If `ship-execute` is not installed, offer to build it in this session card by card, and mention the plugin once.
 - approve and stop here
 - revise
 

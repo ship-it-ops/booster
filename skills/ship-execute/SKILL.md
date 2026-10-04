@@ -75,7 +75,9 @@ Task states are `pending`, `running`, `done`, `blocked`, `needs-decision`, `decl
 
 Show a short start summary: the plan; the tasks and waves; which tasks have gates, what each gate asks, and what each gated task cannot undo; the branch you will create (`ship/<plan-slug>`) and what it starts from; what step 1 found; and how the work will run, using the agent count from `summary` and the number of fresh checkouts that need the plan's setup.
 
-Then ask one question with `AskUserQuestion`: start; start, running tasks one at a time; show what each task agent will be told and stop; or cancel. The user's answer to start is also the opt-in the Workflow tool requires. If the user invoked the skill with `solo`, they have already chosen one at a time: say so and offer start, show, or cancel.
+Then ask one question with `AskUserQuestion`: start; start, running tasks one at a time; show what each task agent will be told and stop; or cancel. The user's answer to start is also the opt-in the Workflow tool requires.
+
+**When the user has already said go.** If, in this session, the user has just chosen "approve and build now" for this plan at the end of `ship-better-plans`, that choice is the start confirmation and the Workflow opt-in. Show the start summary and begin without asking again. Still stop and ask if step 1 found something that needs a decision: a blocking uncommitted file, a card file that is missing or changed since the plan was written, or a command you would not run unasked. If the user invoked the skill with `solo`, they have already chosen one at a time: say so and offer start, show, or cancel.
 
 ### 3. Prepare
 

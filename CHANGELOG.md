@@ -20,7 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
   - *Evidence:* a task agent's "done" is a claim. The orchestrator re-runs each card's `Verify` on the execution branch, runs the suite after each parallel wave, and compares the final commit with a recorded baseline.
   - *Plan and reality:* a card that contradicts the code, an existing test or its own check returns `needs-decision` and goes to the user; one fresh retry on failure, then `blocked`; the run continues with whatever does not depend on it.
   - *Review:* the final review is a local, independent review of the whole diff against the plan's criteria (the previous design required a pull-request reviewer before any pull request could exist). Riskier tasks are reviewed during the run. Sibling review skills are used when installed and are optional. Fix rounds are bounded.
-  - *Run shape:* read-only inspection first, one start question, resumable from the ledger, an unattended mode that never runs gated tasks or pushes, an honest report, and a plan marked `completed` only when it is. Discarding asks twice.
+  - *Run shape:* read-only inspection first, one start question (skipped when the user has just chosen "approve and build now" in `ship-better-plans`), resumable from the ledger, an unattended mode that never runs gated tasks or pushes, an honest report, and a plan marked `completed` only when it is. Discarding asks twice.
 
 ### Added
 

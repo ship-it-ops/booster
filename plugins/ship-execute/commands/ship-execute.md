@@ -10,4 +10,4 @@ Arguments: `$ARGUMENTS`
 - A path argument is the plan file. With none, the skill finds the approved plan to build, and asks if there is more than one.
 - `solo` means the user wants tasks run one at a time, with no parallel worktrees.
 
-The user asked for execution explicitly. The skill still shows its start summary and asks its one start question before changing anything.
+The user asked for execution explicitly. The skill still shows its start summary and asks its one start question before changing anything, unless the user has just chosen "approve and build now" for this plan in `ship-better-plans`, which already is that confirmation.
