@@ -86,7 +86,7 @@ The weak card's dependency is prose, so a tool reads it as no dependency; it say
 
 ## The plan as a contract with the executor
 
-`ship-execute` (version 1.1.0 and later) reads the plan, hands each card to a fresh agent, runs independent cards in parallel worktrees, and merges them. What it takes from the plan:
+`ship-execute` (version 2.0.0 and later) reads the plan with its own parser, hands each card to a fresh agent, runs independent cards in parallel worktrees, and brings each task's commit onto one execution branch. What it takes from the plan:
 
 | Plan element | Executor use |
 |--------------|--------------|
@@ -94,12 +94,12 @@ The weak card's dependency is prose, so a tool reads it as no dependency; it say
 | Frontmatter `base` | Detecting that the code moved since the plan was written |
 | Frontmatter `plan_format: 2` | Telling card-based plans from older ones |
 | Card `Depends on` | Ordering and the parallel waves |
-| Card `Files` | The files the task agent is told it owns |
+| Card `Files` | The files the task agent is told it owns. The executor compares each task's commit with this list, and rejects a commit that changes a test or check the card does not own |
 | Card `Do`, "Conventions for every task", and the text of the ids in `Covers` | The task agent's whole briefing. The ids are passed exactly as listed; a covered requirement is not expanded into its other criteria |
-| Card `Verify` | The command the task agent must run and report |
+| Card `Verify` | The command the task agent must run, and that the executor runs again itself on the execution branch before the task counts as done |
 | Card `Kind` | Which review the task's change gets |
 | Card `Gate` | Execution pauses for the user before the task; gated tasks never run in a parallel wave |
-| Verification section | Setup for each fresh checkout, and the final check before hand-off |
+| Verification section | Setup for each fresh checkout, the baseline the run is compared with, and the final check before hand-off. Checks the Final check line assigns to a person or another environment are reported as still to be shown, not run |
 
 An executor that does not know this format (an older `ship-execute`, or another tool) will still see the gate and the conventions if it reads the plan, but nothing guarantees it stops. If the plan will be built by anything else, say so to the user at approval.
 

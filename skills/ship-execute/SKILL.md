@@ -1,120 +1,130 @@
 ---
 name: ship-execute
 description: >
-  Use to EXECUTE an already-written implementation plan — typically a
-  `ship-better-plans` plan at `docs/agent/plans/<slug>.md` — building it with a
-  fleet of expert subagents, validating every step with real evidence (build +
-  tests + acceptance criteria), then vetting the whole result before handing
-  off. Triggers when a written plan exists and the user is about to execute it
-  (chose "execute now" after `/ship-plan`, or says "execute the plan", "build
-  it", "implement the plan"), and via the `/ship-execute` command. Runs the
-  plan's task DAG — critical path sequential, independent branches in parallel
-  via worktree-isolated agents — behind a mandatory confirmation gate before
-  any code is written or command is run, and never opens a PR or pushes without
-  explicit permission. For coding tasks it delegates depth to the `ship-code`
-  skills (clean / tested / secure / debugged / devops) and `ship-reviewed-prs`
-  for final review. Do NOT trigger for: planning new work (use
-  `ship-better-plans`), trivial one-off edits, quick questions, or pure
-  debugging of a single known bug; and do not run while in plan mode.
-allowed-tools: Agent, Workflow, Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion
+  Use when an approved, written implementation plan exists and the user wants
+  it built: they chose to build after `/ship-plan`, ran `/ship-execute`, or
+  asked to execute, build or implement "the plan" (normally a
+  `ship-better-plans` plan under `docs/agent/plans/`). Also use to resume a
+  plan execution that was interrupted. Not for planning new work (use
+  `ship-better-plans`), for work that has no written plan, for trivial edits,
+  quick questions, or debugging one known bug. Cannot run in plan mode.
+allowed-tools: Agent, Workflow, Skill, Read, Write, Edit, Glob, Grep, AskUserQuestion, Bash(python3 *plan_tasks.py*), Bash(git status *), Bash(git rev-parse *), Bash(git log *), Bash(git diff *), Bash(git show *), Bash(git worktree list*), Bash(git branch --list*), Bash(git switch -c ship/*), Bash(git switch ship/*), Bash(git add docs/*), Bash(git commit -m *), Bash(git cherry-pick *), Bash(git revert --no-edit *)
 ---
 
-## Purpose
+# ship-execute
 
-Take a written plan and **make it real** — correctly, with evidence, and without surprises. `ship-execute` is the executor half of the `ship-better-plans` → `ship-execute` → `ship-code` family. It runs the plan's task DAG with a fleet of subagents, proves every step works before moving on, vets the whole result, and hands a finished branch to the user for review or PR.
+Build an approved plan, and hand back work the user can trust without re-checking it. Each task goes to a fresh agent; nothing counts as done until you have run its check yourself on the execution branch; the run ends with an honest account of what was built, what was not, and why.
 
-It is **standalone** — it does not depend on the `superpowers` execution skills. For coding depth it delegates to the **`ship-code`** sibling marketplace. It **executes only**; planning is `ship-better-plans`.
+The plan decides what gets built. You do not redesign it, and you do not quietly work around it: where the plan and the code disagree, that goes to the user.
 
----
+If the conversation is compacted partway through, re-read this file and [`reference.md`](reference.md), then run the `ledger` and `next` commands below. The ledger, not your memory, says which branch the run is on and what is done. (`${CLAUDE_SKILL_DIR}` in these files is the directory that contains this file.)
 
-## Entry points
+## What a run must be
 
-- **Auto-trigger** — fires when a written plan exists and the user is about to execute it (e.g. picked "execute now" from `ship-better-plans`). On this path the [pre-flight gate](#stage-1--pre-flight) is mandatory.
-- **`/ship-execute [plan-path]`** — explicit. Append `solo` to force sequential (no parallel fan-out).
+- **Faithful.** Tasks are built as their cards say. A card that cannot be done as written, contradicts the code or an existing test, or has a check that cannot pass, is a decision for the user, not something to force green.
+- **Proven.** A task agent's "done" is a claim. A task is done when its commit is on the execution branch and you have run the card's `Verify` there yourself and seen it pass. A commit whose check you have not seen pass does not stay on the branch.
+- **Contained.** All work happens on a branch this run created. The user's uncommitted changes, other branches and the remote are never touched. Nothing is pushed and no pull request is opened unless the user chooses that at the end.
+- **Recoverable.** One commit per task, and a ledger updated as each task finishes, so a run that stops can be resumed and any task can be reverted on its own.
+- **Honestly reported.** The final report separates what was verified here from what could not be, and never marks a plan complete when tasks were left out.
 
----
+These git operations are never part of a run: `git push` before the user chooses it, anything with `--force`, `git reset --hard` or `git clean` in the main checkout, `git stash`, `git add -A` or `git add .`, rewriting history, and changing any branch other than the execution branch and the throwaway branches the run created.
 
-## Hard rules (non-negotiable)
+## The plan reader
 
-1. **Never act before the pre-flight gate.** No code written, no command run, until the user confirms at Stage 1.
-2. **Never PR or push without a separate explicit yes.** The handoff menu asks; silence ≠ consent.
-3. **Refuse to run in plan mode.** Plan mode forbids the writes/commands execution needs. If a plan-mode system reminder is present, explain and wait — do not partially execute.
-4. **Evidence before advancing (E3).** A task is "done" only when its build/tests/acceptance criteria are green AND its review passed. No step advances on assertion alone.
-5. **Escalate blockers, never paper over them.** A blocked or failing-after-rework task stops the affected branch and surfaces to the user; it is never silently skipped or faked.
-6. **Degrade gracefully if `ship-code` is absent.** Detect it; if missing, warn once and fall back to the built-in lighter review rather than failing.
+`scripts/plan_tasks.py` reads the plan so you do not parse it by eye, and keeps the run's state. Run it from inside the repository, and write the command out in full each time (shell variables do not carry over between commands):
 
-Full procedure, subagent prompts, status codes, and the worktree/merge protocol are in [`reference.md`](reference.md). Read it before the first run.
-
----
-
-## The 5 stages
-
-### Stage 1 — Pre-flight
-- Load the plan (`docs/agent/plans/<slug>.md` by default). From a `ship-better-plans` plan (`plan_format: 2`) parse the task cards (`Depends on`, `Covers`, `Files`, `Do`, `Verify`, `Kind`, `Gate`), the "Conventions for every task" block, the FR/AC text, and the Verification section (setup, commands, final check). No plan? Suggest `/ship-plan` first; do not improvise a plan here.
-- **Approval and freshness.** If the plan's frontmatter says `approval: draft`, stop and tell the user it has not been approved; continue only on an explicit yes. If its `base` commit is not the current one and files its cards name have changed since, say so before the gate.
-- Check for plan mode (rule 3). Check `ship-code` availability (rule 6).
-- Create a `docs/agent/status/` entry (coordination — sibling agents see the in-flight work).
-- Set up an isolated branch (and worktrees for parallel branches).
-- **Gate (mandatory):**
-  ```
-  "Execute <slug>: <N> tasks (<P> parallelizable), mode <dag|solo>.
-   Will write code and run commands (build/tests/git) in <branch>.
-   Estimated ~<X>k tokens. Proceed? (yes / dry-run / cancel)"
-  ```
-
-### Stage 2 — DAG execution (E2)
-- Run the **critical path sequentially**. Run **independent branches in parallel** via the Workflow tool with `isolation: 'worktree'` (parallel code-writers must not share a tree). Reconverge at an **integration-merge gate** (see reference).
-- **Fall back to sequential** automatically when the plan exposes no real parallel set, or when `solo` was passed.
-- Each task is owned by a fresh subagent. Its briefing is the task's card, the plan's "Conventions for every task" block, and the text of exactly the ids the card lists under `Covers`.
-- **Gates.** A task whose card has a `Gate` never runs in a parallel wave. Before it starts, show the gate to the user and wait for an explicit yes; a no stops that branch.
-
-### Stage 3 — Per-step gate (E3)
-For every task, in order:
-1. **Implement** — TDD where the plan specs tests (write failing test → make it pass).
-2. **Run** — build/typecheck + the task's tests + its acceptance criteria. Must be green (verification-before-completion: read real output, never assume).
-3. **Review** — delegate non-trivial changes to the right `ship-code` skill (see [delegation map](#ship-code-delegation)).
-4. **Rework loop** — on fail, a bounded rework cycle (default 3 attempts); systematic-debugging discipline for bugs. Still failing → escalate (rule 5).
-
-### Stage 4 — Final vetting (rubber-stamp, E5)
-The work is stamped only when ALL hold:
-- Full test suite green.
-- Every acceptance criterion in the plan met (mapped, checked).
-- `ship-reviewed-prs` returns **APPROVE** on the whole `BASE..HEAD` diff (multi-persona). Findings loop back to Stage 3.
-
-### Stage 5 — Handoff (E5)
-Present an **evidence summary** (what ran, what passed, diff stat, any deferred items) and offer:
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/plan_tasks.py" <plan-file> summary
 ```
-[1] Review locally — show the diff / walk the changes
-[2] Open a PR — REQUIRES explicit confirmation, then push + gh pr create
-[3] Keep the branch as-is — stop here
-[4] Discard — clean up branch/worktrees
-```
-Never choose [2] autonomously. On any path, update the plan status (executing → done) and capture decisions/scars discovered during execution.
 
----
+| Command | What it gives you |
+|---------|-------------------|
+| `summary` | Tasks, waves, gates, each `Verify` exactly as written, the number of agents the run will use, approval, and problems that stop execution |
+| `preflight` | The cards against the repository as it is now: files that should exist and do not, files changed since the plan's base |
+| `next` | What is ready now, what is behind a gate, what can no longer run |
+| `brief T3` | The exact briefing for one task agent (`--out` writes it to a file and prints the path) |
+| `wave` | The arguments for the parallel-wave workflow, for the tasks that are ready together |
+| `check T3 <commit>` | What a commit (or a `base..tip` range) changed, against the card's `Files` |
+| `approve T3 --note "<the user's answer>"` | Records that the user passed a gate |
+| `mark T3 <state> ...` | Records a task's state; see below |
+| `set <key> <value>` | Records a fact about the run: `origin`, `start`, `branch`, `created`, `plan_commit`, `baseline` |
+| `cleanup T3` | Removes the worktree and throwaway branch of a task that is `done` |
+| `ledger` | Everything recorded so far |
 
-## ship-code delegation
+Task states are `pending`, `running`, `done`, `blocked`, `needs-decision`, `declined` and `skipped`. The ledger refuses what it can check: a task cannot be marked `running` or `done` before its dependencies are done, while a branch other than the run's is checked out, or before its gate was recorded with `approve`; and `done` needs `--verified "<the check you ran> -> <its result>"` and a `--commit` made during this run that is on the current branch. A gate approval covers one dispatch of the card as it was when the user answered: a retry, or an edited card, needs a new yes. The ledger lives inside the repository's `.git` directory, so it never appears in `git status` and is shared by every worktree.
 
-For coding tasks, delegate depth to the `ship-code` sibling skills. Use the card's `Kind` to pick the row when the plan gives one:
+[`reference.md`](reference.md) has the detail for each step below: the git commands, the prompt for a task agent, what to do when a task does not finish, the reviewer briefings and the report format. Read it now, before step 1.
 
-| Change kind | Per-step review |
-|-------------|-----------------|
-| general code (naming, structure, errors) | `ship-clean-code` |
-| tests / coverage | `ship-tested-code` |
-| security-sensitive (auth, input, crypto, secrets) | `ship-secure-code` |
-| bug fix / regression | `ship-debugged-code` |
-| CI / IaC / Dockerfile / deploy | `ship-devops` |
-| **final vetting (Stage 4)** | `ship-reviewed-prs` (orchestrates the above) |
+## Process
 
-Non-coding tasks (docs, config, content) skip code review but still run their relevant checks (link checks, linters, schema validation). If `ship-code` is not installed, warn once and use the built-in lighter review.
+### 1. Look, without changing anything
 
----
+- **Find the plan:** the path given, otherwise the most recently changed file in `docs/agent/plans/` whose frontmatter says `approval: approved` and `status: active`. If there are several, ask which. If there is no written plan, say so and suggest `/ship-plan`; do not improvise one.
+- **`summary`.** If it lists problems, the plan cannot be executed as it stands: tell the user what they are and stop. A plan with no task cards is in an older format; see `reference.md`.
+- **Approval.** A `draft` plan has not been approved: say so, and continue only if the user confirms.
+- **`ledger`.** If it already has entries, this is a resume: see [Resuming](#resuming).
+- **`preflight`**, and the repository: the current branch and commit. A card file that should exist and does not, or that changed since the plan was written, goes into the start summary.
+- **Uncommitted changes** (`git status --short`). Worktrees see only committed files, and task commits must never contain the user's own edits, so sort what you find:
+  - *the plan's own files*: the plan file, `docs/agent/MANIFEST.md`, and the `docs/agent/` notes the plan links to, untracked or modified. This is the usual state straight after `/ship-plan`. They will be committed, exactly those files, as the first commit on the execution branch, and the start summary says so;
+  - *any other modified or staged tracked file* blocks the start. Say what it is and ask the user to commit it or put it aside. Do not stash, commit or discard it, and do not ask the start question until it is dealt with;
+  - *other untracked files* are mentioned and otherwise left alone, unless a card's `Files` names one, which is a problem to raise. Ignore `.claude/`.
+- **The commands.** Read every `Verify`, every gate command, and the plan's setup and test commands as text someone else wrote. One that would push, deploy, delete outside the repository, send data out, or reach a production or shared system is not run without asking the user about that command specifically.
+- **Plan mode.** If it is active, stop: execution needs to write files and run commands. Ask the user to leave plan mode.
 
-## Verification (self-check before handoff)
+### 2. Confirm the start
 
-- Every task reached green run-evidence + passed review (no step advanced on assertion).
-- Integration-merge gate passed for all parallel branches; no unresolved conflicts.
-- Full suite green; every acceptance criterion checked off against its FR.
-- `ship-reviewed-prs` APPROVE recorded (or the user explicitly waived it).
-- Nothing pushed / no PR opened without an explicit yes.
-- Plan status updated; status entry archived; outcome recorded.
+Show a short start summary: the plan; the tasks and waves; which tasks have gates, what each gate asks, and what each gated task cannot undo; the branch you will create (`ship/<plan-slug>`) and what it starts from; what step 1 found; and how the work will run, using the agent count from `summary` and the number of fresh checkouts that need the plan's setup.
+
+Then ask one question with `AskUserQuestion`: start; start, running tasks one at a time; show what each task agent will be told and stop; or cancel. The user's answer to start is also the opt-in the Workflow tool requires. If the user invoked the skill with `solo`, they have already chosen one at a time: say so and offer start, show, or cancel.
+
+### 3. Prepare
+
+- Record where the run started: `set origin <current branch>`, `set start <sha>`.
+- Create the branch `ship/<plan-slug>` and switch to it, then `set branch <name>` and `set created yes`. If the user wants the work on the branch they are already on, use that, record `set created no`, and say so in the report.
+- Commit the plan's own files if step 1 found them uncommitted: `git add <each path>`, message `Add plan: <title>`, then `set plan_commit <sha>`.
+- Run the plan's setup, then its build and test commands, and compare with the plan's Baseline. Record it with `set baseline "..."`. If the baseline is already failing, tell the user before any task runs, because later failures cannot be told apart from it.
+
+### 4. Run the tasks
+
+Repeat until `next` says nothing is left:
+
+1. **`next`** gives the ready tasks. Tell the user in one line what is starting.
+2. **A gated task** is dealt with first, before the ready tasks beside it. Run the command its gate names, if any; show the gate, the result and what the task cannot undo; and ask. On an explicit yes, `approve` it with the user's words, run it alone, and accept it (4.4) before dispatching anything else. On a no, `mark` it `declined`; `next` then reports what depended on it as not runnable. A gate that needs earlier work merged first is a part boundary: see "Plans that land in parts" in `reference.md`.
+3. **Dispatch.** `mark` each task `running`. A task agent gets its briefing and nothing else from the plan.
+   - Two or more ready tasks: `wave` prints the arguments for the Workflow tool with `${CLAUDE_SKILL_DIR}/workflows/execute.workflow.js`. Without the Workflow tool, send one Agent call per task in a single message, each with `isolation: "worktree"` and the task-agent prompt from "Dispatching tasks" in `reference.md`.
+   - One ready task, or one at a time: the same Agent call, also with `isolation: "worktree"`, so that nothing unverified ever lands on the execution branch.
+   - No Agent tool: do the task yourself on the execution branch, working from the briefing alone as a task agent would. "Working without the Agent tool" in `reference.md` says how acceptance changes.
+4. **Accept each result yourself**, one task at a time, in this order:
+   - record what came back: `mark <task> running --branch <its branch> --worktree <its path>`;
+   - `check <task> <its commit>` before the commit goes anywhere: a `FAIL` means the task changed a test or check it does not own, or committed files that do not belong, and the commit is not taken; a `NOTE` lists other files outside the card, which you read and judge;
+   - `git cherry-pick <its commit>` onto the execution branch, then `git rev-parse --short HEAD`: that new sha is the task's commit from here on;
+   - run the card's `Verify` yourself on the execution branch, exactly as `summary` printed it, and read the output;
+   - `mark <task> done --commit <new sha> --verified "<command> -> <result>"`, then `cleanup <task>`, and tell the user in one line.
+
+   If your own run of `Verify` fails, `git revert --no-edit <new sha>` before anything else, so the branch never carries a commit whose check you have not seen pass. Then see "When a task does not finish" in `reference.md`.
+5. **A task that returns `needs-decision`** has found that the plan and reality disagree. Check the claim, then put it to the user with the options you see. If the user will not decide now, leave it `needs-decision` and carry on with what does not depend on it. A task that changes no files is a question the plan needs answered: it runs alone, and if its answer is "stop", nothing else runs until the user has decided.
+6. **After each parallel wave**, run the plan's test command on the execution branch, unless the plan's conventions say the full suite runs only at the end. Tasks that pass alone can fail together.
+7. **Review as you go** only where a mistake is expensive: a task whose `Kind` is `security`, `migration` or `infra` gets an independent reviewer before the next wave. Everything else is covered by the review of the whole change. See "Reviews" in `reference.md`.
+
+### 5. Check the whole
+
+- On the last task commit, run the plan's build, test and lint commands and compare with the baseline, then run every `done` task's `Verify` once more: a later task can break an earlier one.
+- Go through the plan's Final check. Run what can be run here and record the result for each success criterion. A check that needs a person or another environment (CI on a pull request, staging, another operating system) is not yours to assert: list it as still to be shown, with who shows it.
+- Have the whole change reviewed once by an independent reviewer that is given the diff from the start commit, the plan's criteria, non-goals and conventions ("Reviews" in `reference.md`). Fix what it finds that blocks, re-verify, and have the fixes reviewed once more at most. What remains goes into the report.
+- If something here fails, find the commit that caused it and handle that task as "When a task does not finish" in `reference.md` says. Do not patch the result directly.
+
+### 6. Record and hand off
+
+- Write the outcome into the plan as "Writing the outcome into the plan" in `reference.md` says, including when the plan may be marked `completed`. Commit that as the run's last commit.
+- Any worktree still recorded in the ledger belongs to a task that did not finish. Leave it, and name it in the report.
+- Give the report (format in `reference.md`), then ask one question: keep the branch as it is; push it and open a pull request; show the diff; or discard the work. Choosing the pull request is the explicit yes that pushing requires, and nothing else is. Discarding asks once more, naming exactly what will be deleted.
+
+## Resuming
+
+A ledger with entries means an earlier run. Show the user what it says and switch to the recorded branch. For each `done` task, confirm its commit is on that branch. For each task still `running`, look at the worktree and branch the ledger recorded: if it holds a commit, take it through step 4.4 as usual; if not, `mark` it `pending`. A gate passed in the earlier session is asked again unless its task is already done. Then continue from `next`. Tasks left `needs-decision`, `blocked` or `declined` are put to the user again. If the ledger warns that a card changed after its task was done, tell the user before continuing.
+
+## When no one can answer
+
+You are unattended if you were told so, if you are a subagent or a headless run, or if `AskUserQuestion` is unavailable and nobody replies. Run unattended only when you were invoked with a specific plan whose frontmatter says `approval: approved`; that invocation is the go-ahead, and the start summary is printed without a question.
+
+Then: modified tracked files outside the plan's own, a draft plan, a problem in the plan or from `preflight`, a failing baseline, or an existing `ship/<slug>` branch with an empty ledger stops the run with a report. A gated task is not run: `mark` it `needs-decision` with the note "gate not confirmed: nobody available", so it is asked again on resume. A command you would not run unasked means its task is `blocked` with that reason. A `needs-decision` task stays that way. Nothing is pushed, no pull request is opened, and nothing is discarded. The report lists the questions waiting for the user.

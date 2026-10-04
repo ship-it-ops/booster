@@ -1,7 +1,7 @@
 {
   "name": "ship-execute",
-  "description": "Execute a written implementation plan with a fleet of expert subagents. Runs the plan's task DAG (parallel where independent, worktree-isolated), validates every step with real evidence (build + tests + acceptance criteria), vets the whole result via ship-reviewed-prs, then hands off for review or PR. Delegates coding depth to the ship-code skills.",
-  "version": "1.1.0",
+  "description": "Build an approved implementation plan and hand back work you can trust: one fresh agent and one commit per task, independent tasks in parallel worktrees, every task's check re-run on the execution branch before it counts, gates on irreversible steps, a run ledger so an interrupted run resumes, an independent review of the whole change, and an honest report. Never pushes or opens a pull request unless you choose to.",
+  "version": "2.0.0",
   "author": {
     "name": "ship-it-ops"
   },

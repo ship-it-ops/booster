@@ -1,92 +1,94 @@
 export const meta = {
-  name: 'ship-execute-fanout',
-  description: 'Run one independent ready-set of plan tasks in parallel, each in an isolated worktree: implement (TDD where specced), run the task verification, self-review. Returns a TASK_RESULT per task. DAG ordering + integration merges stay in the main skill loop.',
-  phases: [
-    { title: 'Implement', detail: 'one worktree-isolated agent per independent task' },
-  ],
+  name: 'ship-execute-wave',
+  description: 'Run one wave of independent plan tasks in parallel, each in its own git worktree: implement, verify, commit, and report the commit so the caller can bring it onto the execution branch',
+  phases: [{ title: 'Implement', detail: 'one agent per task, each in an isolated worktree' }],
 }
 
-// args (passed by the skill for ONE ready-set of mutually-independent tasks):
-//   { tasks: [{ id, prompt, acceptance, verifyCmd, paths }],
-//     conventions?: string,  // the plan's "Conventions for every task" block, given to every agent
-//     setup?: string,        // what a fresh checkout needs before anything runs (from the plan's Verification section)
-//     reworkMax?: number }   // bounded rework attempts per task (default 3)
+// args: the JSON printed by `plan_tasks.py <plan> wave`, passed as an object:
+//   { startCommit: string,              // short sha of the execution branch tip the wave starts from
+//     tasks: [{ id, briefPath, noCommit? }] }   // briefPath = a briefing file written by plan_tasks.py
+// A task may carry the briefing text itself as `brief` in place of `briefPath`.
 //
-// From a ship-better-plans card: prompt = the card's Do, acceptance = the text of the ids in
-// its Covers, verifyCmd = its Verify, paths = its Files (the files the task owns). A card with a Gate must not be passed
-// here: gated tasks run alone, after the user confirms.
+// Each agent runs in a fresh worktree cut from the commit that is checked out in the main
+// checkout, on its own throwaway branch. Nothing reaches the execution branch from here:
+// the caller cherry-picks each returned commit, re-runs the task's verification itself,
+// and removes the worktree and branch afterwards.
 //
-// The caller (ship-execute main loop) is responsible for: computing ready-sets
-// from the DAG, merging each returned branch into the integration branch one at
-// a time, and re-running tests after each merge (the integration-merge gate).
+// A task with a gate must never be in a wave: gated tasks run alone, after the user says yes.
 
-const TASKS = (args && args.tasks) || []
-const REWORK_MAX = (args && args.reworkMax) || 3
-const CONVENTIONS = (args && args.conventions) || ''
-const SETUP = (args && args.setup) || ''
+let A = args
+if (typeof A === 'string') {
+  try {
+    A = JSON.parse(A)
+  } catch (e) {
+    return { error: 'args arrived as a string that is not JSON; pass an object.' }
+  }
+}
+const TASKS = (A && Array.isArray(A.tasks) && A.tasks) || []
+const START = (A && A.startCommit) || ''
+
+if (TASKS.length === 0) return { error: 'No tasks: pass { tasks: [{ id, brief }], startCommit }.' }
+const bad = TASKS.filter((t) => !t || !t.id || !(t.brief || t.briefPath))
+if (bad.length) return { error: 'Every task needs an id and a briefPath (or brief). Use the output of `plan_tasks.py <plan> wave`.' }
+const gated = TASKS.filter((t) => t.gated || /^GATE\b/m.test(t.brief || ''))
+if (gated.length) {
+  return { error: `Gated tasks cannot run in a parallel wave: ${gated.map((t) => t.id).join(', ')}. Ask the user, then run each alone.` }
+}
 
 const TASK_RESULT_SCHEMA = {
   type: 'object',
   properties: {
-    taskId: { type: 'string' },
-    status: { type: 'string', enum: ['DONE', 'DONE_WITH_CONCERNS', 'NEEDS_CONTEXT', 'BLOCKED'] },
-    evidence: { type: 'string' },
-    concerns: { type: 'array', items: { type: 'string' } },
-    filesTouched: { type: 'array', items: { type: 'string' } },
+    status: { type: 'string', enum: ['done', 'needs-decision', 'blocked'] },
+    commit: { type: 'string' },
+    branch: { type: 'string' },
+    worktree: { type: 'string' },
+    startedFrom: { type: 'string' },
+    answer: { type: 'string' },
+    verifyCommand: { type: 'string' },
+    verifyExitCode: { type: 'integer' },
+    verifyOutputTail: { type: 'string' },
+    filesChanged: { type: 'array', items: { type: 'string' } },
+    deviations: { type: 'string' },
+    question: { type: 'string' },
   },
-  required: ['taskId', 'status', 'evidence'],
+  required: ['status', 'branch', 'startedFrom', 'filesChanged'],
 }
 
-function taskPrompt(t) {
-  return [
-    `Implement this plan task in your isolated worktree. Make real, working changes.`,
-    ``,
-    `TASK ${t.id}: ${t.prompt}`,
-    t.acceptance ? `\nACCEPTANCE CRITERIA:\n${t.acceptance}` : ``,
-    t.paths ? `\nFILES THIS TASK OWNS (touch others only when unavoidable, and report them): ${(t.paths || []).join(', ')}` : ``,
-    CONVENTIONS ? `\nCONVENTIONS FOR EVERY TASK:\n${CONVENTIONS}` : ``,
-    SETUP ? `\nSETUP (your worktree is a fresh checkout): ${SETUP}` : ``,
-    ``,
-    `Discipline:`,
-    `- If the task specifies tests, write the failing test first, watch it fail, then make it pass (TDD).`,
-    `- After implementing, RUN the verification and read the real output — do not assume:`,
-    `    ${t.verifyCmd || '(build + this task\'s tests + acceptance checks)'}`,
-    `- It must be green before you report DONE. If it is red after up to ${REWORK_MAX} rework attempts,`,
-    `  apply root-cause debugging; if still red, report BLOCKED with the evidence.`,
-    `- If you are missing a decision or context you cannot safely assume, report NEEDS_CONTEXT.`,
-    ``,
-    `Return a TASK_RESULT. 'evidence' MUST be the exact command(s) you ran and their result.`,
-  ].filter(Boolean).join('\n')
+function prompt(t) {
+  return `You are implementing one task of an implementation plan, in your own git worktree. Other agents are doing other tasks at the same time in other worktrees, so stay inside yours.
+${START ? `\nYour worktree should start at commit ${START}. Check with \`git rev-parse --short HEAD\`. If it shows something else, do not do the task: return status "blocked" and say what it showed.\n` : ''}
+${t.brief ? t.brief : `Your briefing is the file ${t.briefPath}. Read it in full before doing anything; it is everything you need and everything you are allowed to rely on.`}
+
+If the briefing has a line beginning "GATE", do not do the task: return status "blocked" and say that a gated task was sent to a parallel wave.
+
+In your result, startedFrom is the short sha you started at, with nothing else, and worktree is the output of \`pwd\`. Leave commit empty if you did not commit.`
 }
 
-// One worktree-isolated agent per independent task — they touch the repo in
-// parallel, so isolation:'worktree' is required to avoid collisions.
 const results = await parallel(
   TASKS.map((t) => () =>
-    agent(taskPrompt(t), {
-      label: `task:${t.id}`,
-      phase: 'Implement',
-      schema: TASK_RESULT_SCHEMA,
-      isolation: 'worktree',
-    })
+    agent(prompt(t), { label: `task:${t.id}`, phase: 'Implement', schema: TASK_RESULT_SCHEMA, isolation: 'worktree' })
   )
 )
 
-// parallel() yields null for any thrown thunk — treat those as BLOCKED so the
-// caller never mistakes a crashed task for a completed one.
-const normalized = TASKS.map((t, i) => {
+// A crashed or skipped agent is reported as blocked, never as done, and a "done" without a
+// commit is not done: there would be nothing for the caller to bring onto the execution branch.
+const tasks = TASKS.map((t, i) => {
   const r = results[i]
-  if (!r) return { taskId: t.id, status: 'BLOCKED', evidence: 'agent crashed or was skipped', concerns: [] }
-  return r
+  if (!r) return { id: t.id, status: 'blocked', commit: '', deviations: 'The agent crashed or was skipped; no result was returned.' }
+  if (r.status === 'done' && START && r.startedFrom && !r.startedFrom.startsWith(START) && !START.startsWith(r.startedFrom)) {
+    return { id: t.id, ...r, status: 'blocked', deviations: `Started from ${r.startedFrom}, not ${START}. ${r.deviations || ''}`.trim() }
+  }
+  if (r.status === 'done' && !r.commit && !t.noCommit) {
+    return { id: t.id, ...r, status: 'blocked', deviations: `Reported done without a commit. ${r.deviations || ''}`.trim() }
+  }
+  return { id: t.id, ...r }
 })
 
-const blocked = normalized.filter((r) => r.status === 'BLOCKED')
-const needsContext = normalized.filter((r) => r.status === 'NEEDS_CONTEXT')
-log(`fan-out: ${normalized.length} tasks → ${blocked.length} blocked, ${needsContext.length} need context`)
+const count = (s) => tasks.filter((t) => t.status === s).length
+log(`wave: ${count('done')} done, ${count('needs-decision')} need a decision, ${count('blocked')} blocked`)
 
 return {
-  results: normalized,
-  allGreen: blocked.length === 0 && needsContext.length === 0,
-  blocked,
-  needsContext,
+  startCommit: START,
+  tasks,
+  next: 'First record each task\'s branch and worktree in the ledger. Then, for each task marked done, one at a time: run plan_tasks.py check on its commit, cherry-pick it onto the execution branch, run the task verification yourself there, and mark it done with the new sha. Remove a worktree and its branch only after its task is done in the ledger.',
 }

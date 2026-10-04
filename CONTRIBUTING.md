@@ -70,6 +70,7 @@ python3 scripts/validate-skills.py --verbose   # SKILL.md frontmatter, plugin la
 python3 scripts/check-skill-links.py           # relative links in skills/**/*.md
 npx --yes markdownlint-cli2                    # markdown lint (config in .markdownlint-cli2.yaml)
 python3 -m unittest discover -s skills/ship-better-plans/tests   # plan linter tests (only if you touched ship-better-plans)
+python3 -m unittest discover -s skills/ship-execute/tests        # plan reader tests (only if you touched ship-execute)
 ```
 
 Each script exits non-zero on failures and prints what to fix.

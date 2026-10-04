@@ -150,7 +150,7 @@ jobs:
           exit $fail
 
   plan-lint:
-    name: Plan linter tests and bundled example plans
+    name: Plan linter and plan reader tests, bundled example plans
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -162,6 +162,19 @@ jobs:
 
       - name: Run the plan linter's unit tests
         run: python3 -m unittest discover -s skills/ship-better-plans/tests -v
+
+      - name: Run the plan reader's unit tests (ship-execute)
+        run: |
+          git config --global init.defaultBranch main
+          python3 -m unittest discover -s skills/ship-execute/tests -v
+
+      - name: The plan reader must accept the example plans the linter accepts
+        run: |
+          set -e
+          for plan in skills/ship-better-plans/examples/example-plan-*.md; do
+            echo "read: $plan"
+            python3 skills/ship-execute/scripts/plan_tasks.py "$plan" summary --ledger "$RUNNER_TEMP/ledger.json" > /dev/null
+          done
 
       - name: The example plans must pass the linter they illustrate
         run: |
