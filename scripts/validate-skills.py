@@ -778,8 +778,8 @@ def validate_fixture_parity(errors: Errors, skill_dirs: list[Path]) -> None:
 #   1. The pure-rubric REVIEW skills never gain write/exec access. A future
 #      copy-paste must not silently let a "this only reads my code" skill edit
 #      files or run commands. NOTE: ship-reviewed-prs is intentionally NOT in
-#      this set — it is the orchestrator (declares Task/Bash/TodoWrite to spawn
-#      personas and submit via gh). The guarded set is the four pure-rubric
+#      this set — it is the orchestrator (declares Agent and scoped Bash to
+#      dispatch reviewers and post through its script). The guarded set is the four pure-rubric
 #      depth skills only.
 #   2. ship-vuln-scan is detect-only: it may run scanners (Bash) but must not
 #      declare Write/Edit. Remediation (editing manifests) is ship-vuln-fix.

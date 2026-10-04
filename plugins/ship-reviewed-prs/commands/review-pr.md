@@ -1,15 +1,11 @@
 ---
-description: Multi-persona pull-request review with lifecycle-aware suppression. Submits via gh CLI (CI auto-submits; local prompts to confirm).
-argument-hint: "<pr-number-or-url> [--auto-approve] [--non-interactive] [--json] [--strict]"
-allowed-tools: Skill, Task, TodoWrite, Bash, Read, Grep, Glob
+description: Review a GitHub pull request and post one review with inline comments (asks before posting locally; posts unattended with --non-interactive).
+argument-hint: "[pr-number-or-url] [--non-interactive] [--auto-approve] [--comment-only]"
+allowed-tools: Skill, Agent, Read, Write, Edit, Grep, Glob, AskUserQuestion, Bash(python3 *ship-reviewed-prs/scripts/review_pr.py*), Bash(gh pr view *), Bash(gh pr diff *), Bash(gh issue view *), Bash(git show *), Bash(git diff *), Bash(git log *), Bash(git grep *), Bash(git status *)
 ---
 
-Run the `ship-reviewed-prs` skill against the pull request identified by the arguments below.
+Review the pull request named in the arguments with the `ship-reviewed-prs` skill.
 
 Arguments: $ARGUMENTS
 
-Instructions:
-1. Invoke the `ship-reviewed-prs` skill via the Skill tool — the skill owns the full review workflow (persona rubrics, comment-lifecycle suppression, decision matrix, gh submission).
-2. Pass the arguments through verbatim; the first positional argument is the PR number or URL, the rest are flags documented in the skill's frontmatter.
-3. Do not perform the review yourself before loading the skill — its `reference-*.md` files contain the rubrics and lifecycle rules you need.
-4. Honor the skill's mode detection: if `CI=true` is set in the environment, the skill submits automatically; otherwise it prints a draft and waits for confirmation (unless `--non-interactive` is passed).
+Load the `ship-reviewed-prs` skill with the Skill tool before doing anything else, and follow it; it owns the whole procedure. The first argument, if there is one, is the pull request number or URL; with none, the skill uses the current branch's pull request. Pass every flag (`--non-interactive`, `--comment-only`, `--auto-approve`) on to the skill's `context` command exactly as given: `--non-interactive` is what makes an unattended run post its review.

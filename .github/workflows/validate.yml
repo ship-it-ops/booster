@@ -168,6 +168,9 @@ jobs:
           git config --global init.defaultBranch main
           python3 -m unittest discover -s skills/ship-execute/tests -v
 
+      - name: Run the review script's unit tests (ship-reviewed-prs)
+        run: python3 -m unittest discover -s skills/ship-reviewed-prs/tests -v
+
       - name: The plan reader must accept the example plans the linter accepts
         run: |
           set -e

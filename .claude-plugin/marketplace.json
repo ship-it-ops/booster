@@ -95,8 +95,8 @@
     {
       "name": "ship-reviewed-prs",
       "source": "./plugins/ship-reviewed-prs",
-      "description": "Multi-persona pull-request review (senior engineer, senior security, senior infra/SRE/DevOps, senior data engineer, senior frontend engineer, test-coverage signal) with comment-lifecycle suppression and decisive APPROVE/REQUEST_CHANGES/COMMENT submission. Runs locally with confirmation gating and in CI fully automated. Composes with the other ship-* skills via delegation: SC → ship-secure-code, IN → ship-devops, SE → ship-clean-code, TS → ship-tested-code.",
-      "version": "1.3.1",
+      "description": "Pull-request review for GitHub: reads the change against its intent, the surrounding code and the existing review threads, verifies each finding, computes an approve / request-changes / comment verdict, and posts one review with inline comments through a tested script. Asks before posting locally; runs unattended in CI. Uses the other ship-* review skills for depth when they are installed.",
+      "version": "2.0.0",
       "author": {
         "name": "ship-it-ops"
       },

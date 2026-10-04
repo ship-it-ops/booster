@@ -44,7 +44,7 @@ The two are independent. Use the in-repo one for handoff context that should tra
 
 ## Code-Quality Skills
 
-Production-quality review and engineering-practice skills, migrated here from the former `ship-it-ops/ship-code` marketplace. They compose: `ship-reviewed-prs` delegates depth to the others (security → `ship-secure-code`, infra → `ship-devops`, code quality → `ship-clean-code`, tests → `ship-tested-code`).
+Production-quality review and engineering-practice skills, migrated here from the former `ship-it-ops/ship-code` marketplace. They compose: `ship-reviewed-prs` loads the others for depth when they are installed (security → `ship-secure-code`, infra → `ship-devops`, code quality → `ship-clean-code`, tests → `ship-tested-code`).
 
 | Skill | What it covers |
 |-------|----------------|
@@ -52,7 +52,7 @@ Production-quality review and engineering-practice skills, migrated here from th
 | **ship-tested-code** | Test design, TDD, mocking, integration testing, flaky-test management, 49 cataloged test smells |
 | **ship-debugged-code** | Systematic debugging — reproduction, hypothesis-driven investigation, bisection, root-cause analysis, postmortems |
 | **ship-secure-code** | Application security (SEC1–SEC12) — auth, injection, XSS, crypto, secrets, supply chain, SSRF, and more |
-| **ship-reviewed-prs** | Multi-persona PR review with lifecycle-aware suppression and decisive APPROVE/REQUEST_CHANGES/COMMENT submission; works locally and fully automated in CI |
+| **ship-reviewed-prs** | Pull-request review: reads the change against its intent, the surrounding code and the existing threads, verifies each finding, and posts one review with inline comments and a computed verdict; asks before posting locally, runs unattended in CI |
 | **ship-devops** | DevOps/CI-CD review (DEV1–DEV12) for Terraform, Kubernetes, Docker, and GitHub Actions |
 | **ship-vuln-scan** | Known-CVE / vulnerability detection (VS1–VS8) across dependencies, container images, IaC, and secrets. Hybrid: orchestrates real scanners (osv-scanner, trivy, grype, pip-audit, checkov, gitleaks) when present, falls back to manual analysis, and never reports "clean" when it couldn't scan. Triages by CVSS/EPSS/KEV |
 | **ship-vuln-fix** | Vulnerability remediation (VF1–VF8) — the fix half of the pair. **Recipe-first** (prefers proven recipes/tools — OpenRewrite/Moderne, native fixers, Dependabot scores — then manual fallback) + tiered + evidence-gated: auto-applies only mechanical, reversible fixes behind a confirmation gate and verifies by re-scan + tests + clean frozen install; advises only for breaking upgrades, mitigations, and no-fix cases. Evidence-driven, not semver-driven; audits every apply |

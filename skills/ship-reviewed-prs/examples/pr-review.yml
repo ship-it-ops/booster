@@ -1,0 +1,117 @@
+# GitHub Actions workflow that runs ship-reviewed-prs on every pull request
+# through anthropics/claude-code-action.
+#
+# Needs one repository secret: CLAUDE_CODE_OAUTH_TOKEN.
+#
+# Things in here that look optional and are not:
+#
+#   - The prompt uses the namespaced command, /ship-reviewed-prs:review-pr.
+#     The bare /ship-reviewed-prs form is "Unknown command" in the headless
+#     session the action starts, and the run ends without reviewing anything.
+#   - The prompt ends with --non-interactive, so the review is posted without
+#     a confirmation nobody is there to give.
+#   - The last step fails the job when no review was posted. A model cannot
+#     set an exit code, so without that step a run that posts nothing is green.
+#     Whether findings should also fail the job is your choice: see FAIL_ON.
+#   - Pull requests from forks are skipped. Their token is read-only and the
+#     secret is absent. Do not switch this workflow to pull_request_target to
+#     get around that: it would give code from outside a token that can write.
+#
+# Reviews are posted by the account behind GH_TOKEN. With the default
+# GITHUB_TOKEN that is github-actions[bot], which can approve only when the
+# repository setting "Allow GitHub Actions to create and approve pull requests"
+# is on; otherwise an approval is posted as a comment that says so.
+#
+# The actions below use version tags for readability. For production, pin each
+# to a full commit SHA and let Dependabot or Renovate keep them current.
+
+name: PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    # paths-ignore:
+    #   - 'docs/**'
+
+concurrency:
+  # A newer commit cancels the review of an older one.
+  group: pr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    name: Claude Code Review
+    if: >-
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.user.type != 'Bot' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: read      # so the reviewer can see the other checks' state
+      statuses: read
+      id-token: write   # required by anthropics/claude-code-action
+    steps:
+      # Check out the BASE commit, not the pull request. The session reads
+      # CLAUDE.md, .claude/ and .mcp.json from the directory it starts in; from
+      # the pull request's head, a pull request could configure its own
+      # reviewer. The skill's script fetches the pull request's commits itself
+      # and reads them with `git show`.
+      - name: Checkout the base commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+
+      - name: Review the pull request
+        uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Install the reviewer from the marketplace's default branch, so a
+          # pull request cannot change the reviewer that reviews it. Add the
+          # sibling skills here (for example ship-secure-code@booster) to get
+          # their depth in unattended reviews.
+          plugin_marketplaces: 'https://github.com/ship-it-ops/booster.git'
+          plugins: 'ship-reviewed-prs@booster'
+          prompt: '/ship-reviewed-prs:review-pr ${{ github.event.pull_request.number }} --non-interactive'
+          # When a run posts nothing and you need to see why, turn this on for
+          # that investigation and off again afterwards: it puts the whole
+          # session, including the prompt and every tool call, in the job log.
+          # show_full_output: true
+
+      - name: Check that a review was posted
+        if: always() && !cancelled()
+        env:
+          # What should fail this job, judged by the review that was posted:
+          #   none             only a missing review fails the job (advisory)
+          #   request-changes  also fail when the review requests changes
+          #   comment          also fail when it has should-fix comments
+          FAIL_ON: 'request-changes'
+        run: |
+          result="$RUNNER_TEMP/ship-review/result.json"
+          if [ ! -f "$result" ]; then
+            echo "::error::ship-reviewed-prs did not post a review (no result file). Turn on show_full_output and re-run to see why."
+            exit 1
+          fi
+          cat "$result"
+          posted="$(jq -r '.posted' "$result")"
+          skipped="$(jq -r '.skipped // ""' "$result")"
+          event="$(jq -r '.event // ""' "$result")"
+          verdict="$(jq -r '.verdict // ""' "$result")"
+          if [ "$posted" != "true" ] && [ "$skipped" != "already-reviewed" ] && [ "$skipped" != "closed" ]; then
+            echo "::error::ship-reviewed-prs did not post a review: $(jq -r '(.notes // []) | join(" ")' "$result")"
+            exit 1
+          fi
+          echo "::notice::Review verdict: ${verdict:-none} (posted as ${event:-nothing}${skipped:+, $skipped})"
+          if [ "$FAIL_ON" != "none" ] && [ "$event" = "REQUEST_CHANGES" ]; then
+            echo "::error::The review requests changes."
+            exit 1
+          fi
+          if [ "$FAIL_ON" = "comment" ] && [ "$event" = "COMMENT" ] && [ "$verdict" != "APPROVE" ]; then
+            echo "::error::The review has comments to address."
+            exit 1
+          fi
