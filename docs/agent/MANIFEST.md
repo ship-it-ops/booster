@@ -1,5 +1,5 @@
 # Agent Context
-Last updated: 2026-10-01 | Total notes: 32
+Last updated: 2026-10-04 | Total notes: 34
 
 <!--
   This file is the index for `docs/agent/`. Agents read it at session start.
@@ -24,13 +24,14 @@ Last updated: 2026-10-01 | Total notes: 32
 
 ## Decisions
 
+- [ship-execute-v2-refresh](decisions/ship-execute-v2-refresh.md) | decision | active | core | 2026-10-04 | 2.0 rewrite: plan reader, git protocol, local review; revises E5
 - [ship-better-plans-v2-refresh](decisions/ship-better-plans-v2-refresh.md) | decision | active | core | 2026-10-01 | 2.0 rewrite: cards, linter, grounded review; revises D6/Q3
 - [ship-vuln-skills-architecture](decisions/ship-vuln-skills-architecture.md) | decision | active | core | 2026-06-19 | Two skills, hybrid exec, evidence-gated apply, recipe-first (V1-V10)
 - [agent-context-initialized](decisions/agent-context-initialized.md) | decision | active | core | 2026-05-20 | Adopt docs/agent as in-repo agent memory
 - [plugin-name-matches-source-dir](decisions/plugin-name-matches-source-dir.md) | decision | active | standard | 2026-05-20 | Marketplace plugin name matches source directory basename
 - [add-user-instructions-to-skill](decisions/add-user-instructions-to-skill.md) | decision | active | core | 2026-06-02 | Add instructions/ content type for standing user rules
 - [ship-better-plans-architecture](decisions/ship-better-plans-architecture.md) | decision | active | core | 2026-10-01 | Parallel skill, Workflow audit, plan-mode + opt-in control flow (D1-D7)
-- [ship-execute-architecture](decisions/ship-execute-architecture.md) | decision | active | core | 2026-06-11 | Standalone DAG-aware executor; ship-code delegation (E1-E5)
+- [ship-execute-architecture](decisions/ship-execute-architecture.md) | decision | active | core | 2026-10-04 | Standalone DAG-aware executor; ship-code delegation (E1-E5)
 - [merge-ship-code-into-booster](decisions/merge-ship-code-into-booster.md) | decision | active | core | 2026-06-12 | All 6 ship-code plugins migrated; booster is the single marketplace
 - [pr-review-installs-plugin-from-pr-head](decisions/pr-review-installs-plugin-from-pr-head.md) | decision | active | core | 2026-05-25 | Dogfood workflow uses local checkout, not main URL
 - [relaxed-approve-decision-matrix](decisions/relaxed-approve-decision-matrix.md) | decision | active | core | 2026-05-25 | APPROVE allowed with suggestions and pending CI caveats
@@ -47,6 +48,7 @@ Last updated: 2026-10-01 | Total notes: 32
 
 ## Investigations
 
+- [ship-execute-refresh-audit](investigations/ship-execute-refresh-audit.md) | investigation | active | core | 2026-10-04 | Six-persona audit, judged executions, live worktree tests
 - [ship-better-plans-refresh-audit](investigations/ship-better-plans-refresh-audit.md) | investigation | active | core | 2026-10-01 | Six-persona audit plus before/after evaluation of ship-better-plans
 - [ship-better-plans-design-audit](investigations/ship-better-plans-design-audit.md) | investigation | active | core | 2026-06-09 | Audit found plan unbuildable as written; layout+control-flow fixes
 
