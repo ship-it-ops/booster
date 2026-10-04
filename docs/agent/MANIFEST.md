@@ -1,5 +1,5 @@
 # Agent Context
-Last updated: 2026-10-04 | Total notes: 34
+Last updated: 2026-10-04 | Total notes: 36
 
 <!--
   This file is the index for `docs/agent/`. Agents read it at session start.
@@ -9,12 +9,12 @@ Last updated: 2026-10-04 | Total notes: 34
 ## Instructions
 <!-- standing user instructions — always-read at session start -->
 
-(none yet — the agent will auto-capture entries here when the user uses persistent-intent phrasing like "always X", "never X", "ask before X")
+- [no-claude-attribution-in-commits](instructions/no-claude-attribution-in-commits.md) | instruction | active | core | 2026-10-04 | No Co-Authored-By or Claude-Session lines in commits
 
 ## Status
 <!-- in-flight work and handoffs — always-read at session start -->
 
-(none — no work currently in flight)
+- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) | status | active | core | 2026-10-04 | Skills refresh: 2 of 12 done, method and next steps
 
 ## Plans
 
