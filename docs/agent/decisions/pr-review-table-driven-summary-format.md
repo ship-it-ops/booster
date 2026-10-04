@@ -59,3 +59,4 @@ The JSON output and exit codes keep the formal `APPROVE` / `REQUEST_CHANGES` / `
 - [[pr-review-summary-body-layout]] — pattern note capturing the canonical layout for quick reference during a review
 - [[pr-review-installs-plugin-from-pr-head]] — the dogfood workflow that will exercise this format change on the next PR
 - [[relaxed-approve-decision-matrix]] — the matrix that now maps to `LGTM` vs `LGTM (with caveats)` in the friendly verdict
+- [ship-reviewed-prs-v2-refresh](ship-reviewed-prs-v2-refresh.md) — 2.0 keeps the labels, findings table and "What's solid"; drops the persona and lifecycle tables (R6).

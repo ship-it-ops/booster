@@ -4,15 +4,17 @@ description: Canonical markdown layout the ship-reviewed-prs skill emits as the 
 metadata:
   type: pattern
 type: pattern
-status: active
+status: superseded
 created: 2026-05-26
-updated: 2026-05-26
+updated: 2026-10-04
 author: claude-session-2026-05-26
 tags: [ship-reviewed-prs, output-format, summary-body]
 importance: core
 ---
 
 # `ship-reviewed-prs` summary-body layout
+
+> **Superseded 2026-10-04.** This describes the 1.x layout. In 2.0 the summary is rendered by `skills/ship-reviewed-prs/scripts/review_pr.py` (`render_body`), so the layout is code, not a convention to follow by hand. The persona and lifecycle tables are gone; see [ship-reviewed-prs-v2-refresh](../decisions/ship-reviewed-prs-v2-refresh.md) (R6) and `skills/ship-reviewed-prs/examples/example-review.md` for the current shape.
 
 ## When to Use
 

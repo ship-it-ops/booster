@@ -2,7 +2,7 @@
 type: open-question
 status: active
 created: 2026-05-25
-updated: 2026-05-25
+updated: 2026-10-04
 author: claude-session-2026-05-25
 tags: [ship-reviewed-prs, versioning, semver]
 importance: standard
@@ -27,3 +27,7 @@ Captured the relaxed-matrix change as a decision with explicit `Revisit Triggers
 The repo maintainer (user). They will signal when downstream dogfooding has confirmed the new matrix is stable enough to attach the v2.0.0 label.
 
 When the answer is "ship it": bump *both* `plugins/ship-reviewed-prs/.claude-plugin/plugin.json:version` and the `ship-reviewed-prs` entry in `.claude-plugin/marketplace.json:version` from `1.1.0` to `2.0.0` in the same commit. CI's marketplace-consistency check requires they match.
+
+## Update 2026-10-04
+
+The full rewrite on branch `ship-better-plans-v2` sets `ship-reviewed-prs` to 2.0.0 in both `plugins/ship-reviewed-prs/.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` (see [ship-reviewed-prs-v2-refresh](../decisions/ship-reviewed-prs-v2-refresh.md), R13). The user was told and has not yet confirmed. This question closes when they do, or when they ask for a different number.

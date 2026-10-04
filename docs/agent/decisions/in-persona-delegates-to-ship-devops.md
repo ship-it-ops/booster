@@ -55,3 +55,4 @@ New test fixture: `ship-reviewed-prs/tests/fixture-9-devops-delegation/` exercis
 - [[ship-devops-12-category-catalog]] — the rubric this decision binds the IN persona to.
 - [[pr-review-table-driven-summary-format]] — the rendered output shape that compound tags live inside.
 - [[relaxed-approve-decision-matrix]] — the parent decision matrix that this delegation respects.
+- [ship-reviewed-prs-v2-refresh](ship-reviewed-prs-v2-refresh.md) — 2.0 loads ship-devops during the review; the IN persona, its IDs and the compound tags are gone (R2, R4).

@@ -1,5 +1,5 @@
 # Agent Context
-Last updated: 2026-10-04 | Total notes: 36
+Last updated: 2026-10-04 | Total notes: 38
 
 <!--
   This file is the index for `docs/agent/`. Agents read it at session start.
@@ -14,7 +14,7 @@ Last updated: 2026-10-04 | Total notes: 36
 ## Status
 <!-- in-flight work and handoffs — always-read at session start -->
 
-- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) | status | active | core | 2026-10-04 | Skills refresh: 2 of 12 done, method and next steps
+- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) | status | active | core | 2026-10-04 | Skills refresh: 3 of 12 done, method and next steps
 
 ## Plans
 
@@ -24,6 +24,7 @@ Last updated: 2026-10-04 | Total notes: 36
 
 ## Decisions
 
+- [ship-reviewed-prs-v2-refresh](decisions/ship-reviewed-prs-v2-refresh.md) | decision | active | core | 2026-10-04 | 2.0 rewrite: review script, lenses, thread dispositions (R1-R13)
 - [ship-execute-v2-refresh](decisions/ship-execute-v2-refresh.md) | decision | active | core | 2026-10-04 | 2.0 rewrite: plan reader, git protocol, local review; revises E5
 - [ship-better-plans-v2-refresh](decisions/ship-better-plans-v2-refresh.md) | decision | active | core | 2026-10-01 | 2.0 rewrite: cards, linter, grounded review; revises D6/Q3
 - [ship-vuln-skills-architecture](decisions/ship-vuln-skills-architecture.md) | decision | active | core | 2026-06-19 | Two skills, hybrid exec, evidence-gated apply, recipe-first (V1-V10)
@@ -44,17 +45,18 @@ Last updated: 2026-10-04 | Total notes: 36
 ## Patterns
 
 - [plugin-command-discovery](patterns/plugin-command-discovery.md) | pattern | active | core | 2026-05-25 | Plugin slash commands live at commands/<name>.md namespaced
-- [pr-review-summary-body-layout](patterns/pr-review-summary-body-layout.md) | pattern | active | core | 2026-05-26 | Canonical layout: Verdict + three tables + conditional sections
+- [pr-review-summary-body-layout](patterns/pr-review-summary-body-layout.md) | pattern | superseded | standard | 2026-10-04 | 1.x summary layout; superseded by ship-reviewed-prs 2.0
 
 ## Investigations
 
+- [ship-reviewed-prs-refresh-audit](investigations/ship-reviewed-prs-refresh-audit.md) | investigation | active | core | 2026-10-04 | Six-persona audit, judged reviews of seeded pull requests
 - [ship-execute-refresh-audit](investigations/ship-execute-refresh-audit.md) | investigation | active | core | 2026-10-04 | Six-persona audit, judged executions, live worktree tests
 - [ship-better-plans-refresh-audit](investigations/ship-better-plans-refresh-audit.md) | investigation | active | core | 2026-10-01 | Six-persona audit plus before/after evaluation of ship-better-plans
 - [ship-better-plans-design-audit](investigations/ship-better-plans-design-audit.md) | investigation | active | core | 2026-06-09 | Audit found plan unbuildable as written; layout+control-flow fixes
 
 ## Open Questions
 
-- [v2-release-trigger](open-questions/v2-release-trigger.md) | open-question | active | standard | 2026-05-25 | When do we cut ship-reviewed-prs v2.0.0 release
+- [v2-release-trigger](open-questions/v2-release-trigger.md) | open-question | active | standard | 2026-10-04 | 2.0.0 set on the refresh branch; awaits user's yes
 
 ## Scars
 

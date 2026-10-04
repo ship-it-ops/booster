@@ -68,3 +68,4 @@ Add a Step 4 to the submission protocol that auto-resolves bot-authored review t
 - [[pr-review-table-driven-summary-format]] — the layout the auto-resolve count is rendered into
 - [[relaxed-approve-decision-matrix]] — the matrix Step 4 short-circuits before the "Possibly addressed" → COMMENT row fires
 - [[pr-review-installs-plugin-from-pr-head]] — the dogfood workflow that will exercise this end-to-end on the next PR
+- [ship-reviewed-prs-v2-refresh](ship-reviewed-prs-v2-refresh.md) — 2.0 keeps this; a thread is resolved on the reviewer's `fixed` or `withdrawn` disposition, not on a fingerprint no longer firing (R5).

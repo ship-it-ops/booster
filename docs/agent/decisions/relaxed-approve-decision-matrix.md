@@ -62,3 +62,4 @@ APPROVE may carry optional "Suggestions", "Delegations", or "Awaiting CI" caveat
 - [pr-review-installs-plugin-from-pr-head](pr-review-installs-plugin-from-pr-head.md) — the workflow change that makes this matrix self-review on the PR introducing it.
 - `SKILL.md` Decision Matrix section — the canonical spec.
 - `reference.md` §5 Decision Matrix — Elaboration — the count-predicate version.
+- [ship-reviewed-prs-v2-refresh](ship-reviewed-prs-v2-refresh.md) — 2.0 keeps this cascade; severity now comes from consequence, not a finding ID.

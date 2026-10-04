@@ -44,3 +44,4 @@ Use the local path: `plugin_marketplaces: '.'`.
 
 - [plugin-without-commands-runs-silently](../scars/plugin-without-commands-runs-silently.md) — one of the regressions a local-checkout install would have caught on the *introducing* PR.
 - [plugin-command-discovery](../patterns/plugin-command-discovery.md) — the layout the action expects when installing from a path.
+- [ship-reviewed-prs-v2-refresh](ship-reviewed-prs-v2-refresh.md) — kept in 2.0; the workflow now asks for a comment-only review when a pull request changes the reviewer.
