@@ -6,6 +6,7 @@ updated: 2026-10-04
 author: claude-opus-4-8
 tags: [skill, plugin, execution, workflow, ship-family, ship-code]
 importance: core
+summary: Standalone DAG-aware executor; ship-code delegation (E1-E5)
 ---
 
 # `ship-execute` architecture: standalone DAG-aware execution engine that leverages `ship-code`

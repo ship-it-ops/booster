@@ -6,6 +6,7 @@ updated: 2026-06-07
 author: claude-session-2026-06-07
 tags: [ship-reviewed-prs, ci-mode, ask-user-question, failsafe, submission-gate]
 importance: core
+summary: AskUserQuestion denial at gate switches to CI submit
 ---
 
 # Treat `AskUserQuestion` denial at the submission gate as CI mode (failsafe)

@@ -6,6 +6,7 @@ updated: 2026-10-04
 author: claude-opus-5-5
 tags: [ship-execute, audit, evaluation, personas, workflow, worktree, plan-reader]
 importance: core
+summary: Six-persona audit, judged executions, live worktree tests
 ---
 
 # Multi-persona audit and before/after evaluation of `ship-execute`

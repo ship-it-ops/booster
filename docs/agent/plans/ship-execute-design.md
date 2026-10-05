@@ -6,6 +6,7 @@ updated: 2026-06-11
 author: claude-opus-4-8
 tags: [skill, plugin, execution, workflow, ship-code]
 importance: core
+summary: SHIPPED (commit 0eeeba8): DAG-aware execution engine + plugin
 ---
 
 # Plan: `ship-execute` skill + plugin

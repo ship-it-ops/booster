@@ -6,6 +6,7 @@ updated: 2026-05-20
 author: claude-opus-4-7
 tags: [meta, agent-context, bootstrap]
 importance: core
+summary: Adopt docs/agent as in-repo agent memory
 ---
 
 # Adopt `docs/agent/` as the in-repo agent memory

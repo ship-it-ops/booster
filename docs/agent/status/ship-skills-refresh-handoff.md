@@ -2,34 +2,36 @@
 type: status
 status: active
 created: 2026-10-04
-updated: 2026-10-04
+updated: 2026-10-05
 author: claude-opus-5-5
 branch: ship-better-plans-v2
 agent: claude-code-session-2026-10-01
 tags: [handoff, skills-refresh, ship-family, evaluation]
 importance: core
+summary: "Skills refresh: 4 of 12 done; the method, what the user asked for, and what is next"
+done_when: manual
 ---
 
-# Hand-off: refreshing the `ship-*` skills, one at a time (3 of 12 done)
+# Hand-off: refreshing the `ship-*` skills, one at a time (4 of 12 done)
 
 ## Scope
 
 The user is refreshing every skill in this repository for current models and the current Claude Code harness, one skill at a time, all on the branch `ship-better-plans-v2`. Each refresh is a full audit and rewrite judged by several independent agent personas.
 
-**Done on this branch** (the first two are pushed; `ship-reviewed-prs` is committed locally and not pushed):
+**Done on this branch** (check `git status -sb` for what is pushed; `ship-reviewed-prs` was pushed on 2026-10-04, `ship-agent-context` was committed locally on 2026-10-05):
 
 | Skill | Version | Decision note | Evidence |
 |-------|---------|---------------|----------|
 | `ship-better-plans` | 2.0.0 | [ship-better-plans-v2-refresh](../decisions/ship-better-plans-v2-refresh.md) | [ship-better-plans-refresh-audit](../investigations/ship-better-plans-refresh-audit.md) |
 | `ship-execute` | 2.0.0 | [ship-execute-v2-refresh](../decisions/ship-execute-v2-refresh.md) | [ship-execute-refresh-audit](../investigations/ship-execute-refresh-audit.md) |
 | `ship-reviewed-prs` | 1.4.0 | [ship-reviewed-prs-refresh](../decisions/ship-reviewed-prs-refresh.md) | [ship-reviewed-prs-refresh-audit](../investigations/ship-reviewed-prs-refresh-audit.md) |
+| `ship-agent-context` | 1.3.0 | [ship-agent-context-refresh](../decisions/ship-agent-context-refresh.md) | [ship-agent-context-refresh-audit](../investigations/ship-agent-context-refresh-audit.md) |
 
 **Not started** (suggested order, most connected first):
 
-1. `ship-agent-context` — owns the `docs/agent/` conventions both rewritten skills write into. Its plan template (Goal / Approach / Files to Touch) is older than the `plan_format: 2` plans; reconcile them.
-2. The review rubrics that `ship-execute`'s reviewers and `ship-reviewed-prs` load for depth: `ship-clean-code`, `ship-tested-code`, `ship-secure-code`, `ship-devops`, then `ship-debugged-code`. `ship-reviewed-prs` now uses them as catalogues and ignores their finding codes, severity tiers and output format; several still say "severity is mechanical from the finding ID" and describe being delegated to by a persona. Reconcile that.
-3. `ship-vuln-scan`, `ship-vuln-fix`.
-4. `obsidian-knowledge-graph`.
+1. The review rubrics that `ship-execute`'s reviewers and `ship-reviewed-prs` load for depth: `ship-clean-code`, `ship-tested-code`, `ship-secure-code`, `ship-devops`, then `ship-debugged-code`. `ship-reviewed-prs` now uses them as catalogues and ignores their finding codes, severity tiers and output format; several still say "severity is mechanical from the finding ID" and describe being delegated to by a persona. Reconcile that.
+2. `ship-vuln-scan`, `ship-vuln-fix`.
+3. `obsidian-knowledge-graph`.
 
 **No pull request has been opened.** The user said to wait. Do not open one without being asked.
 
@@ -49,7 +51,7 @@ The user's request, in their words: "A lot of improvements have been made to AI 
 
 For a skill that drives an external tool, build a stand-in for that tool that validates what it is sent the way the real service does and logs every call; judges then score against the log, not the agent's account. `ship-reviewed-prs` ships one for `gh` (`skills/ship-reviewed-prs/tests/fake_gh.py`) with three fixture pull requests (`tests/build_fixtures.py`).
 
-The evaluation harness from the refreshes is saved in [`../references/refresh-eval/`](../references/refresh-eval/): the three workflow scripts (reviewer prompts, scenario prompts, judge prompts and schemas), the fixture setup script, and the toy repository with its deliberately flawed plan. The scripts contain absolute paths to the previous session's scratch directory; replace `SCRATCH` and the fixture paths before running them.
+The evaluation harness from the refreshes is saved in [`../references/refresh-eval/`](../references/refresh-eval/): the four workflow scripts (reviewer prompts, scenario prompts, judge prompts and schemas), the fixture setup script, and the toy repository with its deliberately flawed plan. The scripts contain absolute paths to the previous session's scratch directory; replace `SCRATCH` and the fixture paths before running them.
 
 ## Facts the next agent needs
 
@@ -62,6 +64,8 @@ The evaluation harness from the refreshes is saved in [`../references/refresh-ev
   python3 -m unittest discover -s skills/ship-better-plans/tests
   python3 -m unittest discover -s skills/ship-execute/tests
   python3 -m unittest discover -s skills/ship-reviewed-prs/tests
+  python3 -m unittest discover -s skills/ship-agent-context/tests
+  python3 skills/ship-agent-context/scripts/agent_context.py check
   ```
 
 - **Layout:** the source of truth is `skills/<name>/`. `plugins/<name>/skills/<name>/` holds one symlink per top-level entry of the skill directory; adding or removing a file or directory in a skill means adding or removing its symlink, or the validator fails. Commands live in `plugins/<name>/commands/`.
@@ -70,7 +74,7 @@ The evaluation harness from the refreshes is saved in [`../references/refresh-ev
 - **Worktree isolation**, as probed: an isolated agent gets a worktree under `.claude/worktrees/` on a throwaway branch cut from the commit checked out in the main checkout, with tracked files only. If it commits, the worktree and branch persist and must be removed. While they exist, `.claude/` shows as untracked.
 - **Do not edit a file while a running reviewer is reading it.** Draft in a scratch directory until the reviewers finish. This nearly contaminated the first audit.
 - **zsh does not word-split unquoted variables**, and shell variables do not persist between Bash tool calls. Write commands out in full in skill text.
-- **A full reviewer-plus-scenario round costs roughly 0.9 to 1.6 million subagent tokens (1.5, 1.3 and 1.0 million for the three `ship-reviewed-prs` rounds).** Three rounds per skill was the pattern.
+- **A full reviewer-plus-scenario round costs roughly 0.9 to 1.6 million subagent tokens (1.5, 1.3 and 1.0 million for the three `ship-reviewed-prs` rounds; 1.1, 1.1 and 0.8 for `ship-agent-context`).** Three rounds per skill was the pattern.
 
 ## Open items on the finished skills
 
@@ -78,16 +82,21 @@ The evaluation harness from the refreshes is saved in [`../references/refresh-ev
 - `ship-better-plans`: grounding did not improve without a review; the last reviewer round's remaining majors are listed in its investigation note.
 - `ship-execute`: three red-team requests were not done (listing and pattern-flagging every command a plan will run, an `--allow` override for `check`, rebuilding a lost ledger from the plan's Status section); see its investigation note.
 - `ship-reviewed-prs`: nothing has run against GitHub itself. The first real pull request through this repository's `pr-review.yml` is the test of the result file reaching the check step, thread resolving and review dismissal with the workflow token, and the bot login match. The user chose a minor version (1.4.0), not 2.0.0: do not bump a skill to a new major version in this refresh without asking first. They confirmed that the bot's approvals should count as approvals (unattended approval stays the default). They have not yet commented on the other revisions to their earlier decisions (listed in its decision note). The red team's remaining requests are listed in its investigation note.
+- `ship-agent-context`: nothing has run through an installed plugin yet (the hook's `${CLAUDE_PLUGIN_ROOT}` path, the digest after compaction). The user has not yet commented on its revisions to their earlier decisions, chiefly that hand-offs are reconciled when relied on instead of at every session start. `docs/agent/` in this repository is now maintained with the skill's script: create notes with `new`, never edit `MANIFEST.md` by hand, and run `check` before committing. `ship-better-plans`' own note templates still lack a `summary:` line.
 - A session's permission check can block an evaluation agent's write even to a simulated service; say in the agent's prompt that the service is a simulation and the write is expected.
 - The marketplace `metadata.version` is 1.5.0 after the three refreshes.
 
-## Standing instructions from the user
+## What the user has asked for
 
-- Commit messages carry no Claude attribution of any kind: no `Co-Authored-By`, no `Claude-Session` link. See [no-claude-attribution-in-commits](../instructions/no-claude-attribution-in-commits.md). Ask before adding attribution to a pull request description.
-- Do not push or open a pull request without being asked. Pushes of this branch have been approved one at a time.
-- One skill at a time, all on `ship-better-plans-v2`.
+The standing rules are in `instructions/`, where every session's digest shows them: [no-claude-attribution-in-commits](../instructions/no-claude-attribution-in-commits.md) and [no-push-or-pull-request-without-being-asked](../instructions/no-push-or-pull-request-without-being-asked.md).
+
+For this piece of work specifically:
+
+- One skill at a time, all on `ship-better-plans-v2`. No pull request has been opened; the user said to wait.
+- Version bumps are minor. The user turned down 2.0.0 for `ship-reviewed-prs` on 2026-10-04 ("No v2 yet - just a minor versionbump is enough"); ask before proposing a major version for any skill.
+- The bot's approvals in `ship-reviewed-prs` are meant to count as approvals (confirmed 2026-10-04).
 - In `ship-execute`, the user's "approve and build now" at the end of `ship-better-plans` counts as the start confirmation (decided 2026-10-04).
 
 ## Done when
 
-`docs/agent/decisions/` on the default branch contains a `<skill>-v2-refresh.md` note (or an explicit decision not to refresh) for every skill listed under "Not started". Check with `git ls-tree -r --name-only origin/main docs/agent/decisions/ | grep refresh`. Until then this entry is current; update the table above as each skill lands.
+This work spans several pull requests, so it is closed by hand (`done_when: manual`): it is finished when `docs/agent/decisions/` on the default branch has a `<skill>-refresh.md` note (or an explicit decision not to refresh) for every skill listed under "Not started". Check with `git ls-tree -r --name-only origin/main docs/agent/decisions/ | grep refresh`. Until then this note is current; update the table above as each skill lands.

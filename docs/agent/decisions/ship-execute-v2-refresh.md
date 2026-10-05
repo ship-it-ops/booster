@@ -6,6 +6,7 @@ updated: 2026-10-04
 author: claude-opus-5-5
 tags: [skill, plugin, execution, workflow, worktree, ship-family, ship-better-plans]
 importance: core
+summary: 2.0 rewrite: plan reader, git protocol, local review; revises E5
 ---
 
 # `ship-execute` 2.0: what changed from the 1.0 architecture, and why

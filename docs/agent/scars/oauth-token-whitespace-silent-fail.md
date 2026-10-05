@@ -8,6 +8,7 @@ tags: [secrets, github-actions, oauth, anthropic-sdk, debugging]
 importance: standard
 incident-date: 2026-05-25
 tripwire: "If the action's SDK exits with duration_ms < 100, num_turns: 0, total_cost_usd: 0, AND is_error: false — suspect the CLAUDE_CODE_OAUTH_TOKEN. Leading/trailing whitespace from paste is a silent killer."
+summary: Whitespace in OAuth secret kills run silently
 ---
 
 # OAuth token with leading whitespace silently kills the run

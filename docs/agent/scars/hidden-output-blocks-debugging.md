@@ -8,6 +8,7 @@ tags: [github-action, debugging, claude-code-sdk, show-full-output]
 importance: core
 incident-date: 2026-05-25
 tripwire: "When the pr-review action returns num_turns: 0 with is_error: false and you can't tell why, flip `show_full_output: true` on the action's `with:` block. The default hides Claude's actual response, including 'Unknown command' diagnostics."
+summary: show_full_output false hides Unknown-command and auth diagnostics
 ---
 
 # show_full_output: false hides the actual failure mode

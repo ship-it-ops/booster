@@ -8,6 +8,7 @@ tags: [ship-reviewed-prs, versioning, semver]
 importance: standard
 opened: 2026-05-25
 answer-source: maintainer
+summary: Still open: rewrite shipped as 1.4.0, v2 held back
 ---
 
 # When do we release ship-reviewed-prs v2.0.0?

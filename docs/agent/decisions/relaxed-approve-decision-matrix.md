@@ -6,6 +6,7 @@ updated: 2026-05-25
 author: claude-session-2026-05-25
 tags: [ship-reviewed-prs, decision-matrix, approve, ci]
 importance: core
+summary: APPROVE allowed with suggestions and pending CI caveats
 ---
 
 # ship-reviewed-prs APPROVE no longer blocked by suggestions or pending CI

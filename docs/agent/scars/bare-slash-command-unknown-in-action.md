@@ -2,19 +2,20 @@
 type: scar
 status: active
 created: 2026-05-25
-updated: 2026-05-25
+updated: 2026-10-05
 author: claude-session-2026-05-25
 tags: [plugin, slash-commands, github-action, claude-code-sdk]
 importance: core
 incident-date: 2026-05-25
 tripwire: "In the anthropics/claude-code-action@v1 headless SDK context, slash commands resolve only as /<plugin>:<command>. The bare /<command> form returns 'Unknown command' and exits in milliseconds."
+summary: Headless SDK needs /plugin:command form not bare
 ---
 
 # Bare /command form fails in the action; must use /<plugin>:<command>
 
 ## What Happened
 
-After adding a slash command at `plugins/ship-reviewed-prs/commands/ship-reviewed-prs.md` to fix [plugin-without-commands-runs-silently](plugin-without-commands-runs-silently.md), the workflow still produced no review. The action's full-output log showed:
+After adding a slash command at plugins/ship-reviewed-prs/commands/ship-reviewed-prs.md (since renamed `review-pr.md`) to fix [plugin-without-commands-runs-silently](plugin-without-commands-runs-silently.md), the workflow still produced no review. The action's full-output log showed:
 
 ```json
 {

@@ -6,6 +6,7 @@ updated: 2026-10-04
 author: claude-opus-5-5
 tags: [skill, plugin, pr-review, github, ci, ship-family]
 importance: core
+summary: 1.4 rewrite: review script, lenses, thread dispositions (R1-R13)
 ---
 
 # `ship-reviewed-prs` 1.4: the full rewrite, what changed from the earlier design, and why

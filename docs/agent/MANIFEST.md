@@ -1,71 +1,69 @@
-# Agent Context
-Last updated: 2026-10-04 | Total notes: 38
+# Agent context
 
-<!--
-  This file is the index for `docs/agent/`. Agents read it at session start.
-  Format: - [slug] | type | status | importance | YYYY-MM-DD | 8-word summary
--->
+<!-- Generated from the notes' frontmatter by ship-agent-context (`agent_context.py index`).
+     Do not edit by hand; if this file conflicts in a merge, regenerate it. -->
+
+## Unfinished work
+
+- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) — Skills refresh: 4 of 12 done; the method, what the user asked for, and what is next
 
 ## Instructions
-<!-- standing user instructions — always-read at session start -->
 
-- [no-claude-attribution-in-commits](instructions/no-claude-attribution-in-commits.md) | instruction | active | core | 2026-10-04 | No Co-Authored-By or Claude-Session lines in commits
-
-## Status
-<!-- in-flight work and handoffs — always-read at session start -->
-
-- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) | status | active | core | 2026-10-04 | Skills refresh: 3 of 12 done, method and next steps
+- [no-claude-attribution-in-commits](instructions/no-claude-attribution-in-commits.md) — No Co-Authored-By or Claude-Session lines in commits
+- [no-push-or-pull-request-without-being-asked](instructions/no-push-or-pull-request-without-being-asked.md) — Never push or open a pull request unless the user asks in this session; each push is approved one at a time
 
 ## Plans
 
-- [ship-vuln-skills-design](plans/ship-vuln-skills-design.md) | plan | completed | core | 2026-06-19 | SHIPPED (commit 536bee9): ship-vuln-scan + ship-vuln-fix CVE skills
-- [ship-better-plans-design](plans/ship-better-plans-design.md) | plan | completed | core | 2026-06-10 | SHIPPED (commit 47be8cc): audited plan-producing skill + plugin
-- [ship-execute-design](plans/ship-execute-design.md) | plan | completed | core | 2026-06-11 | SHIPPED (commit 0eeeba8): DAG-aware execution engine + plugin
+- [ship-better-plans-design](plans/ship-better-plans-design.md) — SHIPPED (commit 47be8cc): audited plan-producing skill + plugin *(completed)*
+- [ship-execute-design](plans/ship-execute-design.md) — SHIPPED (commit 0eeeba8): DAG-aware execution engine + plugin *(completed)*
+- [ship-vuln-skills-design](plans/ship-vuln-skills-design.md) — SHIPPED (commit 536bee9): ship-vuln-scan + ship-vuln-fix CVE skills *(completed)*
 
 ## Decisions
 
-- [ship-reviewed-prs-refresh](decisions/ship-reviewed-prs-refresh.md) | decision | active | core | 2026-10-04 | 1.4 rewrite: review script, lenses, thread dispositions (R1-R13)
-- [ship-execute-v2-refresh](decisions/ship-execute-v2-refresh.md) | decision | active | core | 2026-10-04 | 2.0 rewrite: plan reader, git protocol, local review; revises E5
-- [ship-better-plans-v2-refresh](decisions/ship-better-plans-v2-refresh.md) | decision | active | core | 2026-10-01 | 2.0 rewrite: cards, linter, grounded review; revises D6/Q3
-- [ship-vuln-skills-architecture](decisions/ship-vuln-skills-architecture.md) | decision | active | core | 2026-06-19 | Two skills, hybrid exec, evidence-gated apply, recipe-first (V1-V10)
-- [agent-context-initialized](decisions/agent-context-initialized.md) | decision | active | core | 2026-05-20 | Adopt docs/agent as in-repo agent memory
-- [plugin-name-matches-source-dir](decisions/plugin-name-matches-source-dir.md) | decision | active | standard | 2026-05-20 | Marketplace plugin name matches source directory basename
-- [add-user-instructions-to-skill](decisions/add-user-instructions-to-skill.md) | decision | active | core | 2026-06-02 | Add instructions/ content type for standing user rules
-- [ship-better-plans-architecture](decisions/ship-better-plans-architecture.md) | decision | active | core | 2026-10-01 | Parallel skill, Workflow audit, plan-mode + opt-in control flow (D1-D7)
-- [ship-execute-architecture](decisions/ship-execute-architecture.md) | decision | active | core | 2026-10-04 | Standalone DAG-aware executor; ship-code delegation (E1-E5)
-- [merge-ship-code-into-booster](decisions/merge-ship-code-into-booster.md) | decision | active | core | 2026-06-12 | All 6 ship-code plugins migrated; booster is the single marketplace
-- [pr-review-installs-plugin-from-pr-head](decisions/pr-review-installs-plugin-from-pr-head.md) | decision | active | core | 2026-05-25 | Dogfood workflow uses local checkout, not main URL
-- [relaxed-approve-decision-matrix](decisions/relaxed-approve-decision-matrix.md) | decision | active | core | 2026-05-25 | APPROVE allowed with suggestions and pending CI caveats
-- [pr-review-table-driven-summary-format](decisions/pr-review-table-driven-summary-format.md) | decision | active | core | 2026-05-26 | Summary body adopts tables and LGTM-style verdict labels
-- [pr-review-auto-resolves-own-threads](decisions/pr-review-auto-resolves-own-threads.md) | decision | active | core | 2026-05-28 | Auto-resolve bot-authored threads when finding no longer fires
-- [ship-devops-12-category-catalog](decisions/ship-devops-12-category-catalog.md) | decision | active | core | 2026-06-02 | DEV1-DEV12 rubric for new ship-devops skill
-- [in-persona-delegates-to-ship-devops](decisions/in-persona-delegates-to-ship-devops.md) | decision | active | core | 2026-06-02 | IN persona depth target wired to ship-devops
-- [askuserquestion-denial-failsafe-to-submission](decisions/askuserquestion-denial-failsafe-to-submission.md) | decision | active | core | 2026-06-07 | AskUserQuestion denial at gate switches to CI submit
+- [add-user-instructions-to-skill](decisions/add-user-instructions-to-skill.md) — Add instructions/ content type for standing user rules
+- [agent-context-initialized](decisions/agent-context-initialized.md) — Adopt docs/agent as in-repo agent memory
+- [askuserquestion-denial-failsafe-to-submission](decisions/askuserquestion-denial-failsafe-to-submission.md) — AskUserQuestion denial at gate switches to CI submit
+- [in-persona-delegates-to-ship-devops](decisions/in-persona-delegates-to-ship-devops.md) — IN persona depth target wired to ship-devops
+- [merge-ship-code-into-booster](decisions/merge-ship-code-into-booster.md) — All 6 ship-code plugins migrated; booster is the single marketplace
+- [plugin-name-matches-source-dir](decisions/plugin-name-matches-source-dir.md) — Marketplace plugin name matches source directory basename
+- [pr-review-auto-resolves-own-threads](decisions/pr-review-auto-resolves-own-threads.md) — Auto-resolve bot-authored threads when finding no longer fires
+- [pr-review-installs-plugin-from-pr-head](decisions/pr-review-installs-plugin-from-pr-head.md) — Dogfood workflow uses local checkout, not main URL
+- [pr-review-table-driven-summary-format](decisions/pr-review-table-driven-summary-format.md) — Summary body adopts tables and LGTM-style verdict labels
+- [relaxed-approve-decision-matrix](decisions/relaxed-approve-decision-matrix.md) — APPROVE allowed with suggestions and pending CI caveats
+- [ship-agent-context-refresh](decisions/ship-agent-context-refresh.md) — ship-agent-context 1.3 rewrite: digest hook, notes as a colleague's notes, script-checked hand-offs, generated index (C1-C12)
+- [ship-better-plans-architecture](decisions/ship-better-plans-architecture.md) — Parallel skill, Workflow audit, plan-mode + opt-in control flow (D1-D7)
+- [ship-better-plans-v2-refresh](decisions/ship-better-plans-v2-refresh.md) — 2.0 rewrite: cards, linter, grounded review; revises D6/Q3
+- [ship-devops-12-category-catalog](decisions/ship-devops-12-category-catalog.md) — DEV1-DEV12 rubric for new ship-devops skill
+- [ship-execute-architecture](decisions/ship-execute-architecture.md) — Standalone DAG-aware executor; ship-code delegation (E1-E5)
+- [ship-execute-v2-refresh](decisions/ship-execute-v2-refresh.md) — 2.0 rewrite: plan reader, git protocol, local review; revises E5
+- [ship-reviewed-prs-refresh](decisions/ship-reviewed-prs-refresh.md) — 1.4 rewrite: review script, lenses, thread dispositions (R1-R13)
+- [ship-vuln-skills-architecture](decisions/ship-vuln-skills-architecture.md) — Two skills, hybrid exec, evidence-gated apply, recipe-first (V1-V10)
 
 ## Patterns
 
-- [plugin-command-discovery](patterns/plugin-command-discovery.md) | pattern | active | core | 2026-05-25 | Plugin slash commands live at commands/<name>.md namespaced
-- [pr-review-summary-body-layout](patterns/pr-review-summary-body-layout.md) | pattern | superseded | standard | 2026-10-04 | Old summary layout; superseded by the ship-reviewed-prs rewrite
+- [plugin-command-discovery](patterns/plugin-command-discovery.md) — Plugin slash commands live at commands/<name>.md namespaced
+- [pr-review-summary-body-layout](patterns/pr-review-summary-body-layout.md) — Old summary layout; superseded by the ship-reviewed-prs rewrite *(superseded)*
 
 ## Investigations
 
-- [ship-reviewed-prs-refresh-audit](investigations/ship-reviewed-prs-refresh-audit.md) | investigation | active | core | 2026-10-04 | Six-persona audit, judged reviews of seeded pull requests
-- [ship-execute-refresh-audit](investigations/ship-execute-refresh-audit.md) | investigation | active | core | 2026-10-04 | Six-persona audit, judged executions, live worktree tests
-- [ship-better-plans-refresh-audit](investigations/ship-better-plans-refresh-audit.md) | investigation | active | core | 2026-10-01 | Six-persona audit plus before/after evaluation of ship-better-plans
-- [ship-better-plans-design-audit](investigations/ship-better-plans-design-audit.md) | investigation | active | core | 2026-06-09 | Audit found plan unbuildable as written; layout+control-flow fixes
+- [ship-agent-context-refresh-audit](investigations/ship-agent-context-refresh-audit.md) — ship-agent-context audit: six reviewers, three judged scenarios (pick-up, capture, no folder), three rounds
+- [ship-better-plans-design-audit](investigations/ship-better-plans-design-audit.md) — Audit found plan unbuildable as written; layout+control-flow fixes
+- [ship-better-plans-refresh-audit](investigations/ship-better-plans-refresh-audit.md) — Six-persona audit plus before/after evaluation of ship-better-plans
+- [ship-execute-refresh-audit](investigations/ship-execute-refresh-audit.md) — Six-persona audit, judged executions, live worktree tests
+- [ship-reviewed-prs-refresh-audit](investigations/ship-reviewed-prs-refresh-audit.md) — Six-persona audit, judged reviews of seeded pull requests
 
-## Open Questions
+## Open questions
 
-- [v2-release-trigger](open-questions/v2-release-trigger.md) | open-question | active | standard | 2026-10-04 | Still open: rewrite shipped as 1.4.0, v2 held back
+- [v2-release-trigger](open-questions/v2-release-trigger.md) — Still open: rewrite shipped as 1.4.0, v2 held back
 
 ## Scars
 
-- [tool-policy-guard-bypassable-by-omission](scars/tool-policy-guard-bypassable-by-omission.md) | scar | active | standard | 2026-06-18 | Policy check that skips on missing field is bypassable
-- [marketplace-pluginroot-silently-ignored](scars/marketplace-pluginroot-silently-ignored.md) | scar | active | core | 2026-05-20 | Claude Code installer ignores marketplace pluginRoot field
-- [plugin-manifest-rejects-skills-field](scars/plugin-manifest-rejects-skills-field.md) | scar | active | core | 2026-05-20 | plugin.json skills field rejected by installer schema
-- [plugin-without-commands-runs-silently](scars/plugin-without-commands-runs-silently.md) | scar | active | core | 2026-05-25 | Skill-only plugin runs 5 min posting nothing
-- [bare-slash-command-unknown-in-action](scars/bare-slash-command-unknown-in-action.md) | scar | active | core | 2026-05-25 | Headless SDK needs /plugin:command form not bare
-- [oauth-token-whitespace-silent-fail](scars/oauth-token-whitespace-silent-fail.md) | scar | active | standard | 2026-05-25 | Whitespace in OAuth secret kills run silently
-- [hidden-output-blocks-debugging](scars/hidden-output-blocks-debugging.md) | scar | active | core | 2026-05-25 | show_full_output false hides Unknown-command and auth diagnostics
-- [marketplace-local-path-needs-leading-slash](scars/marketplace-local-path-needs-leading-slash.md) | scar | active | core | 2026-05-26 | `plugin_marketplaces: '.'` rejected; needs `./` prefix
-- [ci-mode-auto-detect-unreliable](scars/ci-mode-auto-detect-unreliable.md) | scar | active | core | 2026-05-26 | `CI=true` autodetect fails inside action; pass `--non-interactive` explicitly
+- [bare-slash-command-unknown-in-action](scars/bare-slash-command-unknown-in-action.md) — Headless SDK needs /plugin:command form not bare
+- [ci-mode-auto-detect-unreliable](scars/ci-mode-auto-detect-unreliable.md) — `CI=true` autodetect fails inside action; pass `--non-interactive` explicitly
+- [hidden-output-blocks-debugging](scars/hidden-output-blocks-debugging.md) — show_full_output false hides Unknown-command and auth diagnostics
+- [marketplace-local-path-needs-leading-slash](scars/marketplace-local-path-needs-leading-slash.md) — `plugin_marketplaces: '.'` rejected; needs `./` prefix
+- [marketplace-pluginroot-silently-ignored](scars/marketplace-pluginroot-silently-ignored.md) — Claude Code installer ignores marketplace pluginRoot field
+- [oauth-token-whitespace-silent-fail](scars/oauth-token-whitespace-silent-fail.md) — Whitespace in OAuth secret kills run silently
+- [plugin-manifest-rejects-skills-field](scars/plugin-manifest-rejects-skills-field.md) — plugin.json skills field rejected by installer schema
+- [plugin-without-commands-runs-silently](scars/plugin-without-commands-runs-silently.md) — Skill-only plugin runs 5 min posting nothing
+- [tool-policy-guard-bypassable-by-omission](scars/tool-policy-guard-bypassable-by-omission.md) — Policy check that skips on missing field is bypassable

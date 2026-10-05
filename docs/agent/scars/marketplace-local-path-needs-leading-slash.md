@@ -6,6 +6,7 @@ updated: 2026-05-26
 author: claude-session-2026-05-26
 tags: [pr-review-workflow, github-action, plugin_marketplaces, dogfood]
 importance: core
+summary: `plugin_marketplaces: '.'` rejected; needs `./` prefix
 ---
 
 # `plugin_marketplaces: '.'` is rejected — the action requires `./`

@@ -6,6 +6,7 @@ updated: 2026-05-25
 author: claude-session-2026-05-25
 tags: [pr-review-workflow, github-action, security, dogfooding]
 importance: core
+summary: Dogfood workflow uses local checkout, not main URL
 ---
 
 # pr-review.yml installs the plugin from the local PR checkout, not main

@@ -6,6 +6,7 @@ updated: 2026-06-09
 author: claude-opus-4-8
 tags: [ship-better-plans, audit, plugin, workflow, plan-mode, review]
 importance: core
+summary: Audit found plan unbuildable as written; layout+control-flow fixes
 ---
 
 # Audit of the `ship-better-plans` design plan

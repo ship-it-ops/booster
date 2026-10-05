@@ -10,6 +10,7 @@ updated: 2026-10-04
 author: claude-session-2026-05-26
 tags: [ship-reviewed-prs, output-format, summary-body]
 importance: core
+summary: Old summary layout; superseded by the ship-reviewed-prs rewrite
 ---
 
 # `ship-reviewed-prs` summary-body layout

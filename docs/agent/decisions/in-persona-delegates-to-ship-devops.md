@@ -6,6 +6,7 @@ updated: 2026-06-02
 author: claude-session-2026-06-02
 tags: [ship-reviewed-prs, ship-devops, persona, delegation, in]
 importance: core
+summary: IN persona depth target wired to ship-devops
 ---
 
 # IN persona depth target = ship-devops

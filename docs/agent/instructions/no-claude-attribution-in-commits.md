@@ -8,6 +8,7 @@ source: user-instruction
 scope: always
 tags: [git, commits, attribution]
 importance: core
+summary: No Co-Authored-By or Claude-Session lines in commits
 ---
 
 # Commit messages carry no Claude attribution lines

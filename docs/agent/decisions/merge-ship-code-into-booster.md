@@ -6,6 +6,7 @@ updated: 2026-06-12
 author: claude-fable-5
 tags: [marketplace, migration, plugins, ship-code]
 importance: core
+summary: All 6 ship-code plugins migrated; booster is the single marketplace
 ---
 
 # All 6 ship-code plugins migrated into booster; booster is the single marketplace

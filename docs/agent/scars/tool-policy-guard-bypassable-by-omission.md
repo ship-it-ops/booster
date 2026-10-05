@@ -8,6 +8,7 @@ tags: [validation, security, allowed-tools, guard]
 importance: standard
 incident-date: 2026-06-18
 tripwire: "if a policy/allowlist check keys off a frontmatter/config field, verify what happens when the field is ABSENT — absence usually means 'unrestricted', which silently bypasses the guard"
+summary: Policy check that skips on missing field is bypassable
 ---
 
 # A policy guard that skips on a missing field is bypassable by deleting that field

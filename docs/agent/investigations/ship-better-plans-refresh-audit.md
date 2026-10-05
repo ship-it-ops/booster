@@ -6,6 +6,7 @@ updated: 2026-10-01
 author: claude-fable-5-1
 tags: [ship-better-plans, audit, evaluation, personas, workflow, plan-linter]
 importance: core
+summary: Six-persona audit plus before/after evaluation of ship-better-plans
 ---
 
 # Multi-persona audit and before/after evaluation of `ship-better-plans`

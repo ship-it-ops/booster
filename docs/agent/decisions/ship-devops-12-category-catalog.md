@@ -6,6 +6,7 @@ updated: 2026-06-02
 author: claude-session-2026-06-02
 tags: [ship-devops, rubric, category-catalog, devops, ci-cd]
 importance: core
+summary: DEV1-DEV12 rubric for new ship-devops skill
 ---
 
 # ship-devops DEV1–DEV12 category catalog

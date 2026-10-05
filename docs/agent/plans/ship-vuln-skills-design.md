@@ -6,6 +6,7 @@ updated: 2026-06-19
 author: claude-opus-4-8
 tags: [skills, security, vulnerability, cve, sca, remediation, marketplace]
 importance: core
+summary: SHIPPED (commit 536bee9): ship-vuln-scan + ship-vuln-fix CVE skills
 ---
 
 # ship-vuln-scan + ship-vuln-fix — Design Plan

@@ -8,6 +8,7 @@ tags: [marketplace, plugins, claude-code, install]
 importance: core
 incident-date: 2026-05-19
 tripwire: "if a marketplace plugin install fails with 'Source path does not exist', check that every plugin's `source` field includes the full `./plugins/<name>` path — Claude Code's installer ignores `metadata.pluginRoot`"
+summary: Claude Code installer ignores marketplace pluginRoot field
 ---
 
 # Inline the full `./plugins/<name>` path into every marketplace `source`

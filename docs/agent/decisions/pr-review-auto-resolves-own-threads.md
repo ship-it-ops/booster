@@ -10,6 +10,7 @@ updated: 2026-05-28
 author: claude-session-2026-05-28
 tags: [ship-reviewed-prs, comment-lifecycle, auto-resolve, github-graphql]
 importance: core
+summary: Auto-resolve bot-authored threads when finding no longer fires
 ---
 
 # pr-review auto-resolves bot-authored threads on re-runs

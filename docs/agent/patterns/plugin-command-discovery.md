@@ -6,6 +6,7 @@ updated: 2026-05-25
 author: claude-session-2026-05-25
 tags: [plugin, slash-commands, layout, claude-code]
 importance: core
+summary: Plugin slash commands live at commands/<name>.md namespaced
 ---
 
 # Plugin command discovery: layout, naming, and namespacing
@@ -65,7 +66,7 @@ Run the `<skill-name>` skill with arguments: $ARGUMENTS
 - **`allowed-tools` on the *command* is the binding constraint at runtime.** The skill's own `allowed-tools` does not expand it. If the skill spawns subagents (Task) or runs compound shell, the command must declare them.
 - **Skills marked `disable-model-invocation: true` are reachable *only* via a slash command.** They don't auto-trigger from description matching. If you mark a skill that way, the `commands/` file is mandatory.
 - **Don't name the command the same as the plugin.** `/ship-reviewed-prs:ship-reviewed-prs` reads badly. Pick a verb (e.g. `review-pr`).
-- **Plugin symlinks**: `plugins/<name>/skills/<name>/` uses *per-file* symlinks for files inside (SKILL.md, reference.md, etc.). The `tests/` and `examples/` *subdirectories* are directory symlinks. CI's `plugin-symlinks` job catches violations of the per-file rule (see `.github/workflows/validate-skills.yml`).
+- **Plugin symlinks**: `plugins/<name>/skills/<name>/` uses *per-file* symlinks for files inside (SKILL.md, reference.md, etc.). The `tests/` and `examples/` *subdirectories* are directory symlinks. CI's `plugin-symlinks` job catches violations of the per-file rule (see `.github/workflows/validate.yml`).
 
 ## Related
 

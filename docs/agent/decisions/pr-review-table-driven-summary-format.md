@@ -10,6 +10,7 @@ updated: 2026-05-26
 author: claude-session-2026-05-26
 tags: [ship-reviewed-prs, output-format, summary-body, verdict-labels]
 importance: core
+summary: Summary body adopts tables and LGTM-style verdict labels
 ---
 
 # PR-review summary body uses a table-driven layout

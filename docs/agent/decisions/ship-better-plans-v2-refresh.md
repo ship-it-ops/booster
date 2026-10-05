@@ -6,6 +6,7 @@ updated: 2026-10-01
 author: claude-fable-5-1
 tags: [skill, plugin, planning, audit, workflow, ship-family, ship-execute]
 importance: core
+summary: 2.0 rewrite: cards, linter, grounded review; revises D6/Q3
 ---
 
 # `ship-better-plans` 2.0: what changed from the 1.0 architecture, and why

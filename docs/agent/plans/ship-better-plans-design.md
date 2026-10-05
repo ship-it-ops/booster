@@ -6,6 +6,7 @@ updated: 2026-06-10
 author: claude-opus-4-7
 tags: [skill, plugin, planning, audit, workflow]
 importance: core
+summary: SHIPPED (commit 47be8cc): audited plan-producing skill + plugin
 ---
 
 # Plan: `ship-better-plans` skill + plugin
@@ -189,6 +190,6 @@ Once built, validate against a real planning task:
 ## Related
 
 - [ship-better-plans-architecture](../decisions/ship-better-plans-architecture.md) — locked decisions D1–D4 with full rationale
-- [ship-better-plans-handoff](../status/ship-better-plans-handoff.md) — the fresh-agent pickup instructions
+- [ship-better-plans-handoff](../archive/ship-better-plans-handoff.md) — the fresh-agent pickup instructions
 - [agent-context-initialized](../decisions/agent-context-initialized.md) — the `docs/agent/` foundation this plan integrates with
 - [add-user-instructions-to-skill](../decisions/add-user-instructions-to-skill.md) — the `instructions/` content type Phase 7 emits to

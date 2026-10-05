@@ -6,6 +6,7 @@ updated: 2026-10-04
 author: claude-opus-5-5
 tags: [ship-reviewed-prs, audit, evaluation, personas, workflow, github-api, pr-review]
 importance: core
+summary: Six-persona audit, judged reviews of seeded pull requests
 ---
 
 # Multi-persona audit and before/after evaluation of `ship-reviewed-prs`

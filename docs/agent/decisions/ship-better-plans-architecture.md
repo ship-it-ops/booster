@@ -6,6 +6,7 @@ updated: 2026-10-01
 author: claude-opus-4-7
 tags: [skill, plugin, planning, audit, workflow, ship-family]
 importance: core
+summary: Parallel skill, Workflow audit, plan-mode + opt-in control flow (D1-D7)
 ---
 
 # `ship-better-plans` architecture: parallel skill, Workflow-based audit, `docs/agent/` integration
