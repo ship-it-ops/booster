@@ -5,7 +5,7 @@
 
 ## Unfinished work
 
-- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) — Skills refresh: 4 of 12 done; the method, what the user asked for, and what is next
+- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) — Skills refresh: 5 of 12 done; the method, what the user asked for, and what is next
 
 ## Instructions
 
@@ -33,6 +33,7 @@
 - [ship-agent-context-refresh](decisions/ship-agent-context-refresh.md) — ship-agent-context 1.3 rewrite: digest hook, notes as a colleague's notes, script-checked hand-offs, generated index (C1-C12)
 - [ship-better-plans-architecture](decisions/ship-better-plans-architecture.md) — Parallel skill, Workflow audit, plan-mode + opt-in control flow (D1-D7)
 - [ship-better-plans-v2-refresh](decisions/ship-better-plans-v2-refresh.md) — 2.0 rewrite: cards, linter, grounded review; revises D6/Q3
+- [ship-clean-code-refresh](decisions/ship-clean-code-refresh.md) — ship-clean-code 1.2 rewrite: one test and three rules, severity by consequence, caller's format wins, restraint when writing (K1-K14)
 - [ship-devops-12-category-catalog](decisions/ship-devops-12-category-catalog.md) — DEV1-DEV12 rubric for new ship-devops skill
 - [ship-execute-architecture](decisions/ship-execute-architecture.md) — Standalone DAG-aware executor; ship-code delegation (E1-E5)
 - [ship-execute-v2-refresh](decisions/ship-execute-v2-refresh.md) — 2.0 rewrite: plan reader, git protocol, local review; revises E5
@@ -49,6 +50,7 @@
 - [ship-agent-context-refresh-audit](investigations/ship-agent-context-refresh-audit.md) — ship-agent-context audit: six reviewers, three judged scenarios (pick-up, capture, no folder), three rounds
 - [ship-better-plans-design-audit](investigations/ship-better-plans-design-audit.md) — Audit found plan unbuildable as written; layout+control-flow fixes
 - [ship-better-plans-refresh-audit](investigations/ship-better-plans-refresh-audit.md) — Six-persona audit plus before/after evaluation of ship-better-plans
+- [ship-clean-code-refresh-audit](investigations/ship-clean-code-refresh-audit.md) — ship-clean-code audit: six reviewers, three judged scenarios, a no-skill control, three rounds
 - [ship-execute-refresh-audit](investigations/ship-execute-refresh-audit.md) — Six-persona audit, judged executions, live worktree tests
 - [ship-reviewed-prs-refresh-audit](investigations/ship-reviewed-prs-refresh-audit.md) — Six-persona audit, judged reviews of seeded pull requests
 

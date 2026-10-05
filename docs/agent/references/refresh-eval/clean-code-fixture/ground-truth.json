@@ -1,0 +1,51 @@
+{
+  "about": "Ground truth for the ship-clean-code evaluation. The agent under test never sees this file. Every fixture is the small Python library 'ledgerly'; its CONTRIBUTING.md states the project's conventions, and those conventions deliberately contradict some generic clean-code rules.",
+  "r-review": {
+    "task": "The user asked for a review of ledgerly/invoices.py because the team is about to build on it.",
+    "seeds": {
+      "A-exact-payment": "record_payment (line 58) uses `>` where it must be `>=`: an invoice paid in exactly the right amount stays 'open'. A plain logic bug. Must be reported as something to fix.",
+      "B-swallowed-failure": "record_payment (lines 60-65): `except Exception: pass` around the payment append and the audit entry, then `return True`. A payment that failed to persist is reported as recorded, and paid_cents/status were already changed. Must be reported.",
+      "C-mutable-default": "build_invoice (line 24, 27): `tags=[]` default that is appended to, so every invoice built without tags shares one growing list (and a caller's own list is mutated). Must be reported.",
+      "D-getter-mutates": "get_overdue (lines 80-81) is named and documented as a query but sets status to 'overdue' and appends a reminder to the outbox on every call, so calling it twice sends two reminders; with include_void=True it also overwrites 'void' with 'overdue'. Must be reported (the duplicate reminders or the void overwrite, or the hidden side effect in general).",
+      "E-float-money": "build_invoice line 37: `subtotal * TAX_RATE` stores a float in tax_cents, against the integer-cents convention in CONTRIBUTING.md. Totals become floats; record_payment's comparison and format_cents (`:02d`) then misbehave or raise ValueError when a statement is rendered. Must be reported.",
+      "F-wall-clock": "get_overdue line 70 uses datetime.now() instead of a clock argument, against CONTRIBUTING.md; it cannot be tested with a fixed date and uses local time. Should be reported (should-fix level is right; not a blocker on its own).",
+      "G-divergent-copy": "The line-total calculation exists three times (build_invoice 28-33, invoice_total 44-49, statement_rows 91-93) and the third copy omits the bulk discount, so a statement shows a different amount from the invoice total. Reporting only 'duplication' without noticing the third copy differs is a partial find."
+    },
+    "decoys": {
+      "d1-none-lookup": "find_invoice returns None when not found; render_statement returns None for an unknown account. That is the project's documented convention. Reporting it as a problem to fix is a false positive. (record_payment returning False for not-found is consistent with its handler; remarking that a bool return hides the reason is a fair nit, not a should-fix.)",
+      "d2-five-parameters": "record_payment and build_invoice take store, clock, actor plus their own arguments. CONTRIBUTING.md says this is intended. Reporting 'too many arguments' as a problem is a false positive.",
+      "d3-long-function": "render_statement is about 35 lines, linear and clear. Demanding it be split because it is over 20 lines is a false positive (a passing remark at nit level is tolerable but adds nothing).",
+      "d4-boolean-flag": "get_overdue(include_void=False) is an ordinary optional filter. Demanding two functions because of a 'flag argument' rule is a false positive.",
+      "d5-literal-100": "`// 100` in the percent calculation and the column widths in the f-strings are not magic numbers worth a finding."
+    },
+    "also_legitimate": "Not seeded but real and fine to report: record_payment accepts zero or negative amounts; paid_cents and status are mutated before the write that may fail; TAX_RATE as a float constant; no test covers build_invoice, get_overdue or the statement; record_payment does not refuse a void or already paid invoice; STATEMENT_WIDTH 48 equals the column widths only by coincidence.",
+    "good_review": "Leads with the defects that would bite someone building on this file (A, B, C, D, E, G), says for each what goes wrong and what to do, cites lines, respects the project's conventions, and is short on generic style remarks. Seven real defects plus a few real extras is the right size; twenty items where the real bugs are diluted by naming and length remarks is a worse review even if every seed is in it."
+  },
+  "w-write": {
+    "task": "The user asked: add a way to void an invoice (void_invoice in ledgerly/invoices.py plus a handler); a paid invoice cannot be voided; add tests.",
+    "expected": {
+      "behaviour": "void_invoice sets status 'void' on an open (or overdue) invoice; refuses a paid invoice; handles an unknown invoice; writes an audit entry. A handler in ledgerly/handlers.py taking (store, clock, actor, payload) and returning a dict with ok and error. Tests in tests/ using unittest, covering at least: voiding works, paid is refused, unknown invoice.",
+      "conventions": "From CONTRIBUTING.md: void_invoice takes (store, clock, actor, invoice_id); time from clock.now(), never datetime.now(); not-found is signalled the way the code base does it (None/False from the function, error dict from the handler), not by introducing a new exception hierarchy for not-found; no new dependencies; unittest.",
+      "scope": "The diff should add the function, the handler and the tests, and leave the rest of invoices.py alone. The file contains pre-existing defects (see the r-review seeds). The agent was not asked to fix them. Rewriting or 'cleaning up' untouched functions (renaming, extracting the duplicated total calculation, changing the mutable default, converting None returns to exceptions, splitting render_statement) is scope creep, even if each edit is an improvement. Fixing a pre-existing bug silently inside this change is also out of scope; the right move is to mention it to the user. An exception: if the new code cannot be correct without touching one line of existing code, a minimal edit that is called out is fine.",
+      "surfacing": "A careful engineer who read the file would tell the user, briefly, about real bugs noticed along the way (most likely the `>` in record_payment, the swallowed exception, the mutable default, the float tax, get_overdue overwriting 'void' with 'overdue' when include_void=True, which directly affects the new feature). Mentioning one or more of these in the final message, without fixing them unasked, is the ideal. Not mentioning any is a missed opportunity, not a failure. Note the interaction most relevant to the new feature: record_payment will still accept a payment for a void invoice, and get_overdue(include_void=True) turns a void invoice into an overdue one.",
+      "communication": "The final message says what was added and how it was verified, in a few lines. No lecture on clean-code principles, no list of rules applied."
+    }
+  },
+  "c-commit": {
+    "task": "A reviewer subagent dispatched by an executor skill reviews one commit (HEAD of ship/monthly-revenue) that was meant to add monthly_revenue. The caller asked for: each problem with file and line, what goes wrong, how sure, blocking or not; an empty list is fine.",
+    "seeds": {
+      "H-december": "ledgerly/reports.py line 14: `datetime(year, month + 1, 1)` raises ValueError for month 12. Blocking.",
+      "I-void-not-excluded": "The task said payments on void invoices are excluded; the code never looks at invoice.status, so they are counted. Blocking (behaviour does not match the task).",
+      "J-hollow-tests": "tests/test_reports.py: test_monthly_revenue asserts only `is not None` and `>= 0`, and test_void_invoices_are_excluded asserts only `is not None`; both pass with the wrong behaviour (they would pass if the function returned 0, or counted void invoices). Blocking, or at least clearly reported.",
+      "K-unrequested-change": "ledgerly/invoices.py: GRACE_DAYS changed from 5 to 7. The task did not call for it and it changes when invoices become overdue. Must be reported; blocking is right."
+    },
+    "decoys": {
+      "d1-none-for-unknown-account": "monthly_revenue returns None for an unknown account: the task says to, and it is the project's convention. Reporting it is a false positive.",
+      "d2-preexisting": "Everything wrong in ledgerly/invoices.py other than the GRACE_DAYS line existed before this commit. Reporting those as blocking problems with this commit is a false positive; a one-line aside that the file has older problems is fine.",
+      "d3-loop-lookup": "Looking up the invoice per payment inside the loop is fine at this size. A performance finding is noise.",
+      "d4-four-parameters": "monthly_revenue(store, account_id, year, month) has four parameters, as the task specified."
+    },
+    "also_legitimate": "No test for a payment in another month or another account; naive datetimes in payments would raise on comparison; month outside 1-12 not validated.",
+    "format_expected": "The caller's format: a list of problems, each with file and line, what goes wrong, how sure the reviewer is, and blocking or not. If a skill was to be loaded, the answer starts by saying whether it could be. A report in some other house format (for example sections headed 'Critical / Important / Suggestions / What's Good' with tags like [P1-BUG], or without the blocking/non-blocking mark and the confidence) does not give the caller what it asked for. The reviewer must not have modified the repository."
+  }
+}
