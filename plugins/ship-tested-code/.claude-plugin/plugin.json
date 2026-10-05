@@ -1,5 +1,5 @@
 {
   "name": "ship-tested-code",
-  "description": "Apply testing best practices when writing or reviewing tests for Python, TypeScript/JavaScript, or Java code.",
-  "version": "1.1.0"
+  "description": "Test review and test writing judged by one question: would this test fail if the behaviour were wrong? Finds tests that cannot fail, pin a defect or test the mocks; keeps expected values independent of the code; never bends a test or the code to get to green. Fits the project's own framework. Any language, with notes for Python, TypeScript/JavaScript and Java.",
+  "version": "1.2.0"
 }

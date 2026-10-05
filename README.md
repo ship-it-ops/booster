@@ -49,7 +49,7 @@ Production-quality review and engineering-practice skills, migrated here from th
 | Skill | What it covers |
 |-------|----------------|
 | **ship-clean-code** | Code-quality review and clean-up judged against the project's own conventions: findings rated by consequence and verified first, changes that stay inside the request. Any language, with notes for Python, TypeScript/JavaScript and Java |
-| **ship-tested-code** | Test design, TDD, mocking, integration testing, flaky-test management, 49 cataloged test smells |
+| **ship-tested-code** | Test review and test writing judged by one question: would this test fail if the behaviour were wrong? Finds tests that cannot fail, pin a defect or test the mocks; never bends a test or the code to get to green; fits the project's own framework |
 | **ship-debugged-code** | Systematic debugging — reproduction, hypothesis-driven investigation, bisection, root-cause analysis, postmortems |
 | **ship-secure-code** | Application security (SEC1–SEC12) — auth, injection, XSS, crypto, secrets, supply chain, SSRF, and more |
 | **ship-reviewed-prs** | Pull-request review: reads the change against its intent, the surrounding code and the existing threads, verifies each finding, and posts one review with inline comments and a computed verdict; asks before posting locally, runs unattended in CI |
