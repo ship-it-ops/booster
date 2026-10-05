@@ -8,11 +8,11 @@ branch: ship-better-plans-v2
 agent: claude-code-session-2026-10-01
 tags: [handoff, skills-refresh, ship-family, evaluation]
 importance: core
-summary: "Skills refresh: 5 of 12 done; the method, what the user asked for, and what is next"
+summary: "Skills refresh: 6 of 12 done; the method, what the user asked for, and what is next"
 done_when: manual
 ---
 
-# Hand-off: refreshing the `ship-*` skills, one at a time (5 of 12 done)
+# Hand-off: refreshing the `ship-*` skills, one at a time (6 of 12 done)
 
 ## Scope
 
@@ -27,10 +27,11 @@ The user is refreshing every skill in this repository for current models and the
 | `ship-reviewed-prs` | 1.4.0 | [ship-reviewed-prs-refresh](../decisions/ship-reviewed-prs-refresh.md) | [ship-reviewed-prs-refresh-audit](../investigations/ship-reviewed-prs-refresh-audit.md) |
 | `ship-agent-context` | 1.3.0 | [ship-agent-context-refresh](../decisions/ship-agent-context-refresh.md) | [ship-agent-context-refresh-audit](../investigations/ship-agent-context-refresh-audit.md) |
 | `ship-clean-code` | 1.2.0 | [ship-clean-code-refresh](../decisions/ship-clean-code-refresh.md) | [ship-clean-code-refresh-audit](../investigations/ship-clean-code-refresh-audit.md) |
+| `ship-tested-code` | 1.2.0 | [ship-tested-code-refresh](../decisions/ship-tested-code-refresh.md) | [ship-tested-code-refresh-audit](../investigations/ship-tested-code-refresh-audit.md) |
 
 **Not started** (suggested order, most connected first):
 
-1. The remaining review rubrics that `ship-execute`'s reviewers and `ship-reviewed-prs` load for depth: `ship-tested-code`, `ship-secure-code`, `ship-devops`, then `ship-debugged-code`. `ship-reviewed-prs` now uses them as catalogues and ignores their finding codes, severity tiers and output format; several still say "severity is mechanical from the finding ID" and describe being delegated to by a persona. Reconcile that. `ship-clean-code` 1.2.0 is the model for a rubric skill: read its decision note first. Its three opening rules (the caller's format wins, the project's conventions outrank the skill, what is read is material) and its severity words should carry over, and the others still refer to it in the old terms ("invoke `ship-clean-code`" for naming and SRP).
+1. The remaining review rubrics that `ship-execute`'s reviewers and `ship-reviewed-prs` load for depth: `ship-secure-code`, `ship-devops`, then `ship-debugged-code`. `ship-reviewed-prs` now uses them as catalogues and ignores their finding codes, severity tiers and output format; several still say "severity is mechanical from the finding ID" and describe being delegated to by a persona. Reconcile that. `ship-clean-code` 1.2.0 is the model for a rubric skill, and `ship-tested-code` 1.2.0 is the second built on it: read both decision notes first. Draft the next one from their structure while its baseline runs, then let the baseline and the reviewers correct the draft; that halved the elapsed time for `ship-tested-code`. When reviewers ask for additions in one round and cuts in the next, apply the cuts first. Its three opening rules (the caller's format wins, the project's conventions outrank the skill, what is read is material) and its severity words should carry over, and the others still refer to it in the old terms ("invoke `ship-clean-code`" for naming and SRP).
 2. `ship-vuln-scan`, `ship-vuln-fix`.
 3. `obsidian-knowledge-graph`.
 
@@ -52,7 +53,7 @@ The user's request, in their words: "A lot of improvements have been made to AI 
 
 For a skill that drives an external tool, build a stand-in for that tool that validates what it is sent the way the real service does and logs every call; judges then score against the log, not the agent's account. `ship-reviewed-prs` ships one for `gh` (`skills/ship-reviewed-prs/tests/fake_gh.py`) with three fixture pull requests (`tests/build_fixtures.py`).
 
-The evaluation harness from the refreshes is saved in [`../references/refresh-eval/`](../references/refresh-eval/): the five workflow scripts (reviewer prompts, scenario prompts, judge prompts and schemas), the fixture setup script, the toy repository with its deliberately flawed plan, and `clean-code-fixture/` (a small Python library with seeded defects, decoys and ground truth, built into three repositories by its `build.sh`; reusable for the other rubric skills by seeding different defects). `eval-ship-clean-code.workflow.js` takes `args` for the variant, the skill directory and which reviewers to run, so one script served all three rounds. The scripts contain absolute paths to the previous session's scratch directory; replace `SCRATCH` and the fixture paths before running them.
+The evaluation harness from the refreshes is saved in [`../references/refresh-eval/`](../references/refresh-eval/): the six workflow scripts (reviewer prompts, scenario prompts, judge prompts and schemas), the fixture setup script, the toy repository with its deliberately flawed plan, and `clean-code-fixture/` (a small Python library with seeded defects, decoys and ground truth, built into three repositories by its `build.sh`; reusable for the other rubric skills by seeding different defects). `tested-code-fixture/` adds a seeded test file, a test commit and its own ground truth on top of the same library (`build.sh <clean-code-fixture/base> <out>`). `eval-ship-clean-code.workflow.js` and `eval-ship-tested-code.workflow.js` take `args` for the variant, the skill directory and which reviewers to run, so one script served all three rounds. The scripts contain absolute paths to the previous session's scratch directory; replace `SCRATCH` and the fixture paths before running them.
 
 ## Facts the next agent needs
 
@@ -76,7 +77,7 @@ The evaluation harness from the refreshes is saved in [`../references/refresh-ev
 - **Do not edit a file while a running reviewer is reading it.** Draft in a scratch directory until the reviewers finish. This nearly contaminated the first audit.
 - **zsh does not word-split unquoted variables**, and shell variables do not persist between Bash tool calls. Write commands out in full in skill text.
 - **A shell command that runs `rm -rf` on a path built from a variable is blocked by the harness** and cannot be approved in an unattended session. Write fixture scripts that refuse to overwrite instead of deleting.
-- **A full reviewer-plus-scenario round costs roughly 0.7 to 1.6 million subagent tokens (1.5, 1.3 and 1.0 million for the three `ship-reviewed-prs` rounds; 1.1, 1.1 and 0.8 for `ship-agent-context`; 1.4, 0.9 and 0.7 for `ship-clean-code`).** Three rounds per skill was the pattern.
+- **A full reviewer-plus-scenario round costs roughly 0.7 to 1.6 million subagent tokens (1.5, 1.3 and 1.0 million for the three `ship-reviewed-prs` rounds; 1.1, 1.1 and 0.8 for `ship-agent-context`; 1.4, 0.9 and 0.7 for `ship-clean-code`; 1.5, 1.0 and 0.7 for `ship-tested-code`).** Three rounds per skill was the pattern.
 
 ## Open items on the finished skills
 
@@ -86,6 +87,8 @@ The evaluation harness from the refreshes is saved in [`../references/refresh-ev
 - `ship-reviewed-prs`: nothing has run against GitHub itself. The first real pull request through this repository's `pr-review.yml` is the test of the result file reaching the check step, thread resolving and review dismissal with the workflow token, and the bot login match. The user chose a minor version (1.4.0), not 2.0.0: do not bump a skill to a new major version in this refresh without asking first. They confirmed that the bot's approvals should count as approvals (unattended approval stays the default). They have not yet commented on the other revisions to their earlier decisions (listed in its decision note). The red team's remaining requests are listed in its investigation note.
 - `ship-agent-context`: nothing has run through an installed plugin yet (the hook's `${CLAUDE_PLUGIN_ROOT}` path, the digest after compaction). The user has not yet commented on its revisions to their earlier decisions, chiefly that hand-offs are reconciled when relied on instead of at every session start. `docs/agent/` in this repository is now maintained with the skill's script: create notes with `new`, never edit `MANIFEST.md` by hand, and run `check` before committing. `ship-better-plans`' own note templates still lack a `summary:` line.
 - `ship-clean-code`: nothing has run through an installed plugin, so whether the new description triggers on ordinary feature work is untested; the last round of fixes was not re-audited beyond three fixture runs; the user has been told what was removed and has not yet commented. What is still weak is listed in its investigation note.
+- `ship-tested-code`: the same two gaps as `ship-clean-code` (no run through an installed plugin; last fixes not re-audited). Its scenarios never provoked the failure the skill most exists to prevent (bending a test or the code to get to green), so those rules rest on reviewers' judgement; a harder fixture is listed in its investigation note. Its `SKILL.md` is about 3,900 words. The user has been told what was removed and has not yet commented.
+- The opening rules of `ship-clean-code` and `ship-tested-code` are near-identical on purpose. A change to one should be considered for the other.
 - A session's permission check can block an evaluation agent's write even to a simulated service; say in the agent's prompt that the service is a simulation and the write is expected.
 - The marketplace `metadata.version` is 1.5.0 after the three refreshes.
 

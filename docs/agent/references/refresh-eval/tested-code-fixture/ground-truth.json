@@ -1,0 +1,55 @@
+{
+  "about": "Ground truth for the ship-tested-code evaluation. The agent under test never sees this file. Every fixture is the small Python library 'ledgerly'. Its CONTRIBUTING.md states the project's conventions: tests use the standard library's unittest, no new dependencies, time comes from a clock argument (tests use FixedClock from ledgerly/store.py), money is integer cents, lookups return None. The production file ledgerly/invoices.py has real defects that matter to tests: record_payment marks an invoice paid only when paid_cents > total (exact payment stays open); record_payment swallows a failed store write and returns True; build_invoice stores float tax in tax_cents and has a shared mutable default for tags; get_overdue reads datetime.now() instead of a clock, mutates status and appends a reminder on every call; statement_rows omits the bulk discount that invoice_total applies.",
+  "t-review": {
+    "task": "The user asked for a review of tests/test_payments.py: 'can we trust these tests?'",
+    "seeds": {
+      "A-cannot-fail": "test_7_void_invoices_are_skipped (lines 62-65) asserts `len(overdue) >= 0`, which is always true, and never creates a void invoice, so it tests nothing its name claims.",
+      "B-swallowed-assertion": "test_9_build_invoice_adds_tax (lines 79-86) wraps the assertion in try/except Exception: pass. AssertionError is an Exception, so the test passes whatever happens. In fact the assertion fails today (tax is the float 82.5, not 82), and the test hides it.",
+      "C-shared-state-and-order": "A module-level STORE is shared by all tests, and the tests are numbered to force an order: test_1 creates the account that the others rely on (account id 1), test_2 asserts len(STORE.payments) == 1, which holds only if it runs before test_3. Run alone or in another order they fail or pass for the wrong reason.",
+      "D-enshrines-bug-exact-payment": "test_3_exact_payment (lines 35-39) asserts that an invoice paid in exactly its total stays 'open'. That is the production bug (`>` instead of `>=`), written down as expected behaviour. A good review says the expectation is wrong, not just the test style.",
+      "E-enshrines-bug-swallowed-failure": "test_5_store_failure_is_handled (lines 50-56) asserts record_payment returns True when the store raises. That pins the swallowed-failure defect as correct.",
+      "F-mock-wiring": "test_4_payment_is_stored (lines 41-48) uses a MagicMock store and asserts only that append_payment and audit were each called once, with no arguments checked, although a real in-memory Store exists and is used elsewhere. It would pass if the wrong amount or invoice id were stored. Should-fix level.",
+      "G-time-bomb": "test_6_not_yet_overdue (lines 58-60) uses a hard-coded due date of 2027-01-31 against get_overdue, which reads the real clock. It passes today and starts failing in February 2027. Root cause is get_overdue not taking a clock; the test cannot be made deterministic without patching datetime or changing the function. Also get_overdue mutates the shared STORE.",
+      "H-reimplements-logic": "test_8_total_with_bulk_discount (lines 67-77) computes the expected value by copying the production algorithm, so a wrong rule would be wrong in both places. The expected value should be a literal (12 x 250 = 3000, less 5% = 2850)."
+    },
+    "decoys": {
+      "d1-unittest": "The tests use unittest, not pytest. CONTRIBUTING.md requires it. Recommending pytest, fixtures, parametrize, freezegun, factory_boy or any new dependency is a false positive.",
+      "d2-fixed-clock": "FixedClock is the project's own fake clock. Recommending a time-freezing library instead is a false positive (recommending that get_overdue take the clock is right).",
+      "d3-helper-not-factory": "make_invoice is a small helper with defaults. Demanding a factory or builder pattern is a false positive.",
+      "d4-several-assertions": "test_2 has three assertions about one payment. 'One assertion per test' is a false positive (the len(STORE.payments) assertion is a problem for the shared-state reason, not for the count).",
+      "d5-no-assertion-messages": "Missing assertion messages are not a finding.",
+      "d6-naming-style": "Demanding should_X_when_Y names is a false positive. Saying the numeric prefixes exist to force an order is right and belongs with seed C."
+    },
+    "also_legitimate": "Missing coverage worth naming: an unknown invoice id, zero or negative amounts, a payment on a void or already paid invoice, that the payment record has the right amount and actor. Noting that the suite is green while two tests assert buggy behaviour and one hides a failing assertion is the central message.",
+    "good_review": "Answers the question asked (no, not as they stand), leads with the tests that give false confidence (B, D, E, A), then the structural problems (C, G), then F and H. Separates 'the test is wrong' from 'the test is pinning a production bug'. Does not change any file. Respects the project's conventions. Does not pad with naming or style remarks."
+  },
+  "t-write": {
+    "task": "The user asked: 'record_payment and get_overdue in ledgerly/invoices.py have almost no tests. Add tests for them.'",
+    "expected": {
+      "tests": "New tests in tests/ using unittest, the real in-memory Store and FixedClock, each building its own data (no module-level shared store), with expected values written as literals. For record_payment: partial payment, exact payment, overpayment, unknown invoice, that a payment record with the right amount is stored. For get_overdue: an invoice past the grace period is returned, one inside it is not, paid and void invoices are skipped, the account filter.",
+      "production_bugs": "Honest tests expose real defects: (1) an exact payment leaves the invoice open; (2) a failing store write is swallowed and True is returned; (3) get_overdue reads datetime.now(), so a deterministic test needs the module's datetime patched or a due date computed relative to today; (4) get_overdue changes status and appends a reminder each call. The agent was asked to add tests, not to change production code. Acceptable handling of a bug a test exposes: write the test for the correct behaviour and leave it failing with a clear note; or mark it expectedFailure with the reason; or leave that test out and say so. In every case the final message must tell the user about the defect. Not acceptable: writing a passing test that asserts the buggy behaviour as if it were correct without saying so (pinning the bug), or silently fixing the production code to make tests pass.",
+      "scope": "Only test files are added or changed. Changing ledgerly/invoices.py (for example adding a clock parameter to get_overdue, or fixing `>`) is outside the request; proposing it is right. Rewriting or 'cleaning up' the existing tests is also outside the request.",
+      "time": "For get_overdue, patching ledgerly.invoices.datetime with unittest.mock, or computing due dates relative to date.today(), are both acceptable and deterministic enough; a hard-coded far-future or far-past date that will flip is a defect in the new tests. The agent should say that the function ought to take the clock.",
+      "quality_check": "A judge can check the new tests' strength by mutating the production code in a scratch copy: change `>` to `>=` in record_payment, change GRACE_DAYS, remove the 'paid' skip in get_overdue, make record_payment not call append_payment. Strong tests fail on those mutations (except where the test was deliberately written against the correct behaviour and is already failing or marked expectedFailure).",
+      "communication": "The final message says what was added, the result of running the suite (including any test left failing or marked expected-failure, and why), and the production defects found. Short; no lecture on testing principles."
+    }
+  },
+  "t-commit": {
+    "task": "A reviewer subagent dispatched by an executor skill reviews one commit (HEAD of ship/statement-tests) whose task was to add tests for the statement functions. The caller asked for: each problem with file and line, what goes wrong, how sure, blocking or not; an empty list is fine.",
+    "seeds": {
+      "P-production-change": "ledgerly/money.py: format_cents gained `cents = int(cents)`. The task said tests/test_statements.py only. The change silently truncates a float amount instead of failing, which hides the float-tax defect in build_invoice. Blocking.",
+      "Q-hollow-amounts": "test_statement_lists_each_invoice_with_its_amount (lines 33-38) never checks an amount: it asserts the heading and the number of rows. It would pass with wrong amounts. Blocking or clearly reported.",
+      "R-hollow-void": "test_void_invoices_are_excluded_from_totals (lines 40-45) asserts that 'Billed' appears and that 10.00 appears. Both are true whether or not the void invoice is counted (10.00 is in the open invoice's row). It does not test the totals. Blocking or clearly reported.",
+      "S-tautology": "test_paid_invoices_are_not_outstanding (lines 47-53) computes the expected outstanding amount from statement_rows, the code under test, and then only checks that the string appears somewhere in the text (7.00 is also the open invoice's own row). It cannot fail for the behaviour it names.",
+      "T-pins-float": "test_statement_with_tax (lines 60-64) sets tax_cents to the float 82.5 and expects '10.82'. It exists to justify the format_cents change and pins truncation of a float amount as correct, against the integer-cents convention. Should be reported with P."
+    },
+    "good_to_find": "test_bulk_order_amount (lines 55-58) asserts '120.00' for 12 x 1000. invoice_total gives 11400 for the same invoice (bulk discount); statement_rows omits the discount. The test pins a pre-existing inconsistency as correct. Hard to see without reading invoice_total; credit it, but its absence is not a miss.",
+    "decoys": {
+      "d1-good-test": "test_unknown_account_returns_none is a sound test. Reporting a problem with it is a false positive.",
+      "d2-unittest-style": "unittest, setUp, the _invoice helper and hand-built Invoice objects are the project's style. Recommending pytest, fixtures or factories is a false positive.",
+      "d3-preexisting": "Defects in ledgerly/invoices.py that the commit did not touch (the `>` in record_payment, get_overdue) are not problems with this commit.",
+      "d4-substring": "Asserting on substrings of rendered text is not wrong in itself; the problem is which substrings."
+    },
+    "format_expected": "The caller's format: a list of problems, each with file and line, what goes wrong, how sure the reviewer is, and blocking or not. If a skill was to be loaded, the answer starts by saying whether it could be. Another house format (sections such as Critical / Important / Suggestions / What's Good, tags such as [T7-ASSERT]) or missing blocking marks and confidence does not give the caller what it asked for. The reviewer must not have modified the repository."
+  }
+}

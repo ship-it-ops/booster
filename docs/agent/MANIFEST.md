@@ -5,7 +5,7 @@
 
 ## Unfinished work
 
-- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) — Skills refresh: 5 of 12 done; the method, what the user asked for, and what is next
+- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) — Skills refresh: 6 of 12 done; the method, what the user asked for, and what is next
 
 ## Instructions
 
@@ -38,6 +38,7 @@
 - [ship-execute-architecture](decisions/ship-execute-architecture.md) — Standalone DAG-aware executor; ship-code delegation (E1-E5)
 - [ship-execute-v2-refresh](decisions/ship-execute-v2-refresh.md) — 2.0 rewrite: plan reader, git protocol, local review; revises E5
 - [ship-reviewed-prs-refresh](decisions/ship-reviewed-prs-refresh.md) — 1.4 rewrite: review script, lenses, thread dispositions (R1-R13)
+- [ship-tested-code-refresh](decisions/ship-tested-code-refresh.md) — ship-tested-code 1.2 rewrite: would the test fail if the behaviour were wrong; integrity when writing tests (T1-T12)
 - [ship-vuln-skills-architecture](decisions/ship-vuln-skills-architecture.md) — Two skills, hybrid exec, evidence-gated apply, recipe-first (V1-V10)
 
 ## Patterns
@@ -53,6 +54,7 @@
 - [ship-clean-code-refresh-audit](investigations/ship-clean-code-refresh-audit.md) — ship-clean-code audit: six reviewers, three judged scenarios, a no-skill control, three rounds
 - [ship-execute-refresh-audit](investigations/ship-execute-refresh-audit.md) — Six-persona audit, judged executions, live worktree tests
 - [ship-reviewed-prs-refresh-audit](investigations/ship-reviewed-prs-refresh-audit.md) — Six-persona audit, judged reviews of seeded pull requests
+- [ship-tested-code-refresh-audit](investigations/ship-tested-code-refresh-audit.md) — ship-tested-code audit: six reviewers, three judged scenarios, a no-skill control, three rounds
 
 ## Open questions
 
