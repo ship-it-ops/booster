@@ -171,6 +171,12 @@ jobs:
       - name: Run the review script's unit tests (ship-reviewed-prs)
         run: python3 -m unittest discover -s skills/ship-reviewed-prs/tests -v
 
+      - name: Run the notes script's unit tests (ship-agent-context)
+        run: python3 -m unittest discover -s skills/ship-agent-context/tests -v
+
+      - name: This repository's own docs/agent must pass its check
+        run: python3 skills/ship-agent-context/scripts/agent_context.py check
+
       - name: The plan reader must accept the example plans the linter accepts
         run: |
           set -e

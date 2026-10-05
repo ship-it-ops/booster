@@ -165,7 +165,7 @@ Approval in plan mode can clear the conversation, so the plan file must carry it
 After approval (do this first, do not start implementing):
 1. Save this plan to docs/agent/plans/<slug>.md without this block. Set `approval: approved` and update the Status section.
 2. Run `python3 <absolute path of lint_plan.py> docs/agent/plans/<slug>.md --repo .` and fix what it reports.
-3. If docs/agent/MANIFEST.md exists, add or update this plan's entry, and write the decision and open-question notes the plan lists under Related.
+3. If docs/agent/MANIFEST.md exists, write the decision and open-question notes the plan lists under Related, then bring the index up to date: if the file says it is generated, rebuild it with the ship-agent-context skill's `index` command; otherwise add or update this plan's entry by hand.
 4. Tell the user where the plan is, then ask: build now with /ship-execute docs/agent/plans/<slug>.md, or stop here.
 For approval, look at: <decisions to check> · <assumptions still open> · <what the review changed>
 ```
@@ -181,7 +181,7 @@ Outside plan mode, write the plan to `docs/agent/plans/<slug>.md` at step 5, whe
 - the plan → `docs/agent/plans/<slug>.md`
 - a decision that outlives this plan and that a future agent would otherwise reopen → `docs/agent/decisions/<slug>.md`
 - an open question that outlives the session → `docs/agent/open-questions/<slug>.md`
-- an entry for each in `docs/agent/MANIFEST.md`
+- an entry for each in `docs/agent/MANIFEST.md`: when that file says it is generated, rebuild it with the `ship-agent-context` skill's `index` command instead of editing it
 
 Templates are in [`templates/`](templates/) and follow the `ship-agent-context` conventions. If the user gives a standing instruction while planning ("always", "never", "from now on"), record it under `docs/agent/instructions/`; a constraint on this one task is not a standing instruction.
 

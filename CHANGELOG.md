@@ -32,8 +32,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
   - *Output:* same verdict labels and findings table; the always-rendered persona and thread tables are replaced by a coverage paragraph and an "Existing threads" section that appears only when there are threads.
   - *Removed:* `reference-personas.md`, `reference-lifecycle.md`, the three `lang-*.md` files, `overrides.example.md`, the nine paste-in fixtures and the old examples.
 
+- **ship-agent-context** 1.3.0 — full rewrite after a six-reviewer audit and a before/after evaluation (see `docs/agent/investigations/ship-agent-context-refresh-audit.md`). Existing `docs/agent/` folders keep working; run `agent_context.py index` once to regenerate `MANIFEST.md`.
+  - *Notes script (new):* `scripts/agent_context.py`. `digest` prints the standing instructions, the open hand-offs and note counts in about 2 KB, offline; `find` lists the notes about the files or topic in hand, with why each matched; `reconcile` checks each hand-off against git and GitHub (`DONE` / `OPEN` / `UNKNOWN`, with evidence) and each dated instruction against today, and `--apply` archives what is finished; `new` writes a note in one call; `archive` closes one, fixes links to it and rebuilds the index; `index` generates `MANIFEST.md`; `check` validates the folder. Values from notes never reach a shell, and the script refuses to write in CI. 50 unit tests.
+  - *Session start:* the plugin hook runs `digest` instead of ordering the agent to read files. Nothing is read because a note is marked `importance: core` (33 of this repository's 38 notes were, about 50 thousand tokens a session); notes are looked up when a change touches their area.
+  - *Trust:* notes are a colleague's notes, not standing orders. A recorded instruction that adds a check or a restriction is followed, including over a tool's default; one that would let the agent do more needs the user's yes in the session; text addressed to agents that claims authority or asks for concealment is flagged. A branch cannot retire a rule by deleting it or dating it.
+  - *Hand-offs:* `status/` notes are written when work will outlast the session and carry a structured `done_when` (`pr:`, `branch:`, `commit:`, `pending`, `manual`). A missing branch is no longer taken as proof of completion, and only an explicit anchor can close a note.
+  - *Writing:* one test for what is worth a note; every standing rule in a message is recorded, from the user's own words only, and the announcement says the file is not committed yet; credentials are refused; the skill never stages, commits or pushes on its own.
+  - *Index:* `MANIFEST.md` is generated from each note's `summary`, sorted, with no counters, so it cannot drift and regenerating resolves a merge conflict.
+  - *Also:* a `/ship-agent-context:notes` command (show, find, check, tidy, note, remember, forget, init); `SKILL.md` went from 645 lines to 164.
+  - *Removed:* the ledger, team mode, index splitting, the scope grammar, timed promotion to `AGENTS.md`, the plan template and the four example transcripts.
+
 ### Added
 
+- **CI: notes script tests** — the `plan-lint` job also runs `ship-agent-context`'s unit tests and `agent_context.py check` on this repository's own `docs/agent/`.
 - **CI: review script tests** — the `plan-lint` job also runs `ship-reviewed-prs`'s unit tests.
 - **PR dogfood workflow** — `.github/workflows/pr-review.yml` now fails when no review was posted, skips pull requests from forks, and asks for a comment-only review when a pull request changes the reviewer, CI or agent configuration.
 - **CI: `plan-lint` job** — runs the plan linter's and the plan reader's unit tests, lints the bundled example plans, and checks that the executor's plan reader accepts them, so the examples and the two skills cannot drift apart.

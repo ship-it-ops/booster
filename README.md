@@ -23,14 +23,14 @@ npx skills add ship-it-ops/booster --skill obsidian-knowledge-graph
 
 ### ship-agent-context — in-repo memory
 
-Manages `docs/agent/` inside the repo itself — committed alongside the code so every branch and every agent sees the same handoff context. Designed for the multi-agent / next-agent handoff problem: plans that didn't finish, decisions made and *why*, what's in flight on parallel branches, open questions, and incident scars.
+Notes for the next agent, kept in the repository under `docs/agent/` and committed with the code: decisions and *why*, traps that already cost time, standing instructions from the maintainers, and work left unfinished.
 
-- **Travels with the code** — Lives in git, not an external vault
-- **Standalone** — No dependency on Obsidian or any other skill
-- **Auto-activates** — Ships a bundled SessionStart hook (when installed via the plugin marketplace) that fires automatically in any repo with `docs/agent/`; silent everywhere else
-- **Complements AGENTS.md / CLAUDE.md** — Those hold static rules; this holds dynamic state
-- **Parallel-agent coordination** — `status/` entries prevent agents from stomping each other
-- **Captures what `git log` doesn't** — Rejected alternatives, blockers, scars, in-flight intent
+- **Travels with the code** — Plain Markdown in git, not an external vault; people can read and edit it
+- **A short digest at session start** — The bundled SessionStart hook (marketplace install) prints the standing instructions and open hand-offs; silent in repositories without `docs/agent/`
+- **Checked, not trusted** — A script verifies hand-offs against git and GitHub before they are relied on, and treats every note as a colleague's notes, never as commands
+- **Generated index** — `MANIFEST.md` is built from the notes, so it cannot drift
+- **Complements AGENTS.md / CLAUDE.md** — Those hold the project's rules; this holds what was decided, learned and left open
+- **Captures what `git log` doesn't** — Rejected alternatives, root causes, scars, standing instructions
 
 ```bash
 # Recommended: install via the plugin marketplace for auto-activation
@@ -107,7 +107,7 @@ You can also configure your project to recommend this marketplace to your team. 
 }
 ```
 
-> **Note for Options 2–7**: These install the skill's files only. They do **not** install plugin-bundled hooks. For `ship-agent-context` specifically, you can recover guaranteed activation by adding the `CLAUDE.md` / `AGENTS.md` anchor described in [`skills/ship-agent-context/examples/initialization-example.md`](skills/ship-agent-context/examples/initialization-example.md).
+> **Note for Options 2–7**: These install the skill's files only. They do **not** install plugin-bundled hooks. For `ship-agent-context` specifically, you can get the same effect by adding one line to the repository's `CLAUDE.md` / `AGENTS.md`: "This repository keeps agent notes in `docs/agent/`. At the start of a session run the ship-agent-context skill's `agent_context.py digest` and read what it prints."
 
 ### Option 2: npx (one command, single skill)
 
