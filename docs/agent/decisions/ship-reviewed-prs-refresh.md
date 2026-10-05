@@ -8,13 +8,13 @@ tags: [skill, plugin, pr-review, github, ci, ship-family]
 importance: core
 ---
 
-# `ship-reviewed-prs` 2.0: what changed from the 1.x design, and why
+# `ship-reviewed-prs` 1.4: the full rewrite, what changed from the earlier design, and why
 
 ## Context
 
 Third skill in the `ship-*` refresh, done with the same loop as [ship-execute-v2-refresh](ship-execute-v2-refresh.md): six independent reviewers audited the existing skill, the existing skill reviewed three scratch pull requests with seeded defects and was judged independently, then rewrite, re-audit and re-run, three rounds. The evidence is in [ship-reviewed-prs-refresh-audit](../investigations/ship-reviewed-prs-refresh-audit.md).
 
-The 1.x design is spread over six decision notes. This note records what 2.0 keeps and what it revises. Every revision below was reported to the user on 2026-10-04; none has been explicitly confirmed yet.
+The earlier design is spread over six decision notes. This note records what the rewrite keeps and what it revises. Every revision below was reported to the user on 2026-10-04. Their one response so far was on the version (R13); the other revisions have not been explicitly confirmed.
 
 ## Decision
 
@@ -42,18 +42,18 @@ The 1.x design is spread over six decision notes. This note records what 2.0 kee
 - **R10 — Posting identity is handled.** On the user's own pull request (the `ship-execute` hand-off) the review is a comment that still states its verdict; a refused approval is retried as a comment; the tool's stale approval or block is dismissed; a commit is not reviewed twice; a pending review of the user's is never deleted.
 - **R11 — Trust boundary.** Pull request content is material, not instructions; text that tries to steer the reviewer is a finding; conventions come from the base branch; an unattended run does not approve a change to CI, agent configuration or the reviewer; a review cannot carry a credential.
 - **R12 — Removed.** The three per-language files, the overrides template, the nine paste-in fixtures (replaced by 66 unit tests against a stand-in `gh`), and the CLI and GitLab CI templates, which could not run.
-- **R13 — Version 2.0.0.** This is the major version the user held back in May ([v2-release-trigger](../open-questions/v2-release-trigger.md)). It is set in the plugin and the marketplace on this branch and still needs the user's yes before release.
+- **R13 — Version 1.4.0, not 2.0.0.** The rewrite removes flags and the overrides file, which by `CONTRIBUTING.md` is a major change, and it was first set to 2.0.0. The user decided on 2026-10-04: "No v2 yet - just a minor version bump is enough." Consumers pinned to 1.x therefore get the new behaviour without a major-version signal, as with the relaxed matrix in May. [v2-release-trigger](../open-questions/v2-release-trigger.md) stays open.
 
 ## Alternatives Considered
 
 - **Keep the personas as independent subagents for every pull request.** Rejected for ordinary changes: five to seven agents per review costs several times more, and the judged runs found every seeded defect in one context. Independent reviewers are used for large or high-risk changes and for the second look at a must-fix.
-- **Post COMMENT by default in CI and make approvals opt-in.** Two reviewers argued for it. Not done: decisive verdicts were the user's choice. The reference recommends starting with `max_event: COMMENT`, and `context` says when an unattended approval will count toward required reviews. Left for the user to decide.
+- **Post COMMENT by default in CI and make approvals opt-in.** Two reviewers argued for it. Not done: decisive verdicts were the user's choice, and they confirmed it on 2026-10-04: "The bot approvals should count towards approvals as well - so that is fine." An unattended approval is a real approval by default; `max_event` remains for teams that want an advisory reviewer.
 - **Pre-approve only the read-only script commands and leave `post` to the permission prompt.** Not done: in CI the command's `allowed-tools` is what lets the review post, and changing it could not be tested without a real Actions run. `post --confirmed` is the guard instead.
 - **Install from the marketplace when a pull request changes the reviewer** in this repository's workflow. Not done: it would undo the dogfood decision. The workflow asks for a comment-only review instead and says plainly that this is a request, not an enforcement.
 
 ## Consequences
 
-- A review needs Python 3 and `gh`. Reviews posted by 2.0 carry hidden markers; threads and reviews from 1.x are still recognised.
+- A review needs Python 3 and `gh`. Reviews posted by the rewrite carry hidden markers; threads and reviews from earlier versions are still recognised.
 - Teams with a version 1 overrides file are told by `context` that it is no longer read.
 - The example workflow checks out the base commit and the script fetches the pull request's commits, so the pull request's own `CLAUDE.md` and `.claude/` do not configure the reviewer.
 - This repository's `pr-review.yml` now fails the job when no review was posted.

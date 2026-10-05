@@ -30,4 +30,4 @@ When the answer is "ship it": bump *both* `plugins/ship-reviewed-prs/.claude-plu
 
 ## Update 2026-10-04
 
-The full rewrite on branch `ship-better-plans-v2` sets `ship-reviewed-prs` to 2.0.0 in both `plugins/ship-reviewed-prs/.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` (see [ship-reviewed-prs-v2-refresh](../decisions/ship-reviewed-prs-v2-refresh.md), R13). The user was told and has not yet confirmed. This question closes when they do, or when they ask for a different number.
+The full rewrite of the skill ([ship-reviewed-prs-refresh](../decisions/ship-reviewed-prs-refresh.md)) was first set to 2.0.0. The user declined: "No v2 yet - just a minor version bump is enough." It ships as 1.4.0. The question of when to cut v2.0.0 is still open and still the maintainer's to answer.

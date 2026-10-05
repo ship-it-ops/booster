@@ -156,7 +156,7 @@ The same goes for the second look at a must-fix in step 4. That agent gets only 
 - **Who may decline a thread this tool opened.** Any maintainer, including the author when the author is one. A team has to be able to say no to an automated finding, and on a one-person repository the author is the only one who can. Mark it `settled` with their reason ("Declined by dana-k: the client retries") and do not raise it again. If their reply shows the finding was simply wrong, use `withdrawn`.
 - **Deferred is settled only for what was deferred.** If the deferral was "pagination later" and you find an injection on the same line, that is a new finding.
 - **Resolved by the author alone.** GitHub lets an author resolve any conversation on their own pull request. When the author resolved a thread a person opened and nobody else agreed, `context` lists it as needing a disposition, exactly like an open thread.
-- **This tool's own threads** are recognised by a hidden marker in the comment (and, for reviews posted by version 1, by the bracketed tag that began each comment). `fixed` or `withdrawn` on one of these makes `post` reply with the reason and resolve it. In an unattended run only threads opened by the posting account are resolved; a fixed thread opened under another account is listed in the review for a person to resolve. In an interactive run, threads this tool opened under another account (the CI bot) are resolved too, and the preview lists them so the user sees it before agreeing.
+- **This tool's own threads** are recognised by a hidden marker in the comment (and, for reviews posted by earlier versions, by the bracketed tag that began each comment). `fixed` or `withdrawn` on one of these makes `post` reply with the reason and resolve it. In an unattended run only threads opened by the posting account are resolved; a fixed thread opened under another account is listed in the review for a person to resolve. In an interactive run, threads this tool opened under another account (the CI bot) are resolved too, and the preview lists them so the user sees it before agreeing.
 - **A thread is this tool's only if this tool posted it.** The marker counts only on a comment from the posting account or a bot; a person who writes in the same format has opened a person's thread.
 - **`fixed` needs a commit.** The script refuses `fixed` on a thread when nothing has been pushed since it was opened.
 - **Reopened threads.** If a person unresolved a thread after this tool resolved it, they are telling you the earlier judgement was wrong. Read their reason, re-examine the code, and never resolve or settle it again; `fixed` on such a thread is listed for people to confirm.
@@ -210,7 +210,7 @@ Optional. A JSON file at `.claude/ship-reviewed-prs.json`, read **from the pull 
 
 Without a `max_event`, an unattended approval is a real approval: where the repository lets the posting account approve, it counts toward required reviews. A good way to adopt the reviewer is to start with `"max_event": "COMMENT"` so it advises while people gate merges, and raise it once the team trusts its findings.
 
-The file fails closed. An unknown key or a bad value is reported by `context`. If the file exists but cannot be read, an unattended review is posted as a comment. The version 1 file `.claude/ship-reviewed-prs-overrides.md` is no longer read; `context` says so when it finds one.
+The file fails closed. An unknown key or a bad value is reported by `context`. If the file exists but cannot be read, an unattended review is posted as a comment. The older overrides file, `.claude/ship-reviewed-prs-overrides.md`, is no longer read; `context` says so when it finds one.
 
 `examples/ship-reviewed-prs.json` is a starting point.
 
@@ -256,4 +256,4 @@ Pass these to `context`, which records them for `check` and `post`.
 | `--comment-only` | Post as a comment whatever the verdict. |
 | `--again` | On `post`: review a commit this tool has already reviewed. Only when the user asks for another look. |
 
-`--strict` and `--json` from version 1 are gone: a model cannot set an exit code or own standard output. The result file and the workflow's check step replace them.
+`--strict` and `--json` from earlier versions are gone: a model cannot set an exit code or own standard output. The result file and the workflow's check step replace them.

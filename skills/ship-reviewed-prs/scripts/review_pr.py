@@ -409,7 +409,7 @@ def read_settings(owner, repo, base_ref):
         if e.status == 404 or "Not Found" in e.text:
             try:
                 gh(["api", "repos/%s/%s/contents/%s?ref=%s" % (owner, repo, OLD_OVERRIDES_PATH, base_ref)])
-                problems.append("%s on %s is the version 1 format and is no longer read; move what you need to %s"
+                problems.append("%s on %s is the old overrides format and is no longer read; move what you need to %s"
                                 % (OLD_OVERRIDES_PATH, base_ref, SETTINGS_PATH))
             except GhError:
                 pass
@@ -510,7 +510,7 @@ def unattended_reason(flag):
 
 
 def is_our_review(body):
-    """A review this tool posted: it ends with the marker, or (version 1) opens with the bot disclosure."""
+    """A review this tool posted: it ends with the marker, or (earlier versions) opens with the bot disclosure."""
     body = body or ""
     return marker_fields(body) is not None or body.lstrip().startswith("Posted by ship-reviewed-prs")
 

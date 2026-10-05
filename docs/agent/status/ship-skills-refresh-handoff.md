@@ -22,12 +22,12 @@ The user is refreshing every skill in this repository for current models and the
 |-------|---------|---------------|----------|
 | `ship-better-plans` | 2.0.0 | [ship-better-plans-v2-refresh](../decisions/ship-better-plans-v2-refresh.md) | [ship-better-plans-refresh-audit](../investigations/ship-better-plans-refresh-audit.md) |
 | `ship-execute` | 2.0.0 | [ship-execute-v2-refresh](../decisions/ship-execute-v2-refresh.md) | [ship-execute-refresh-audit](../investigations/ship-execute-refresh-audit.md) |
-| `ship-reviewed-prs` | 2.0.0 | [ship-reviewed-prs-v2-refresh](../decisions/ship-reviewed-prs-v2-refresh.md) | [ship-reviewed-prs-refresh-audit](../investigations/ship-reviewed-prs-refresh-audit.md) |
+| `ship-reviewed-prs` | 1.4.0 | [ship-reviewed-prs-refresh](../decisions/ship-reviewed-prs-refresh.md) | [ship-reviewed-prs-refresh-audit](../investigations/ship-reviewed-prs-refresh-audit.md) |
 
 **Not started** (suggested order, most connected first):
 
 1. `ship-agent-context` — owns the `docs/agent/` conventions both rewritten skills write into. Its plan template (Goal / Approach / Files to Touch) is older than the `plan_format: 2` plans; reconcile them.
-2. The review rubrics that `ship-execute`'s reviewers and `ship-reviewed-prs` load for depth: `ship-clean-code`, `ship-tested-code`, `ship-secure-code`, `ship-devops`, then `ship-debugged-code`. `ship-reviewed-prs` 2.0 uses them as catalogues and ignores their finding codes, severity tiers and output format; several still say "severity is mechanical from the finding ID" and describe being delegated to by a persona. Reconcile that.
+2. The review rubrics that `ship-execute`'s reviewers and `ship-reviewed-prs` load for depth: `ship-clean-code`, `ship-tested-code`, `ship-secure-code`, `ship-devops`, then `ship-debugged-code`. `ship-reviewed-prs` now uses them as catalogues and ignores their finding codes, severity tiers and output format; several still say "severity is mechanical from the finding ID" and describe being delegated to by a persona. Reconcile that.
 3. `ship-vuln-scan`, `ship-vuln-fix`.
 4. `obsidian-knowledge-graph`.
 
@@ -77,7 +77,7 @@ The evaluation harness from the refreshes is saved in [`../references/refresh-ev
 - Neither skill has been run end to end in a live interactive session: the checkpoint and approval questions in `ship-better-plans`, and the start, gate and hand-off questions, real subagent dispatch and resume in `ship-execute`. A good first act for the next session is to plan and execute one small real change with both skills and fix what that shows.
 - `ship-better-plans`: grounding did not improve without a review; the last reviewer round's remaining majors are listed in its investigation note.
 - `ship-execute`: three red-team requests were not done (listing and pattern-flagging every command a plan will run, an `--allow` override for `check`, rebuilding a lost ledger from the plan's Status section); see its investigation note.
-- `ship-reviewed-prs`: nothing has run against GitHub itself. The first real pull request through this repository's `pr-review.yml` is the test of the result file reaching the check step, thread resolving and review dismissal with the workflow token, and the bot login match. The user has not yet confirmed the revisions to their earlier decisions (listed in its decision note), version 2.0.0, or whether unattended approvals should become opt-in. The red team's remaining requests are listed in its investigation note.
+- `ship-reviewed-prs`: nothing has run against GitHub itself. The first real pull request through this repository's `pr-review.yml` is the test of the result file reaching the check step, thread resolving and review dismissal with the workflow token, and the bot login match. The user chose a minor version (1.4.0), not 2.0.0: do not bump a skill to a new major version in this refresh without asking first. They confirmed that the bot's approvals should count as approvals (unattended approval stays the default). They have not yet commented on the other revisions to their earlier decisions (listed in its decision note). The red team's remaining requests are listed in its investigation note.
 - A session's permission check can block an evaluation agent's write even to a simulated service; say in the agent's prompt that the service is a simulation and the write is expected.
 - The marketplace `metadata.version` is 1.5.0 after the three refreshes.
 

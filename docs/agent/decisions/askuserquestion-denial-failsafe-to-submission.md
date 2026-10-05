@@ -60,4 +60,4 @@ Specifically:
 - [ci-mode-auto-detect-unreliable](../scars/ci-mode-auto-detect-unreliable.md) — the parent scar; this decision is its long-term mitigation.
 - [bare-slash-command-unknown-in-action](../scars/bare-slash-command-unknown-in-action.md) — the sibling trap that the new template also defends against.
 - [relaxed-approve-decision-matrix](relaxed-approve-decision-matrix.md) — the decision-matrix policy that runs before the gate.
-- [ship-reviewed-prs-v2-refresh](ship-reviewed-prs-v2-refresh.md) — 2.0 narrows this: a missing question tool posts only when the script has found the run to be unattended (R7).
+- [ship-reviewed-prs-refresh](ship-reviewed-prs-refresh.md) — the 1.4.0 rewrite narrows this: a missing question tool posts only when the script has found the run to be unattended (R7).

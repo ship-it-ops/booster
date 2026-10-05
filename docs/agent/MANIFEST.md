@@ -24,7 +24,7 @@ Last updated: 2026-10-04 | Total notes: 38
 
 ## Decisions
 
-- [ship-reviewed-prs-v2-refresh](decisions/ship-reviewed-prs-v2-refresh.md) | decision | active | core | 2026-10-04 | 2.0 rewrite: review script, lenses, thread dispositions (R1-R13)
+- [ship-reviewed-prs-refresh](decisions/ship-reviewed-prs-refresh.md) | decision | active | core | 2026-10-04 | 1.4 rewrite: review script, lenses, thread dispositions (R1-R13)
 - [ship-execute-v2-refresh](decisions/ship-execute-v2-refresh.md) | decision | active | core | 2026-10-04 | 2.0 rewrite: plan reader, git protocol, local review; revises E5
 - [ship-better-plans-v2-refresh](decisions/ship-better-plans-v2-refresh.md) | decision | active | core | 2026-10-01 | 2.0 rewrite: cards, linter, grounded review; revises D6/Q3
 - [ship-vuln-skills-architecture](decisions/ship-vuln-skills-architecture.md) | decision | active | core | 2026-06-19 | Two skills, hybrid exec, evidence-gated apply, recipe-first (V1-V10)
@@ -45,7 +45,7 @@ Last updated: 2026-10-04 | Total notes: 38
 ## Patterns
 
 - [plugin-command-discovery](patterns/plugin-command-discovery.md) | pattern | active | core | 2026-05-25 | Plugin slash commands live at commands/<name>.md namespaced
-- [pr-review-summary-body-layout](patterns/pr-review-summary-body-layout.md) | pattern | superseded | standard | 2026-10-04 | 1.x summary layout; superseded by ship-reviewed-prs 2.0
+- [pr-review-summary-body-layout](patterns/pr-review-summary-body-layout.md) | pattern | superseded | standard | 2026-10-04 | Old summary layout; superseded by the ship-reviewed-prs rewrite
 
 ## Investigations
 
@@ -56,7 +56,7 @@ Last updated: 2026-10-04 | Total notes: 38
 
 ## Open Questions
 
-- [v2-release-trigger](open-questions/v2-release-trigger.md) | open-question | active | standard | 2026-10-04 | 2.0.0 set on the refresh branch; awaits user's yes
+- [v2-release-trigger](open-questions/v2-release-trigger.md) | open-question | active | standard | 2026-10-04 | Still open: rewrite shipped as 1.4.0, v2 held back
 
 ## Scars
 

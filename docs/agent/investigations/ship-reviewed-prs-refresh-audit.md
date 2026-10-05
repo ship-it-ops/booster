@@ -42,13 +42,13 @@ The workflow script is saved as [`eval-ship-reviewed-prs.workflow.js`](../refere
 
 ## Fix
 
-Version 2.0, described in [ship-reviewed-prs-v2-refresh](../decisions/ship-reviewed-prs-v2-refresh.md).
+The rewrite, released as 1.4.0, described in [ship-reviewed-prs-refresh](../decisions/ship-reviewed-prs-refresh.md).
 
 ### Results
 
 Judged reviews (scores out of 10):
 
-| Pull request | Measure | Existing skill | 2.0 draft | 2.0 revised |
+| Pull request | Measure | Existing skill | Rewrite, first draft | Rewrite, revised |
 |--------------|---------|----------------|-----------|-------------|
 | Seeded | Detection | 8 | 10 | 10 |
 | Seeded | Precision | 7 | 9 | 9 |
@@ -97,6 +97,6 @@ The script has 66 unit tests, run in CI.
 
 ## Related
 
-- [ship-reviewed-prs-v2-refresh](../decisions/ship-reviewed-prs-v2-refresh.md) — the decisions this evidence produced
+- [ship-reviewed-prs-refresh](../decisions/ship-reviewed-prs-refresh.md) — the decisions this evidence produced
 - [ship-execute-refresh-audit](ship-execute-refresh-audit.md) — the previous skill's audit, same method
 - [ci-mode-auto-detect-unreliable](../scars/ci-mode-auto-detect-unreliable.md) — the silent-drop scar

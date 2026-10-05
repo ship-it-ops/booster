@@ -1,5 +1,5 @@
 {
   "name": "ship-reviewed-prs",
   "description": "Pull-request review for GitHub: reads the change against its intent, the surrounding code and the existing review threads, verifies each finding, computes an approve / request-changes / comment verdict, and posts one review with inline comments through a tested script. Asks before posting locally; runs unattended in CI. Uses the other ship-* review skills for depth when they are installed.",
-  "version": "2.0.0"
+  "version": "1.4.0"
 }
