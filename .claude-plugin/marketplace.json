@@ -107,8 +107,8 @@
     {
       "name": "ship-secure-code",
       "source": "./plugins/ship-secure-code",
-      "description": "Application-security review (SEC1-SEC12: auth, input validation, injection, XSS, CSRF/origin, crypto, secrets, supply chain, PII/logging, resource exhaustion, path traversal, deserialization/SSRF) for Python, TypeScript/JavaScript, and Java. Sibling to ship-clean-code; serves as the depth target when ship-reviewed-prs SC persona delegates.",
-      "version": "1.0.0",
+      "description": "Security review and security-sensitive coding. A finding is a traced path: who the attacker is, how they get there, what they gain. Looks first for missing authorization, verifies before reporting, states what was and was not examined, and never weakens a control to make something work. Any language, with notes for Python, TypeScript/JavaScript and Java.",
+      "version": "1.1.0",
       "author": {
         "name": "ship-it-ops"
       },

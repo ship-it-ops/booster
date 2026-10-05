@@ -169,7 +169,7 @@ Produce a structured report (and, on request, the raw findings artifact per `con
 
 ## Anti-overlap & related skills
 
-- **`ship-secure-code`** — SEC7 owns the *secret-literal-in-code-under-review*; **VS4 owns
+- **`ship-secure-code`** — reports a *secret literal in the code under review* (by location, never by value); **VS4 owns
   repo-wide + git-history secret scanning**. `ship-secure-code`'s supply-chain category owns *risky
   dependency-add code patterns* (install scripts, typosquat, integrity); **VS1 owns authoritative
   known-CVE matching**. Cross-reference, don't duplicate.

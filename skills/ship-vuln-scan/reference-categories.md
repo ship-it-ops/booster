@@ -138,7 +138,7 @@ records, alias-aware dedup, coverage flagging.
 ---
 
 ## Cross-references
-- Boundaries with `ship-secure-code` (SEC7, supply-chain) and `ship-devops` (DEV3/DEV4) — SKILL.md
+- Boundaries with `ship-secure-code` (secrets in reviewed code, dependencies added by a change) and `ship-devops` (DEV3/DEV4) — SKILL.md
   § Anti-overlap.
 - Output shapes — [`contract.md`](contract.md).
 - Procedure, exit-codes, triage formula — [`reference.md`](reference.md).

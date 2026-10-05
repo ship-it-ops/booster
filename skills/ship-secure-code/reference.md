@@ -1,333 +1,124 @@
-# Secure Code Reference
+# Vulnerability classes: what is easy to miss, and what a fix that works looks like
+
+Read the sections for what the code touches. Each one lists where a competent reviewer still slips, and the difference between a fix that removes the flaw and one that only moves it. Nothing here is a finding by itself: a finding is a traced path (see `SKILL.md`). Framework behaviour changes between versions; check the version in use before relying on a default.
 
-Methodology, sources, cross-cutting principles, and anti-overlap with sibling skills. The per-category rubric (antipatterns, fixes, false-positives) lives in `reference-categories.md`.
+## Authorization and object access
 
----
+- The check that is missing is rarely on the main route. Look at the variants: bulk, export, search, count, "copy", "move", attachments, the admin and internal versions, the GraphQL resolver beside the REST handler, the websocket or queue consumer that does the same thing.
+- Loading a record by id and then checking ownership is fine; loading by id and never checking is the flaw. A filter on tenant in the query is stronger than a check after loading, because it cannot be forgotten on one branch.
+- "404 or 403" matters less than consistency: differing answers for "exists but not yours" and "does not exist" let a caller enumerate ids.
+- Mass assignment: a request body copied onto a model or into an update statement lets the caller set fields the form never showed (role, owner, tenant, verified, price). The fix is an explicit list of fields a caller may set, per operation.
+- A check in the UI, in a client, or in an earlier request of a multi-step flow is not a check.
+- **Fix:** enforce in one declared place per route (the project's guard), scoped to the object; add the filter to the query; deny when the guard is absent.
 
-## 1. Methodology
+## Injection into a query
 
-### Threat modeling at review time
+- Bound parameters protect values only. Table and column names, sort order and direction, and operators cannot be bound: they need an allowlist mapped to fixed strings. Limits and offsets can usually be bound; cast them to an integer and cap them.
+- An ORM does not help where raw fragments are passed: `raw`, `extra`, `text`, `whereRaw`, `literal`, string-built JPQL or HQL, a native query, a query builder given a user-supplied column or operator.
+- Document stores: a request body passed as a filter lets the caller send operators (`{"$ne": null}`, `$where`). Cast to the expected scalar type first.
+- `LIKE` patterns: `%` and `_` in user input are not injection, but they change what matches; escape them when the match is a security decision.
+- Second order: a value stored safely and later concatenated into a query elsewhere.
+- **Fix:** bind every value; map every identifier through an allowlist; never "escape" by hand.
 
-Every review begins with an implicit threat-model question: **what data crosses the trust boundary, and where does it land?** The reviewer maps:
+## Commands and processes
 
-1. **Sources** — points where untrusted data enters: HTTP request body/query/headers/cookies, file uploads, queue messages, environment variables, external API responses, browser `postMessage`, IPC, cross-origin form posts, browser-extension content scripts.
-2. **Sinks** — places where untrusted data has security-relevant effect: SQL/NoSQL queries, OS commands, file paths, HTML output, JS evaluation, URL navigation, redirects, deserialization, regex evaluation, log lines, response bodies.
-3. **Paths** — for each (source, sink) pair, whether the data flows directly, transformed, validated, or sanitized.
+- A shell is the flaw: `shell=True`, `system`, `popen`, Node's `child_process.exec`, a single command string handed to `sh -c`. The fix is an argument list with a fixed program. (A call that splits a string into arguments without a shell, such as Java's `Runtime.exec(String)`, allows injected arguments, not shell metacharacters.)
+- An argument list still allows option injection: a user-supplied value beginning with `-` becomes a flag (`--output=`, `-o`, `--upload-pack`). Put `--` before user-supplied operands where the program supports it, and validate the value's form.
+- Programs that interpret their input (`tar`, `git`, `curl`, `ffmpeg`, `convert`, `pandoc`, `ssh`) have options and input formats that read or write other files or reach the network. Fixing the shell does not fix those.
+- Environment variables and the working directory passed to a child process are inputs too.
 
-A finding fires when a source-to-sink path lacks an appropriate defense. Output format requires the path to be explicit.
+## Server-side request forgery
 
-### Severity is a function of two things
+- Any feature that fetches an address the user supplies: imports, webhooks, previews, avatars from a URL, PDF or image renderers that load remote resources, XML with external entities.
+- A denylist of strings does not work. Loopback and internal addresses have many spellings (`0.0.0.0`, `[::1]`, decimal and octal forms, IPv4-mapped IPv6), a hostname can resolve to an internal address, a public address can redirect to an internal one, and the name can resolve differently between the check and the request.
+- The cloud metadata address (`169.254.169.254` and its IPv6 and hostname forms) is the usual target; so are admin ports of neighbouring services.
+- Non-HTTP schemes (`file:`, `gopher:`, `ftp:`) if the client supports them.
+- **Fix that works:** an allowlist of hosts where the feature allows it. Otherwise: accept only `http` and `https`; resolve the name, reject private, loopback, link-local and metadata ranges, and connect to the address you checked (through the client's resolver or connection hook, not by rewriting the URL to the address, which breaks certificate checking); do not follow redirects, or re-check each hop; limit the response size and time; do not return the raw response to the caller unless that is the feature. Sending such requests through an egress proxy that enforces this is stronger than doing it in application code.
 
-- **Reachability**: is the sink reachable from a source under attacker control? Internet-facing HTTP body → very reachable. Internal RPC from a trusted service → less reachable. Local dev script → not reachable. Severity scales with reachability.
-- **Impact**: what does compromising the sink achieve? RCE > data exfiltration > information disclosure > denial of service. Severity scales with impact.
+## File paths, uploads and archives
 
-The skill's tier-1/tier-2/tier-3-5 split is the codification of these two axes. Tier-1 = reachable + high impact; tier-2 = secondary defense missing OR reachable but lower impact; tier-3-5 = hardening / depth.
+- Joining a base directory with user input does not confine it: `..` climbs out, and in several path libraries (Python `os.path.join` and `pathlib`, Node `path.resolve`, Java `Path.resolve`, .NET `Path.Combine`) an absolute second argument replaces the base entirely.
+- **Fix:** resolve the final path (following symbolic links) and check it is inside the resolved base, comparing by path component (`is_relative_to`, `commonpath`, `Path.startsWith`) and not by string prefix; or look the file up by an identifier that maps to a stored name.
+- Archive extraction can write wherever entry names say (`../../`, absolute paths, symbolic links). Libraries differ: some sanitise names themselves, some need a safe mode switched on, some do neither (see the language notes). Where the code builds destination paths from entry names by hand, validate each resolved destination. Decompressed size and entry count are a separate limit.
+- Uploads: the name, the declared type and the extension are attacker-controlled. What matters is where the file is stored (outside any directory that is served or executed), under what name (generated), how it is served back (a fixed or sniff-proof content type, as a download when in doubt), size limits, and who may fetch it afterwards. An upload any signed-in user can read by guessing a name is an authorization flaw.
+- Temporary files created with predictable names in shared directories.
 
-### What gets reviewed, what doesn't
+## Templates, HTML and the browser
 
-| Reviewed | Skipped |
-|----------|---------|
-| Application code (`*.py`, `*.ts`, `*.tsx`, `*.js`, `*.jsx`, `*.java`) | Generated code (`*.generated.*`, `*.pb.go`, files with `@generated` header) |
-| Framework integration points (middleware, routers, ORM, view templates) | Vendored deps (`vendor/`, `node_modules/`, `third_party/`) |
-| Build/CI files that touch security (`.github/workflows/*.yml`, `Dockerfile*`) | Pure styling, formatting, lint config |
-| Schema/migration files (for IDOR-relevant column additions) | Binary blobs |
-| Config files for security settings (`next.config.*`, `vite.config.*`, `application.properties`, etc.) | Lockfiles (read for supply-chain signal only, not full-text review) |
-| Tests for security-relevant code (regression coverage check) | Documentation that doesn't contain code samples |
+- Server-side template injection is user input in the template's source, not in its variables: a string concatenated or formatted into what is then rendered as a template. It usually leads to code execution.
+- Auto-escaping covers HTML text and quoted attributes. It does not make a value safe inside a script block, an event-handler attribute, a `style`, an unquoted attribute, or a URL attribute: `javascript:` and `data:` URLs pass straight through escaping. URL attributes need a scheme allowlist.
+- "Safe" markers switch escaping off: `|safe`, `Markup`, `mark_safe`, `dangerouslySetInnerHTML`, `v-html`, `innerHTML`, `bypassSecurityTrust*`, triple braces. Each needs its input to be trusted or sanitised by a maintained sanitiser, not by a regular expression.
+- Rendered Markdown and rich text are HTML.
+- Request forgery depends on how the application authenticates. A cookie the browser attaches automatically needs a defence; a token the script puts in a header mostly does not. On the session cookie, an explicit `SameSite=Lax` stops cross-site `POST` but not top-level `GET`, so state-changing `GET` stays exposed; `Strict` stops both; neither stops requests from sibling subdomains, and `None` stops nothing. Do not count on the browser default: only Chromium-based browsers treat an unset attribute as Lax, and with a short exception for freshly set cookies; frameworks differ in whether they set it. A session-bound token, or an `Origin` / `Sec-Fetch-Site: same-origin` check, covers these.
+- A websocket authenticated by cookie needs an `Origin` check at the handshake.
+- Cross-origin sharing: reflecting the request's origin together with credentials is the dangerous configuration; `*` without credentials on public data is not.
+- Open redirect: a redirect target taken from the request. Allow relative paths on this site only (and reject `//host` and backslash forms), or map a key to a fixed list.
 
-Skipped categories are noted in the Confidence section with counts.
+## Deserialisation and parsers
 
----
+- Formats that can construct arbitrary objects execute code when fed attacker data: Python `pickle` and `yaml.load` without the safe loader, Java native serialisation and libraries with polymorphic typing enabled, PHP `unserialize`, Ruby `Marshal`, .NET `BinaryFormatter`.
+- XML parsers that resolve external entities or DTDs read files and make requests; defaults differ by parser and version.
+- **Fix:** a data-only format with a schema; safe loaders; entity resolution off.
 
-## 2. The 12 categories — high-level boundaries
+## Authentication, sessions and tokens
 
-### SEC1 — AUTH
+- Passwords: a password hashing function with a per-password salt and a work factor (Argon2id, scrypt, bcrypt, or PBKDF2 with a high iteration count). A plain or salted fast hash (MD5, SHA-1, SHA-256) is not one. Use the framework's hasher, which also handles upgrading parameters.
+- Changing a password scheme has to keep existing users able to sign in: verify with the old scheme and re-hash on next successful login, or wrap the old hash. Never a silent incompatible switch.
+- Random values that guard anything (session ids, reset tokens, API keys, invitation codes) come from the cryptographic source (`secrets`, `crypto.randomBytes` / `crypto.getRandomValues`, `SecureRandom`), not from `random`, `Math.random` or a timestamp.
+- Reset and invitation flows: the link's host comes from configuration, never from the request's `Host` or forwarded headers; the token expires, is single-use, is tied to one account, is stored hashed, is not returned by the API or written to a log; the request step answers identically for known and unknown accounts; completing a reset ends the account's other sessions where the session mechanism can (where it cannot, as with signed client-side sessions, say so and do not build one unasked); the old password or email is not changed by an unauthenticated step without the token.
+- Sessions: a new session identifier at login and at privilege change; cookies `HttpOnly`, `Secure`, and a `SameSite` value chosen on purpose; server-side invalidation at logout where sessions are server-side; with signed client-side sessions, say that they cannot be revoked individually.
+- Signed tokens (JWT and similar): verify, do not just decode; pin the accepted algorithms; check expiry, audience and issuer; a secret used for signing must not have a default or be guessable; a long-lived token with no revocation is a design weakness worth stating.
+- Comparing a MAC, a signature or a secret against attacker-supplied input with `==` leaks timing; use the constant-time comparison. It matters most where the attacker chooses the message being verified. Looking up a high-entropy random token by its hash is fine.
+- Limits on login, reset and verification attempts; uniform errors.
 
-Owns: who-can-do-what. Covers AuthN (logged in) and AuthZ (allowed to access this resource), plus broken session management, over-privileged service accounts, IDOR/BOLA.
+## Secrets and sensitive data
 
-- **Tier 1**: Public endpoint with no auth check; authenticated endpoint without per-resource AuthZ check (IDOR); session token reuse without verification; service account with `*` permission.
-- **Tier 2**: Missing rate-limiting on auth endpoints; weak password policy; session timeout too long; missing CSRF on state-changing routes (SEC5 cross-ref).
-- **Tier 3-5**: Auth logging gaps; missing MFA support; missing account lockout.
+- A default or fallback value for a secret (`os.environ.get("KEY", "dev-secret")`) is a hardcoded secret that takes effect whenever the variable is missing. Fail at start-up instead.
+- Secrets in URLs end up in logs, history and referrers.
+- Logs: credentials, tokens, session ids, full request bodies, personal data. Error responses: stack traces, queries, internal addresses.
+- Endpoints that serialise a whole record return fields nobody meant to expose (password hashes, tokens, internal flags). Serialise an explicit list.
+- A secret that was ever committed is compromised; the fix includes rotation.
+- When reporting one, give the location and the kind, never the value.
 
-Does NOT own: SC encryption misuse (SEC6), session-token storage in JS-accessible cookie (SEC5 origin), broken CSRF (SEC5).
+## Cryptography
 
-### SEC2 — INPUT-VALIDATION
+- Encryption without authentication (CBC or CTR alone, ECB anywhere) lets ciphertext be altered; use an authenticated mode (GCM, ChaCha20-Poly1305) through a maintained library's high-level interface.
+- A nonce or IV that repeats under the same key breaks GCM and ChaCha20-Poly1305 completely.
+- Certificate or hostname verification switched off (`verify=False`, a trust-all manager, `rejectUnauthorized: false`) makes TLS decorative.
+- MD5 and SHA-1 are a problem for signatures, integrity against an attacker and passwords; not for cache keys, ETags or deduplication.
 
-Owns: data crossing the trust boundary is parsed, validated, and normalized before use. Schema validation at the API boundary, type coercion with explicit failure handling, normalization (Unicode, path canonicalization).
+## Logic, state and concurrency
 
-- **Tier 1**: HTTP route accepts `req.body` and uses fields directly without `zod.parse` / Pydantic model / JSR-380 / Joi / Valibot.
-- **Tier 2**: Validation exists but uses denylist patterns instead of allowlist; partial validation (some fields validated, some not).
-- **Tier 3-5**: Validator error responses leak internal structure; validator slow path.
+- Check-then-act without atomicity: spend a balance, redeem a code, use a single-use token, claim a unique name. Two requests at once both pass the check. The fix is a conditional update, a unique constraint or a lock in the store, not a second check in code.
+- Multi-step flows where the server trusts the client to have done the earlier steps (payment before fulfilment, verification before activation).
+- Values the client supplies and the server should compute or look up: price, discount, role, user id, tenant id.
+- Numeric edges: negative quantities and amounts, zero, very large values.
+- Replays: a signed request or webhook accepted again later; no timestamp or nonce check.
 
-Cross-ref: SEC3 (injection) often co-occurs with missing SEC2. SEC4 (XSS) is the output-side analog.
+## Resource exhaustion
 
-### SEC3 — INJECTION
+- Input-controlled size or count with no limit: body size, page size, list of ids, upload size, decompressed size, depth of nested data, number of outbound requests per call.
+- Regular expressions with nested or overlapping repetition applied to attacker input, in an engine that backtracks.
+- An unauthenticated endpoint that does expensive work (password hashing, PDF rendering, a wide query).
 
-Owns: untrusted data interpreted as code by a downstream parser. The big category — covers SQL, NoSQL, OS command, LDAP, XPath, log, header (CRLF), template (SSTI), prototype pollution.
+## Caching and shared state
 
-- **Tier 1**: User-controlled string interpolated into a query/command/template that gets parsed. The classic `db.query(f"SELECT * FROM x WHERE y = {user}")`.
-- **Tier 2**: Parameterization present but partial (most queries parameterized, some not — code-quality drift but each unparameterized query is still tier-1).
-- **Tier 3-5**: Defense-in-depth (parameterized queries + stored procedures), allowlist on column names.
+- A response for one user stored in a shared cache and served to another: missing `Cache-Control: private` / `no-store` on authenticated content, or a cache key that omits the user or tenant.
+- Module-level or static state that carries one request's data into the next.
 
-### SEC4 — XSS / OUTPUT-ENCODING
+## Dependencies added by a change
 
-Owns: untrusted data rendered to a browser without context-appropriate encoding. Covers reflected/stored/DOM XSS, `dangerouslySetInnerHTML`, raw HTML in slot/children props, `javascript:` URLs, unsafe `href`/`src`, unescaped template tags.
+- From the diff you can see: a new package, a source that is not the registry (a URL, a git reference without a commit), an install-time script, a pin loosened or a lockfile entry changed by hand, a name one character from a popular one.
+- You cannot see reputation, age, maintainers or known vulnerabilities without registry data. Say in the coverage line that it was not checked.
 
-- **Tier 1**: User-controlled string rendered as HTML/JS without escaping; `<a href={userUrl}>` without scheme allowlist.
-- **Tier 2**: Output-encoded but the template lib's default escape is off (`Jinja2(autoescape=False)`, `Handlebars` triple-braces in a partial); CSP missing but other defenses present.
-- **Tier 3-5**: CSP not nonce-based; SRI missing on scripts.
+## Schema and data migrations
 
-### SEC5 — CSRF / ORIGIN
+- A default on a new role, permission or "verified" column that grants access to every existing row.
+- A dropped or relaxed constraint that a uniqueness or ownership check relied on.
+- Grants and row-level policies added, widened or dropped.
+- A backfill that copies sensitive data somewhere less protected, or a migration that logs the rows it touches.
 
-Owns: cross-origin trust. Covers CSRF (state-changing requests without origin verification), `postMessage` (browser cross-frame), iframe sandboxing, CSP origin clauses, CORS misconfig, cross-origin SSO.
+## Language models in the path
 
-- **Tier 1**: State-changing route without CSRF token AND served from the same origin as JS; `postMessage` handler without `event.origin` check; CORS `origin: '*' + credentials: true`.
-- **Tier 2**: CSRF protection present but excluded for some paths; iframe without `sandbox` on a route that embeds user content; weak CSP.
-- **Tier 3-5**: Missing `SameSite=Strict` cookies; `referrer-policy` not set.
-
-### SEC6 — CRYPTO
-
-Owns: cryptographic primitive misuse. Hash function choice for passwords; cipher/mode/padding selection; random source; key/IV/salt management; signature/HMAC verification.
-
-- **Tier 1**: MD5/SHA1 for passwords; `Math.random()` for security tokens; `algorithms: ['none']` JWT; `verify=false` on JWT decode; AES-ECB; hardcoded IV.
-- **Tier 2**: TLS protocol version too old (`TLSv1.0`); SHA-256 for password storage (better than MD5, still weaker than bcrypt/argon2); custom signature verification.
-- **Tier 3-5**: Argon2 parameters too low; no key rotation strategy documented.
-
-### SEC7 — SECRETS
-
-Owns: credentials and key material outside of secret-management. Hardcoded API keys/tokens/connection strings; `.env` committed; tokens in URLs or logs; runtime artifacts (lock files, debug dumps) committed.
-
-- **Tier 1**: Hardcoded API key with a recognizable prefix (`sk_live_`, `AKIA`, `ghp_`, `xoxb-`); `.env` (not `.env.example`) tracked; CI YAML with secret in plain text.
-- **Tier 2**: Token in URL (visible in referrer/proxy logs); password in log line; AWS keys hardcoded in a "dev only" comment.
-- **Tier 3-5**: No secret-rotation documentation; secrets not scoped to env (prod and staging share keys).
-
-### SEC8 — SUPPLY-CHAIN
-
-Owns: dependency-graph trust. New dep age, weekly downloads, typosquats, `postinstall` scripts, non-registry sources, peer-dep drift, transitive deps with known CVEs.
-
-- **Tier 1**: New dep with `postinstall` script from an unknown publisher; dep pulled from a git URL without commit pinning; lockfile pulls a package from a non-registry source unexpectedly.
-- **Tier 2**: New dep is very new (< 3 months on registry) with low download count; transitive dep has a known CVE in `npm audit`/`pip-audit`/`mvn dependency:tree`.
-- **Tier 3-5**: Lockfile missing entirely; `^` range specifier on a security-sensitive dep.
-
-### SEC9 — PII / LOGGING
-
-Owns: personally identifiable information leaking through logs, analytics, error responses. Covers `console.log(user)`, unredacted request logging, analytics with PII fields, error logs containing fetched response bodies, Sentry without PII redaction.
-
-- **Tier 1**: PII logged at INFO/DEBUG level in production code path; CSV export endpoint exposing email/SSN/DOB without authorization (also SEC1.1); analytics event tagged with email/phone.
-- **Tier 2**: Sentry init without `send_default_pii=False`; logger redaction config missing fields (`authorization`, `cookie`, `set-cookie`); session ID logged.
-- **Tier 3-5**: No retention policy documented for PII columns/logs; DEBUG logs may leak PII in non-prod.
-
-### SEC10 — RESOURCE-EXHAUSTION
-
-Owns: denial-of-service via resource consumption. ReDoS (catastrophic-backtracking regex), unbounded concurrency, missing request-size caps, missing rate limits, large-file extraction.
-
-- **Tier 1**: Regex with nested quantifiers matched against user-controlled input; `Promise.all(items.map(fetch))` on unbounded `items`; no `bodyParser` size cap; no rate limit on auth/expensive endpoints.
-- **Tier 2**: Thread pool unbounded; queue without capacity; pagination without `limit` cap.
-- **Tier 3-5**: No request timeout configured; no circuit breaker.
-
-### SEC11 — PATH-TRAVERSAL / FILE-OPS
-
-Owns: filesystem access through user input. `path.join` without normalization + boundary check; archive extraction (zip slip / tar slip); symlink-following file ops.
-
-- **Tier 1**: `open(os.path.join(dir, user_filename))` without normalize + `startswith(dir)` check; `tar.extractall()` without `filter='data'` on Python 3.12+; `zipfile.extractall()` without entry-name validation.
-- **Tier 2**: `Files.move` with user-controlled destination; `shutil.move(src, dst)` with user dst.
-- **Tier 3-5**: Missing `chroot`/`namespace`/`container` isolation around file ops.
-
-### SEC12 — DESERIALIZATION / SSRF
-
-Owns: two related risk surfaces — untrusted serialization (pickle/`ObjectInputStream`/YAML.load/Jackson polymorphic), and server-side request forgery (`fetch(userUrl)` server-side without allowlist + private-IP block). Also: XXE (XML external entity), open redirect.
-
-- **Tier 1**: `pickle.loads(bytes_from_user)`; `ObjectInputStream.readObject()` on untrusted input; `requests.get(req.body.url)` without scheme allowlist + private-IP block; `XMLDecoder` for untrusted XML; `Function(userInput)`/`eval(userInput)`.
-- **Tier 2**: Jackson polymorphic deserialization without allowlist; YAML.load with default loader; XXE-vulnerable parser config (`DocumentBuilderFactory` without `disallow-doctype-decl`); `response.sendRedirect(userUrl)` without host allowlist.
-- **Tier 3-5**: Deserialization of trusted-but-old format without versioning.
-
----
-
-## 3. Decision matrix (full)
-
-Compute from the merged finding list:
-
-| Condition | Decision (standalone run) | When invoked via ship-reviewed-prs SC delegation |
-|-----------|---------------------------|--------------------------------------------------|
-| Any tier-1 finding | `REQUEST_CHANGES` | Maps to SC1/SC2/SC3 (etc.) priority-1 at the parent level |
-| Only tier-2 findings | `COMMENT` | Maps to SC*.3 (priority-3) at parent |
-| Only tier-3-5 findings | `COMMENT` | Maps to SC*.5+ (priority-5+) at parent |
-| Zero findings | `APPROVE` (or `NO_FINDINGS`) | SC persona reports clean |
-
-The skill never APPROVEs on a tier-1 finding regardless of overrides. `ci_max_decision: COMMENT` is honored for parent-skill submission but the skill's own report still names the finding as Critical.
-
----
-
-## 4. Cross-cutting principles (expanded)
-
-### 4.1 Input validation: where to validate
-
-Validate at the **trust boundary** — typically the HTTP request handler / queue consumer / file upload endpoint / cross-origin message receiver. Validate exactly once, with a schema (Zod / Pydantic / JSR-380 / Joi / Valibot). Downstream code consumes the validated, narrowly-typed value, not the raw input.
-
-Common mistakes:
-- Validating in the service layer instead of the controller — the validator runs twice in some paths and zero times in others.
-- Re-validating in the database layer "just in case" — defense-in-depth in theory, but in practice the second validator drifts and produces inconsistencies.
-- Validating only the fields the current code path uses — adding a new field next year picks up unvalidated data from the same input.
-
-Rule: schema validation at the boundary, with `strict()` / `forbid_extra_keys()` / `additionalProperties: false`. New fields are explicit, not implicit.
-
-### 4.2 Output encoding: where to encode
-
-Encode at the **output sink**, using the encoding appropriate for the sink:
-- HTML output → HTML-encode (most templates do this automatically; the failure mode is `|safe`/`{{{}}}`/`dangerouslySetInnerHTML`).
-- SQL → parameterize (not "escape").
-- Shell → don't shell out; if you must, pass args separately.
-- URL → use the framework's URL builder; if you can't, percent-encode.
-- Log line → newline-strip (`replace('\n', '\\n')`) to prevent CRLF log injection.
-- Header value → newline-strip + scheme/value allowlist.
-- Filename → strip path separators + null-byte + control characters.
-
-### 4.3 Defense in depth: when one layer isn't enough
-
-The "principle of layered defenses" sounds vague but means something specific: each layer mitigates a different failure mode. CSP mitigates inline-script execution if output encoding fails. Output encoding mitigates XSS if input validation accepts a string that turns out to be HTML. Input validation mitigates everything downstream when it works.
-
-Findings:
-- **Two layers present, one weak** → tier 2 (the weak layer should be fixed).
-- **One layer present** → tier 1 (especially if it's the input-validation layer, which is the easiest to bypass with a novel attack).
-- **No layers** → tier 1, capital letters.
-
-### 4.4 Fail closed
-
-On error, deny. Specifically:
-- Auth verification throws → return 401, do NOT continue with `user = null`.
-- Signature verification throws → reject the request, do NOT log and continue.
-- Allowlist lookup misses → reject, do NOT fall through to default.
-- Permission check returns ambiguous (database error during permission lookup) → deny, do NOT grant.
-
-The catch-and-continue antipattern is one of the most common security bugs in code that *looks* defended.
-
-### 4.5 Least privilege at every layer
-
-- Database users: per-service accounts with table-level grants, not `GRANT ALL`.
-- Service accounts (cloud IAM): per-task roles, not broad ones.
-- Container/process: non-root user, read-only root filesystem, dropped capabilities.
-- Frontend JS access: cookies marked `HttpOnly` and `Secure` and `SameSite=Strict` (or `Lax` with justification).
-- File-system: dedicated upload directory, no shell access, no write access to code.
-
-SEC1 owns this; findings reference the specific layer.
-
----
-
-## 5. Anti-overlap with sibling skills
-
-### vs. `ship-clean-code`
-
-`ship-clean-code` is a code-quality review, not a security review, and says so in its reports. It has no security tier. If it notices an obvious security defect in passing (a query built from input, a credential in the source) it reports that one defect and states that security was not covered. The boundary:
-
-- `ship-clean-code`: an incidental finding, with no claim of coverage.
-- `ship-secure-code`: full SECn rubric, data-flow trace, framework-specific patterns, defense-in-depth check. Use it when the change touches security-sensitive code.
-
-On overlap, ship-secure-code wins.
-
-### vs. `ship-tested-code`
-
-Security review surfaces test gaps as **advisory** findings:
-- New auth handler has no test for the unauthenticated path → advisory.
-- Regex with potential ReDoS has no test for malicious input → advisory.
-
-The skill does not write tests. It points at the gap and delegates depth to `ship-tested-code`.
-
-### vs. `ship-reviewed-prs`
-
-`ship-reviewed-prs` SC persona is the **detection** orchestrator: it scans the diff with high-precision regex patterns for SC1-SC7 hits, then delegates depth to this skill. Specifically:
-- Hits that the SC orchestrator emits directly (high-confidence single-line patterns): hardcoded secret literal, `dangerouslySetInnerHTML` with `userInput`, `eval(userInput)`, missing auth middleware on new route.
-- Hits that the SC orchestrator turns into a delegation bullet: anything requiring data-flow trace, framework knowledge, or multi-file context.
-
-The delegation is one-way: `ship-reviewed-prs` SC → `ship-secure-code`. Running `ship-secure-code` does not back-invoke `ship-reviewed-prs`.
-
-### vs. `ship-debugged-code`
-
-When a security CVE is being fixed, run `ship-debugged-code` to design the regression test, then `ship-secure-code` to review the fix. The two don't conflict; they sequence.
-
----
-
-## 6. Triage: file-bucketing for the skill
-
-When invoked on a directory or PR diff, classify files first:
-
-| Bucket | Heuristic | Action |
-|--------|-----------|--------|
-| `code-security-relevant` | Touches auth/crypto/input-handling/output-rendering | Full review |
-| `code` | Application code, not obviously security-touching | Quick scan for SEC3/SEC4/SEC7 hits |
-| `config-security-relevant` | `next.config.*`, `middleware.ts`, `Dockerfile*`, `*.yml` for CI | Full review |
-| `infra-security-relevant` | IAM, network ACLs, security groups | Full review |
-| `test` | Test files | Light scan — used to verify regression coverage on security findings |
-| `docs` | Markdown, RST | Scan for leaked secrets/URLs only |
-| `generated`, `vendor` | Excluded | Skip; count in Confidence |
-| `lockfile` | `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`, `Pipfile.lock`, `poetry.lock`, `Cargo.lock` | Read for supply-chain signal (SEC8) |
-
----
-
-## 7. Output schema (machine-readable, for delegation)
-
-When invoked from `ship-reviewed-prs`, the skill returns a structured object:
-
-```json
-{
-  "scope": "packages/api/src/users.ts",
-  "summary": {
-    "tier_1": 2,
-    "tier_2": 1,
-    "tier_3_5": 0
-  },
-  "findings": [
-    {
-      "id": "SEC3.1-INJECTION-SQL",
-      "tier": 1,
-      "path": "packages/api/src/users.ts",
-      "line": 42,
-      "source": "req.body.email (untrusted, HTTP)",
-      "sink": "db.query template literal (SQL parser)",
-      "data_flow": "req.body.email → email variable → query string interpolation",
-      "fix": "db.query('... WHERE email = $1', [email])"
-    }
-  ],
-  "what_good": [
-    "Parameterized queries used in 8/9 places",
-    "JWT verify includes algorithms allowlist"
-  ],
-  "confidence": "Reviewed 1 file (220 lines). Skipped node_modules/ (vendor). Trust boundary identified as Express route handlers."
-}
-```
-
-The parent skill maps this into its own decision matrix.
-
----
-
-## 8. Quick-Reference Checklist
-
-| Area | Key Question |
-|------|--------------|
-| Trust boundary | Did I identify every place untrusted data enters? |
-| AuthN | Does every non-public route require a logged-in user? |
-| AuthZ | Does every per-resource route check ownership/tenant? |
-| Input validation | Is there a schema at the boundary that fails on extra/wrong-typed fields? |
-| Output encoding | Is data context-encoded at every output sink (HTML, SQL, shell, header, URL, log)? |
-| CSRF/origin | Are state-changing requests authenticated AND origin-verified? |
-| Crypto | Are passwords hashed with bcrypt/argon2, signatures verified, RNG from `secrets`/`SecureRandom`? |
-| Secrets | Are all credentials in env vars / secret manager, not the repo? |
-| Supply chain | Are new deps verified (age, downloads, postinstall, source)? |
-| PII | Are logs/analytics free of email/phone/SSN/session tokens? |
-| Resource | Are regex/loops/uploads/queries bounded? |
-| Path | Is every file path normalized and constrained to an expected directory? |
-| Deserialization | Is every parser using a safe loader / allowlist? |
-
----
-
-## 9. Sources
-
-- **OWASP Top 10** (2021). The 10 categories map roughly to SEC1-SEC4 plus parts of SEC6/SEC7/SEC9/SEC11/SEC12. We split injection, XSS, CSRF, and IDOR into separate IDs because they need separate detection logic.
-- **OWASP API Security Top 10** (2023). Source for the SEC1 emphasis on AuthZ-not-AuthN (BOLA/BOPLA is API1/API3 in that list).
-- **OWASP ASVS** (Application Security Verification Standard) v4. Source for the tier definitions and the "trust boundary" framing.
-- **CWE Top 25** (2024). Source for SEC10 (CWE-1333 ReDoS), SEC11 (CWE-22 path traversal), SEC12 (CWE-502 deserialization, CWE-918 SSRF).
-- **MDN Web Security** — XSS contexts, CSP, postMessage origin patterns.
-- **Building Secure and Reliable Systems** — Adkins et al. (Google, 2020). Source for the layered-defense and fail-closed framing.
-- **The Tangled Web** — Michal Zalewski (2011). Source for browser-trust-model patterns (SEC5).
-- **Cryptography Engineering** — Ferguson, Schneier, Kohno (2010). Source for the SEC6 primitive-choice rubric.
-- **PortSwigger Web Security Academy**, **HackerOne disclosed reports**, **GitHub Security Lab advisories** — modern attack patterns, language-specific gadgets.
-
-The skill's specific organization (12-category catalog, tier sub-tags, data-flow-trace output requirement) is original to this repo and chosen for review legibility.
+- Text the application retrieves or a user supplies (a document, a web page, an email, a ticket) that is placed in a prompt is attacker-controlled input to the model. If the model can call tools, send messages or write data, that text can direct those actions: check what the model is allowed to do with whose authority, not how the prompt is worded.
+- Model output rendered as HTML or Markdown, used in a query or passed to a shell is untrusted data like any other.

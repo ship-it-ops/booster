@@ -1,5 +1,5 @@
 {
   "name": "ship-secure-code",
-  "description": "Application-security review skill covering auth, input validation, injection, XSS, CSRF/origin, crypto, secrets, supply chain, PII/logging, resource exhaustion, path traversal, and deserialization/SSRF. Sibling to ship-clean-code; ship-reviewed-prs SC persona delegates here for depth.",
-  "version": "1.0.0"
+  "description": "Security review and security-sensitive coding. A finding is a traced path: who the attacker is, how they get there, what they gain. Looks first for missing authorization, verifies before reporting, states what was and was not examined, and never weakens a control to make something work. Any language, with notes for Python, TypeScript/JavaScript and Java.",
+  "version": "1.1.0"
 }
