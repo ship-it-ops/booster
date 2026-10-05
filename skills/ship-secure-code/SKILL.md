@@ -189,7 +189,7 @@ Track: tier-1 findings per PR (should trend toward zero); false-positive rate pe
 ## Related Skills
 
 - **`ship-reviewed-prs`** — PR-level orchestrator. Its SC persona delegates to this skill for depth. When working a PR end-to-end, run `ship-reviewed-prs` first; it will tell you which files to run this skill on.
-- **`ship-clean-code`** — File-level code-quality review (naming, SRP, error handling). P2-SEC is its surface-level security check; this skill is the depth target. Run clean-code first to fix structure, then run secure-code to find vulnerabilities.
+- **`ship-clean-code`** — Code-quality review and clean-up. It is not a security review: it reports an obvious security defect it happens to see and says security was not covered. This skill is the depth target.
 - **`ship-tested-code`** — Test design. Security fixes need regression tests; secure-code reviews flag missing tests as advisory, then defer to tested-code.
 - **`ship-debugged-code`** — Use when a security bug is being fixed and you want a regression test designed around the root cause.
 

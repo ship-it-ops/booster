@@ -44,11 +44,11 @@ The two are independent. Use the in-repo one for handoff context that should tra
 
 ## Code-Quality Skills
 
-Production-quality review and engineering-practice skills, migrated here from the former `ship-it-ops/ship-code` marketplace. They compose: `ship-reviewed-prs` loads the others for depth when they are installed (security → `ship-secure-code`, infra → `ship-devops`, code quality → `ship-clean-code`, tests → `ship-tested-code`).
+Production-quality review and engineering-practice skills, migrated here from the former `ship-it-ops/ship-code` marketplace. They compose: `ship-reviewed-prs` and `ship-execute` load the others for depth when they are installed (security → `ship-secure-code`, infra → `ship-devops`, restructuring and code quality → `ship-clean-code`, tests → `ship-tested-code`).
 
 | Skill | What it covers |
 |-------|----------------|
-| **ship-clean-code** | Clean code principles for Python/TypeScript/Java — naming, functions, classes, error handling, 66 cataloged code smells |
+| **ship-clean-code** | Code-quality review and clean-up judged against the project's own conventions: findings rated by consequence and verified first, changes that stay inside the request. Any language, with notes for Python, TypeScript/JavaScript and Java |
 | **ship-tested-code** | Test design, TDD, mocking, integration testing, flaky-test management, 49 cataloged test smells |
 | **ship-debugged-code** | Systematic debugging — reproduction, hypothesis-driven investigation, bisection, root-cause analysis, postmortems |
 | **ship-secure-code** | Application security (SEC1–SEC12) — auth, injection, XSS, crypto, secrets, supply chain, SSRF, and more |

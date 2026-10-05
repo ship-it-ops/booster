@@ -1,5 +1,5 @@
 {
   "name": "ship-clean-code",
-  "description": "Apply clean code principles when writing or reviewing production-quality Python, TypeScript/JavaScript, or Java code.",
-  "version": "1.1.0"
+  "description": "Code-quality review and clean-up judged against the project's own conventions: findings rated by consequence and verified before they are reported, changes that stay inside the request and preserve behaviour. Any language, with notes for Python, TypeScript/JavaScript and Java.",
+  "version": "1.2.0"
 }

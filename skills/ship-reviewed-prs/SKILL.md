@@ -105,6 +105,7 @@ If this session wrote the change (for example you are reviewing straight after b
 | A dependency manifest or lock file | `ship-vuln-scan` (unattended, only if it can work without running the pull request's code) |
 | Workflows, Dockerfiles, infrastructure code, migrations, deploy scripts | `ship-devops` |
 | Substantial new tests, or risky logic with thin tests | `ship-tested-code` |
+| Mostly a refactor or restructuring, with little intended change in behaviour | `ship-clean-code` |
 
 With the Agent tool, dispatch one reviewer for that area and have it load the skill, even on an ordinary-sized change, so the skill's text stays out of your context. Without it, load the skill yourself. Either way it is a catalogue of what to look for: ignore its output format, finding codes and severity tiers, and bring what it finds back as findings of this review, rated by this skill's severity table and verified under step 4. If it is not installed, review that area yourself. Never tell the pull request's author to go and run a tool: a review says what is wrong.
 

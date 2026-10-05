@@ -214,14 +214,14 @@ SEC1 owns this; findings reference the specific layer.
 
 ## 5. Anti-overlap with sibling skills
 
-### vs. `ship-clean-code` P2-SEC
+### vs. `ship-clean-code`
 
-`ship-clean-code` has a P2-SEC tier covering "obvious" security (SQL string concatenation, hardcoded secrets, missing auth on new endpoint). It's the surface-level check; this skill is the depth target. The boundary:
+`ship-clean-code` is a code-quality review, not a security review, and says so in its reports. It has no security tier. If it notices an obvious security defect in passing (a query built from input, a credential in the source) it reports that one defect and states that security was not covered. The boundary:
 
-- `ship-clean-code` P2-SEC: detection-only, single-line patterns, generic framing ("looks like SQL injection"). Suitable as a fast pass during normal code review.
-- `ship-secure-code`: full SECn rubric, data-flow trace, framework-specific patterns, defense-in-depth check. Suitable when security is the primary goal.
+- `ship-clean-code`: an incidental finding, with no claim of coverage.
+- `ship-secure-code`: full SECn rubric, data-flow trace, framework-specific patterns, defense-in-depth check. Use it when the change touches security-sensitive code.
 
-On overlap, ship-secure-code wins. The two should not be run together as a redundant pass; ship-clean-code defers to ship-secure-code when invoked, per its `SKILL.md:230` Related Skills section.
+On overlap, ship-secure-code wins.
 
 ### vs. `ship-tested-code`
 

@@ -70,9 +70,10 @@ Checks performed:
 
   TOOL POLICY
     - Pure-rubric review skills (ship-clean-code, ship-tested-code,
-      ship-secure-code, ship-devops) declare only Read/Grep/Glob — they never
-      gain write/exec access. (ship-reviewed-prs is the orchestrator and is
-      intentionally exempt.)
+      ship-secure-code, ship-devops) declare only Read/Grep/Glob, so loading
+      one never pre-approves a write or a command. (`allowed-tools`
+      pre-approves; it does not restrict what the session can do.
+      ship-reviewed-prs is the orchestrator and is intentionally exempt.)
     - ship-vuln-scan is detect-only: may run scanners (Bash) but must not
       declare Write/Edit (remediation is ship-vuln-fix's job).
 
@@ -775,9 +776,10 @@ def validate_fixture_parity(errors: Errors, skill_dirs: list[Path]) -> None:
 # "Read, Grep, Bash(npm ci *)"). These rules machine-enforce two trust
 # invariants that were previously only convention:
 #
-#   1. The pure-rubric REVIEW skills never gain write/exec access. A future
-#      copy-paste must not silently let a "this only reads my code" skill edit
-#      files or run commands. NOTE: ship-reviewed-prs is intentionally NOT in
+#   1. The pure-rubric REVIEW skills never pre-approve write/exec access. A
+#      future copy-paste must not silently let a "this only reads my code" skill
+#      edit files or run commands without a permission prompt. (The frontmatter
+#      pre-approves tools; it does not stop a session from using others.) NOTE: ship-reviewed-prs is intentionally NOT in
 #      this set — it is the orchestrator (declares Agent and scoped Bash to
 #      dispatch reviewers and post through its script). The guarded set is the four pure-rubric
 #      depth skills only.
