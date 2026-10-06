@@ -1,0 +1,8 @@
+# Local development only.
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"

@@ -5,7 +5,7 @@
 
 ## Unfinished work
 
-- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) — Skills refresh: 7 of 12 done; the method, what the user asked for, and what is next
+- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) — Skills refresh: 7 of 12 done, ship-devops stopped after round 2; the method, what the user asked for, and what is next
 
 ## Instructions
 

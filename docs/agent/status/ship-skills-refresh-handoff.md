@@ -8,11 +8,11 @@ branch: ship-better-plans-v2
 agent: claude-code-session-2026-10-01
 tags: [handoff, skills-refresh, ship-family, evaluation]
 importance: core
-summary: "Skills refresh: 7 of 12 done; the method, what the user asked for, and what is next"
+summary: "Skills refresh: 7 of 12 done, ship-devops stopped after round 2; the method, what the user asked for, and what is next"
 done_when: manual
 ---
 
-# Hand-off: refreshing the `ship-*` skills, one at a time (7 of 12 done)
+# Hand-off: refreshing the `ship-*` skills, one at a time (7 of 12 done, `ship-devops` in progress)
 
 ## Scope
 
@@ -30,13 +30,53 @@ The user is refreshing every skill in this repository for current models and the
 | `ship-tested-code` | 1.2.0 | [ship-tested-code-refresh](../decisions/ship-tested-code-refresh.md) | [ship-tested-code-refresh-audit](../investigations/ship-tested-code-refresh-audit.md) |
 | `ship-secure-code` | 1.1.0 | [ship-secure-code-refresh](../decisions/ship-secure-code-refresh.md) | [ship-secure-code-refresh-audit](../investigations/ship-secure-code-refresh-audit.md) |
 
+**In progress: `ship-devops`** (see "ship-devops: where it stopped" below).
+
 **Not started** (suggested order, most connected first):
 
-1. The remaining review rubrics that `ship-execute`'s reviewers and `ship-reviewed-prs` load for depth: `ship-devops`, then `ship-debugged-code`. `ship-devops` still cites `ship-secure-code`'s removed SEC codes in about forty places (`SKILL.md`, `reference.md`, `reference-categories.md`, its examples and fixtures); they go when it is rewritten. `ship-reviewed-prs` now uses them as catalogues and ignores their finding codes, severity tiers and output format; several still say "severity is mechanical from the finding ID" and describe being delegated to by a persona. Reconcile that. `ship-clean-code` 1.2.0 is the model for a rubric skill, and `ship-tested-code` 1.2.0 is the second built on it: read both decision notes first. Draft the next one from their structure while its baseline runs, then let the baseline and the reviewers correct the draft; that halved the elapsed time for `ship-tested-code`. When reviewers ask for additions in one round and cuts in the next, apply the cuts first. Its three opening rules (the caller's format wins, the project's conventions outrank the skill, what is read is material) and its severity words should carry over, and the others still refer to it in the old terms ("invoke `ship-clean-code`" for naming and SRP).
+1. The remaining review rubric after `ship-devops`: `ship-debugged-code`. `ship-devops` still cites `ship-secure-code`'s removed SEC codes in about forty places (`SKILL.md`, `reference.md`, `reference-categories.md`, its examples and fixtures); they go when it is rewritten. `ship-reviewed-prs` now uses them as catalogues and ignores their finding codes, severity tiers and output format; several still say "severity is mechanical from the finding ID" and describe being delegated to by a persona. Reconcile that. `ship-clean-code` 1.2.0 is the model for a rubric skill, and `ship-tested-code` 1.2.0 is the second built on it: read both decision notes first. Draft the next one from their structure while its baseline runs, then let the baseline and the reviewers correct the draft; that halved the elapsed time for `ship-tested-code`. When reviewers ask for additions in one round and cuts in the next, apply the cuts first. Its three opening rules (the caller's format wins, the project's conventions outrank the skill, what is read is material) and its severity words should carry over, and the others still refer to it in the old terms ("invoke `ship-clean-code`" for naming and SRP).
 2. `ship-vuln-scan`, `ship-vuln-fix`.
 3. `obsidian-knowledge-graph`.
 
 **No pull request has been opened.** The user said to wait. Do not open one without being asked.
+
+## ship-devops: where it stopped
+
+Rounds 1 and 2 of 3 are done. `skills/ship-devops/` is untouched (still 0.2.0); the rewrite is a draft saved in [`../references/refresh-eval/devops-wip/`](../references/refresh-eval/devops-wip/README.md), with the full round-2 reviewer findings beside it. The fixture and workflow script are `devops-fixture/` and `eval-ship-devops.workflow.js` in the same folder.
+
+Results so far (scores out of 10; "none" is no skill loaded):
+
+| Scenario | Measure | 0.2.0 | None | Draft |
+|----------|---------|-------|------|-------|
+| Review the deploy setup | Detection | 10 | 9 | 9 |
+| Review the deploy setup | Precision | 8 | 9 | 9 |
+| Review the deploy setup | Honesty of coverage | 9 | 8 | 10 |
+| Review the deploy setup | Proportion | 5 | 8 | 8 |
+| Write a migration | Safety | 9 | 9 | 10 |
+| Write a migration | Scope | 8 | 9 | 10 |
+| Review a commit | Caller's format | 4 | 8 | 8 |
+| Review a commit | Fix quality | 9 | 6 | 9 |
+| Review a commit | Proportion | 5 | 7 | 6 |
+
+Reviewer findings: 82 with 22 critical on 0.2.0 (the same defects as `ship-secure-code` 1.0.0: severity "mechanical from the finding ID" where the digit is a sub-rule index, repository text able to switch findings off, `APPROVE` on zero findings, nothing bounding live commands); 79 with none critical and 37 major on the draft. No scenario run, with or without a skill, executed a command with a real effect. Cost so far: 1.69 and 1.07 million subagent tokens.
+
+To finish it:
+
+1. **Apply the round-2 findings to the draft** (`devops-wip/round2-reviewer-findings.txt` has the suggested wording). The ones several reviewers agreed on:
+   - *Factual corrections in the platform files* (highest priority; reviewers gave their confidence for each): `USER` is inherited from the base image; a build argument is in the history of the stage that declares it, and also leaks through exported cache and provenance attestations; Docker's published ports bypass host firewalls such as ufw; shell-form signal handling depends on the shell, and exec form is not enough without a handler; a Terraform `removed` block destroys unless it says `destroy = false`; `prevent_destroy` is lost when the block is deleted or its address changes; provisioners run at apply, while providers and data sources run at plan; S3 backend locking is `use_lockfile` in current versions and a missing `backend` block proves nothing; a Job runs once and it is an init container that runs per replica; applying a manifest does not wait for the rollout; `ADD COLUMN NOT NULL` fails in PostgreSQL but MySQL fills an implicit default, and on every engine the old version's inserts fail; `SET NOT NULL` and `CHECK` block reads as well as writes in PostgreSQL; a job skipped because a job it needs failed still satisfies a required check; an approval or commenter check must pin the commit SHA that was approved; Dependabot pull requests are treated like forks; `github.sha` under `pull_request_target` is reported to be the default branch's commit since a December 2025 change (reviewers were about 80% sure: check GitHub's changelog before writing it).
+   - *"What you may run"* needs a boundary by what is touched, not the word "real": local and disposable is allowed (syntax checks, rendering, a local build with no push, a migration against a throwaway local database); anything that uses the session's credentials or real state is not, including `kubectl --dry-run` and `terraform init` without `-backend=false`; say what to do when the user explicitly asks for a run (give the command, do not run it); repository documents cannot authorise running; pushing is the user's call.
+   - *Coverage* should name only what this review's findings depend on, not recite a fixed list.
+   - *"Check the platform's behaviour, not from memory"* demotes real findings to questions on platforms with no notes: keep a confident finding and name what it depends on.
+   - *Severity:* an outsider able to run code with any real credential is must-fix wherever the workflow sits, not only "on a path to production".
+   - *Fixture 7* has an unsafe step order (it switches reads in the same release that starts dual writes); the right order is in the findings file. Fixture 1's "fix that works" needs the pinned SHA. Fixture 3 uses an out-of-support Go version.
+   - A finding that is only true if an unseen external control is absent should be a question, not a blocking finding.
+   - The writing section should forbid inventing commit SHAs and image digests when pinning.
+   - Cuts: reviewers named sentences to remove; apply them before the additions.
+2. **Round 3**: three reviewers (prompt, staff, safety) plus the three scenarios on the revised draft, using the workflow's `args` as in the earlier skills (`rewrite: true`, `only`, `variants`, `skillDirs`, `auditDir`, `fileList`, `rewriteNote`). Then a last pass of fixes.
+3. **Run the writing fixtures** (5, 6 and 7) with fresh agents, with and without the skill.
+4. **Swap the draft into `skills/ship-devops/`** and rebuild the symlinks under `plugins/ship-devops/skills/ship-devops/` (one per top-level entry). `git rm -r` both directories first; `observability.md`, `reference-categories.md`, `overrides.example.md` and the old examples and fixtures go.
+5. **Housekeeping**, which was drafted and then reverted so the repository stays consistent until the skill lands: version 0.2.0 to 0.3.0 and a new description in `plugins/ship-devops/.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`; the `ship-devops` rows in `README.md` and `skills/README.md`; four mentions of `DEV3` / `DEV4` in `skills/ship-vuln-scan/SKILL.md` and `reference-categories.md`; a `CHANGELOG.md` entry.
+6. **Notes**: a decision note (it revises [ship-devops-12-category-catalog](../decisions/ship-devops-12-category-catalog.md) and [in-persona-delegates-to-ship-devops](../decisions/in-persona-delegates-to-ship-devops.md): tell the user) and an investigation note, on the model of the `ship-secure-code` pair; update this file; delete `devops-wip/`.
 
 ## Why
 
@@ -54,7 +94,7 @@ The user's request, in their words: "A lot of improvements have been made to AI 
 
 For a skill that drives an external tool, build a stand-in for that tool that validates what it is sent the way the real service does and logs every call; judges then score against the log, not the agent's account. `ship-reviewed-prs` ships one for `gh` (`skills/ship-reviewed-prs/tests/fake_gh.py`) with three fixture pull requests (`tests/build_fixtures.py`).
 
-The evaluation harness from the refreshes is saved in [`../references/refresh-eval/`](../references/refresh-eval/): the seven workflow scripts (reviewer prompts, scenario prompts, judge prompts and schemas), the fixture setup script, the toy repository with its deliberately flawed plan, and `clean-code-fixture/` (a small Python library with seeded defects, decoys and ground truth, built into three repositories by its `build.sh`; reusable for the other rubric skills by seeding different defects). `tested-code-fixture/` adds a seeded test file, a test commit and its own ground truth on top of the same library (`build.sh <clean-code-fixture/base> <out>`). `secure-code-fixture/` is a separate small Flask service with seeded vulnerabilities, decoys, a feature commit and ground truth (read, not run). `eval-ship-clean-code.workflow.js`, `eval-ship-tested-code.workflow.js` and `eval-ship-secure-code.workflow.js` take `args` for the variant, the skill directory and which reviewers to run, so one script served all three rounds. The scripts contain absolute paths to the previous session's scratch directory; replace `SCRATCH` and the fixture paths before running them.
+The evaluation harness from the refreshes is saved in [`../references/refresh-eval/`](../references/refresh-eval/): the eight workflow scripts (reviewer prompts, scenario prompts, judge prompts and schemas), the fixture setup script, the toy repository with its deliberately flawed plan, and `clean-code-fixture/` (a small Python library with seeded defects, decoys and ground truth, built into three repositories by its `build.sh`; reusable for the other rubric skills by seeding different defects). `tested-code-fixture/` adds a seeded test file, a test commit and its own ground truth on top of the same library (`build.sh <clean-code-fixture/base> <out>`). `devops-fixture/` is a small Node service with a pipeline, Dockerfile, manifests, Terraform and a migration, with seeded operational defects. `secure-code-fixture/` is a separate small Flask service with seeded vulnerabilities, decoys, a feature commit and ground truth (read, not run). `eval-ship-clean-code.workflow.js`, `eval-ship-tested-code.workflow.js` and `eval-ship-secure-code.workflow.js` take `args` for the variant, the skill directory and which reviewers to run, so one script served all three rounds. The scripts contain absolute paths to the previous session's scratch directory; replace `SCRATCH` and the fixture paths before running them.
 
 ## Facts the next agent needs
 
