@@ -119,8 +119,8 @@
     {
       "name": "ship-devops",
       "source": "./plugins/ship-devops",
-      "description": "DevOps and CI/CD review (DEV1-DEV12: CI pipelines, deployment safety, IaC immutability, container images, secrets/config sourcing, observability, release management, schema migrations, health/readiness, SLO/performance, incident hygiene, and flow/batch signals). Sibling to ship-secure-code; serves as the depth target when the ship-reviewed-prs IN (Senior Infra / SRE / DevOps) persona delegates.",
-      "version": "0.2.0",
+      "description": "Review and write what carries a change to production: CI/CD workflows, Dockerfiles, Kubernetes manifests, infrastructure code, migrations and deploy scripts. A finding says what breaks, when and for whom; it starts from the path a change takes to production, reads the other side of every claim, says what could not be seen from the repository, never weakens a gate to get to green and never runs anything against real state. Notes for GitHub Actions, Docker, Kubernetes and Terraform.",
+      "version": "0.3.0",
       "author": {
         "name": "ship-it-ops"
       },

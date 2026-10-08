@@ -173,7 +173,7 @@ Produce a structured report (and, on request, the raw findings artifact per `con
   repo-wide + git-history secret scanning**. `ship-secure-code`'s supply-chain category owns *risky
   dependency-add code patterns* (install scripts, typosquat, integrity); **VS1 owns authoritative
   known-CVE matching**. Cross-reference, don't duplicate.
-- **`ship-devops`** — DEV4/DEV3 own *Dockerfile/IaC hygiene* (how it's written); **VS2/VS3 own
+- **`ship-devops`** — owns *how a Dockerfile or infrastructure code is written*; **VS2/VS3 own
   known-CVE/policy matches on the built artifact**. Same file can draw both; they report different things.
 - **`ship-reviewed-prs`** — its SC persona delegates to this skill (`Run /ship-vuln-scan on <lockfile>`)
   when a PR changes a lockfile/manifest, for known-CVE depth beyond a one-line pattern match.

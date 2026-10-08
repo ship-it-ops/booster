@@ -45,7 +45,7 @@ nearest patch/minor. The actual fix is `ship-vuln-fix`'s job.
 
 ## VS2 — CONTAINER-CVE
 
-OS-package and app-layer CVEs in a *built* image (not the Dockerfile — that's `ship-devops` DEV4).
+OS-package and app-layer CVEs in a *built* image (not the Dockerfile — that's `ship-devops`).
 
 ### Antipatterns
 - Scanning `FROM` base by name instead of the pinned digest actually built.
@@ -63,7 +63,7 @@ OS-package and app-layer CVEs in a *built* image (not the Dockerfile — that's 
 Known-insecure policy violations in Terraform / k8s / CloudFormation.
 
 ### Antipatterns
-- Confusing this with `ship-devops` DEV3 (immutability/idempotency *hygiene*) — VS3 is *policy* (e.g.
+- Confusing this with `ship-devops` (how the infrastructure code is written) — VS3 is *policy* (e.g.
   public S3 bucket, privileged container, no encryption-at-rest).
 - Parsing the multi-framework checkov output as an object when it is a list.
 
@@ -138,7 +138,7 @@ records, alias-aware dedup, coverage flagging.
 ---
 
 ## Cross-references
-- Boundaries with `ship-secure-code` (secrets in reviewed code, dependencies added by a change) and `ship-devops` (DEV3/DEV4) — SKILL.md
+- Boundaries with `ship-secure-code` (secrets in reviewed code, dependencies added by a change) and `ship-devops` — SKILL.md
   § Anti-overlap.
 - Output shapes — [`contract.md`](contract.md).
 - Procedure, exit-codes, triage formula — [`reference.md`](reference.md).

@@ -1,1 +1,0 @@
-../../../../skills/ship-devops/reference-categories.md
