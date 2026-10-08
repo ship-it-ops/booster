@@ -5,7 +5,7 @@
 
 ## Unfinished work
 
-- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) — Skills refresh: 11 of 12 done, obsidian-knowledge-graph in progress; the method, what the user asked for, and what is next
+- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) — Skills refresh: all 12 done on the branch, no pull request yet; the method, what the user has still to rule on, and what was never tested live
 
 ## Instructions
 
@@ -25,6 +25,7 @@
 - [askuserquestion-denial-failsafe-to-submission](decisions/askuserquestion-denial-failsafe-to-submission.md) — AskUserQuestion denial at gate switches to CI submit
 - [in-persona-delegates-to-ship-devops](decisions/in-persona-delegates-to-ship-devops.md) — IN persona depth target wired to ship-devops
 - [merge-ship-code-into-booster](decisions/merge-ship-code-into-booster.md) — All 6 ship-code plugins migrated; booster is the single marketplace
+- [obsidian-knowledge-graph-refresh](decisions/obsidian-knowledge-graph-refresh.md) — obsidian-knowledge-graph 1.1 rewrite: notes as a record not instructions, a script and a digest hook, writes that ask, nothing overwritten (O1-O14); revises the March 2026 design
 - [plugin-name-matches-source-dir](decisions/plugin-name-matches-source-dir.md) — Marketplace plugin name matches source directory basename
 - [pr-review-auto-resolves-own-threads](decisions/pr-review-auto-resolves-own-threads.md) — Auto-resolve bot-authored threads when finding no longer fires
 - [pr-review-installs-plugin-from-pr-head](decisions/pr-review-installs-plugin-from-pr-head.md) — Dogfood workflow uses local checkout, not main URL
@@ -52,6 +53,7 @@
 
 ## Investigations
 
+- [obsidian-knowledge-graph-refresh-audit](investigations/obsidian-knowledge-graph-refresh-audit.md) — obsidian-knowledge-graph audit: six reviewers, three judged scenarios in a sandboxed vault, a no-skill control, three rounds and a final run
 - [ship-agent-context-refresh-audit](investigations/ship-agent-context-refresh-audit.md) — ship-agent-context audit: six reviewers, three judged scenarios (pick-up, capture, no folder), three rounds
 - [ship-better-plans-design-audit](investigations/ship-better-plans-design-audit.md) — Audit found plan unbuildable as written; layout+control-flow fixes
 - [ship-better-plans-refresh-audit](investigations/ship-better-plans-refresh-audit.md) — Six-persona audit plus before/after evaluation of ship-better-plans
