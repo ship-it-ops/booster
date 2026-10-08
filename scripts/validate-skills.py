@@ -69,11 +69,13 @@ Checks performed:
       expected-output.md
 
   TOOL POLICY
-    - Pure-rubric review skills (ship-clean-code, ship-tested-code,
-      ship-secure-code, ship-devops) declare only Read/Grep/Glob, so loading
-      one never pre-approves a write or a command. (`allowed-tools`
-      pre-approves; it does not restrict what the session can do.
-      ship-reviewed-prs is the orchestrator and is intentionally exempt.)
+    - Skills that must pre-approve nothing beyond reading (ship-clean-code,
+      ship-tested-code, ship-secure-code, ship-devops, ship-debugged-code)
+      declare only Read/Grep/Glob, so loading one never pre-approves a write
+      or a command. (`allowed-tools` pre-approves; it does not restrict what
+      the session can do: some of these skills edit and run things, through
+      the user's own permission prompts. ship-reviewed-prs is the
+      orchestrator and is intentionally exempt.)
     - ship-vuln-scan is detect-only: may run scanners (Bash) but must not
       declare Write/Edit (remediation is ship-vuln-fix's job).
 
@@ -782,7 +784,8 @@ def validate_fixture_parity(errors: Errors, skill_dirs: list[Path]) -> None:
 #      pre-approves tools; it does not stop a session from using others.) NOTE: ship-reviewed-prs is intentionally NOT in
 #      this set — it is the orchestrator (declares Agent and scoped Bash to
 #      dispatch reviewers and post through its script). The guarded set is the four pure-rubric
-#      depth skills only.
+#      depth skills plus ship-debugged-code, which runs and edits while debugging and must do
+#      so through the user's own permission prompts, never through a pre-approval.
 #   2. ship-vuln-scan is detect-only: it may run scanners (Bash) but must not
 #      declare Write/Edit. Remediation (editing manifests) is ship-vuln-fix.
 
@@ -791,6 +794,7 @@ READ_ONLY_REVIEW_SKILLS = {
     "ship-tested-code",
     "ship-secure-code",
     "ship-devops",
+    "ship-debugged-code",
 }
 READ_ONLY_TOOLS = {"Read", "Grep", "Glob"}
 WRITE_TOOLS = {"Write", "Edit", "NotebookEdit"}
