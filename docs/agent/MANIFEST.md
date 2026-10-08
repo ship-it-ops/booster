@@ -5,7 +5,7 @@
 
 ## Unfinished work
 
-- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) — Skills refresh: 8 of 12 done, ship-debugged-code in progress; the method, what the user asked for, and what is next
+- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) — Skills refresh: 9 of 12 done, the two vulnerability skills in progress; the method, what the user asked for, and what is next
 
 ## Instructions
 
