@@ -15,7 +15,7 @@ This repo is a Claude Code plugin marketplace. Add it once and get access to all
 
 # Examples:
 /plugin install ship-agent-context@booster        # in-repo agent memory + auto-activation hook
-/plugin install obsidian-knowledge-graph@booster  # AI-managed knowledge graph in your Obsidian vault
+/plugin install obsidian-knowledge-graph@booster  # cross-project notes for agents in your Obsidian vault
 
 # Update when new skills or improvements are released:
 /plugin marketplace update booster

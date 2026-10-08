@@ -8,7 +8,7 @@ Skills live at `skills/<skill-name>/` — one flat directory per skill, no neste
 
 | Skill | Description |
 |-------|-------------|
-| [obsidian-knowledge-graph](obsidian-knowledge-graph/) | Turn Obsidian into an AI-managed knowledge graph. Captures architecture decisions, bug investigations, and codebase patterns as persistent memory across coding sessions. |
+| [obsidian-knowledge-graph](obsidian-knowledge-graph/) | Cross-project notes for agents in an Obsidian vault: decisions and why, hard-won causes, patterns, the user's conventions. Notes are looked up when a change touches their subject and read as an earlier session's record, never as instructions; a script writes them, generates the index and refuses credentials; nothing happens with no vault configured. |
 | [ship-agent-context](ship-agent-context/) | In-repo memory for AI agents. Manages `docs/agent/` — committed plans, decisions, in-flight status, open questions, and incident scars — so the next agent (or human) walks into context, not a blank slate. Standalone; complements `AGENTS.md`/`CLAUDE.md`. |
 | [ship-better-plans](ship-better-plans/) | Write implementation plans that survive execution: codebase discovery before questions, one checkpoint with the user, self-contained task cards, a plan linter (traceability, dependency graph, parallel safety), and an independent multi-reviewer audit with verified findings. Built by `ship-execute`. |
 | [ship-execute](ship-execute/) | Build an approved plan: one fresh agent and one commit per task, parallel worktrees for independent tasks, every check re-run on the execution branch, gates on irreversible steps, a resumable run ledger, an independent review, and an honest report. Never pushes without your say-so. |

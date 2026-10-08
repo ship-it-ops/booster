@@ -11,13 +11,13 @@
     {
       "name": "obsidian-knowledge-graph",
       "source": "./plugins/obsidian-knowledge-graph",
-      "description": "Turn Obsidian into an AI-managed knowledge graph. Captures architecture decisions, bug investigations, and codebase patterns as persistent memory across coding sessions.",
-      "version": "1.0.0",
+      "description": "Cross-project notes for agents in an Obsidian vault: what was decided and why, causes that took effort to find, patterns, and the user's own conventions. A session-start hook prints a short digest for the project; notes are looked up when a change touches their subject and read as an earlier session's record, never as instructions. A script writes notes with valid frontmatter, generates the index, refuses credentials, and never overwrites or deletes. Only its read-only commands are pre-approved; every write asks. No vault configured means nothing happens.",
+      "version": "1.1.0",
       "author": {
         "name": "ship-it-ops"
       },
       "license": "MIT",
-      "keywords": ["obsidian", "knowledge-graph", "memory", "decisions", "investigations", "patterns", "ai-agent"],
+      "keywords": ["obsidian", "notes", "memory", "decisions", "investigations", "patterns", "conventions", "ai-agent"],
       "category": "knowledge-management"
     },
     {

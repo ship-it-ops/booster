@@ -182,6 +182,9 @@ jobs:
           git config --global init.defaultBranch main
           python3 -m unittest discover -s skills/ship-vuln-fix/tests -v
 
+      - name: Run the vault script's unit tests (obsidian-knowledge-graph)
+        run: python3 -m unittest discover -s skills/obsidian-knowledge-graph/tests -v
+
       - name: This repository's own docs/agent must pass its check
         run: python3 skills/ship-agent-context/scripts/agent_context.py check
 

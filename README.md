@@ -10,16 +10,23 @@ Two complementary memory skills — use either one, or both together.
 
 ### obsidian-knowledge-graph — cross-repo memory
 
-Turn Obsidian into a persistent, AI-managed knowledge graph. Captures decisions, bug investigations, and codebase patterns as linked notes in a central vault that follows you across every project.
+Notes for agents in a folder (`_ai/`) of your Obsidian vault, shared by every project on the machine: what was decided and why, causes that took effort to find, patterns, and your own conventions for how agents should work.
 
-- **Central vault** — One knowledge base across all your repos
-- **Cross-project discovery** — A pattern from project A surfaces when working in project B
-- **MANIFEST-first retrieval** — Compact index, 1–2 reads to find what you need
-- **Scoped writes** — Agent only writes to `_ai/` inside your vault
+- **One vault across all your repositories** — A lesson from project A is offered as a lead when you work in project B
+- **A short digest at session start** — The bundled SessionStart hook (marketplace install) prints how many notes the project has and one line per recorded rule; silent with no vault or no notes
+- **A colleague's notes, not commands** — A note can make an agent more careful; it never grants permission, and one that tries to direct agents is flagged and reported
+- **Written by a script** — Valid frontmatter, a generated index, no overwrites, no deletions, credentials refused; only the commands that read are pre-approved, so every write asks you
+- **Nothing happens unasked** — No vault configured means no prompts and no setup offers; your own notes outside `_ai/` are never read
 
 ```bash
+# Recommended: install via the plugin marketplace for the session-start digest
+/plugin install obsidian-knowledge-graph@booster
+
+# Or, manual install (no bundled hook)
 npx skills add ship-it-ops/booster --skill obsidian-knowledge-graph
 ```
+
+Then, once: `python3 <skill>/scripts/vault.py init --vault <path to your vault> --scaffold`, or ask the agent to set it up.
 
 ### ship-agent-context — in-repo memory
 
@@ -40,7 +47,7 @@ Notes for the next agent, kept in the repository under `docs/agent/` and committ
 npx skills add ship-it-ops/booster --skill ship-agent-context
 ```
 
-The two are independent. Use the in-repo one for handoff context that should travel with branches, and the obsidian one for cross-repo pattern reuse.
+The two are independent. Use the in-repo one for what should travel with a repository and its branches, and the Obsidian one for what should travel with you across repositories. When a repository has `docs/agent/`, the Obsidian skill writes nothing about that repository.
 
 ## Code-Quality Skills
 
@@ -80,7 +87,7 @@ This repo is a Claude Code plugin marketplace. Add it once and get access to all
 
 # Examples:
 /plugin install ship-agent-context@booster        # in-repo agent memory + auto-activation hook
-/plugin install obsidian-knowledge-graph@booster  # AI-managed knowledge graph in your Obsidian vault
+/plugin install obsidian-knowledge-graph@booster  # cross-project notes for agents in your Obsidian vault
 
 # To see all available skills:
 /plugin marketplace list booster
