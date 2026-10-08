@@ -1,0 +1,2 @@
+call carrier about the new manifest format
+barcode: code 39? ask Sam

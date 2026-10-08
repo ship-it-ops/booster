@@ -34,6 +34,7 @@
 - [ship-better-plans-architecture](decisions/ship-better-plans-architecture.md) — Parallel skill, Workflow audit, plan-mode + opt-in control flow (D1-D7)
 - [ship-better-plans-v2-refresh](decisions/ship-better-plans-v2-refresh.md) — 2.0 rewrite: cards, linter, grounded review; revises D6/Q3
 - [ship-clean-code-refresh](decisions/ship-clean-code-refresh.md) — ship-clean-code 1.2 rewrite: one test and three rules, severity by consequence, caller's format wins, restraint when writing (K1-K14)
+- [ship-debugged-code-refresh](decisions/ship-debugged-code-refresh.md) — ship-debugged-code 1.1 rewrite: one test for fixed, run and working-tree rules, confirmed against likely, short honest reports (G1-G12)
 - [ship-devops-12-category-catalog](decisions/ship-devops-12-category-catalog.md) — DEV1-DEV12 rubric for new ship-devops skill
 - [ship-devops-refresh](decisions/ship-devops-refresh.md) — ship-devops 0.3 rewrite: what breaks when and for whom, run rules by what a command touches, writing guidance, no verdicts (V1-V12)
 - [ship-execute-architecture](decisions/ship-execute-architecture.md) — Standalone DAG-aware executor; ship-code delegation (E1-E5)
@@ -54,6 +55,7 @@
 - [ship-better-plans-design-audit](investigations/ship-better-plans-design-audit.md) — Audit found plan unbuildable as written; layout+control-flow fixes
 - [ship-better-plans-refresh-audit](investigations/ship-better-plans-refresh-audit.md) — Six-persona audit plus before/after evaluation of ship-better-plans
 - [ship-clean-code-refresh-audit](investigations/ship-clean-code-refresh-audit.md) — ship-clean-code audit: six reviewers, three judged scenarios, a no-skill control, three rounds
+- [ship-debugged-code-refresh-audit](investigations/ship-debugged-code-refresh-audit.md) — ship-debugged-code audit: six reviewers, three judged scenarios, three fixtures, a no-skill control, three rounds
 - [ship-devops-refresh-audit](investigations/ship-devops-refresh-audit.md) — ship-devops audit: six reviewers, three judged scenarios, four writing fixtures, a no-skill control, three rounds
 - [ship-execute-refresh-audit](investigations/ship-execute-refresh-audit.md) — Six-persona audit, judged executions, live worktree tests
 - [ship-reviewed-prs-refresh-audit](investigations/ship-reviewed-prs-refresh-audit.md) — Six-persona audit, judged reviews of seeded pull requests
