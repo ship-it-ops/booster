@@ -1,1 +1,0 @@
-../../../../skills/ship-vuln-scan/ecosystem-pip.md

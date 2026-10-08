@@ -131,25 +131,25 @@
     {
       "name": "ship-vuln-scan",
       "source": "./plugins/ship-vuln-scan",
-      "description": "Detect known CVEs and supply-chain vulnerabilities across dependencies (SCA), container images, IaC, and secrets. Hybrid execution: orchestrates real scanners (osv-scanner, trivy, grype, pip-audit, npm/pnpm/yarn audit, checkov, gitleaks, syft) when present and falls back to manual lockfile/advisory analysis when absent — always recording scan provenance and a coverage flag so 'couldn't scan' is never reported as 'clean'. Triages by CVSS+EPSS+KEV+reachability (VS1-VS8) and emits a normalized findings artifact. Sibling ship-vuln-fix remediates what it finds; ship-reviewed-prs SC persona delegates here on lockfile/manifest changes.",
-      "version": "0.1.0",
-      "author": {
-        "name": "ship-it-ops"
-      },
-      "license": "MIT",
-      "keywords": ["vulnerability", "cve", "sca", "dependency-scanning", "supply-chain", "container-scanning", "sbom", "secrets", "osv", "trivy", "security"],
-      "category": "code-quality"
-    },
-    {
-      "name": "ship-vuln-fix",
-      "source": "./plugins/ship-vuln-fix",
-      "description": "Remediate the CVEs that ship-vuln-scan finds. Recipe-first + tiered + evidence-gated: prefers proven remediation recipes/tools (OpenRewrite/Moderne, npm/pip native fixers, Dependabot compatibility scores) and falls back to manual minimal edits, then auto-applies only mechanical, reversible fixes behind a confirmation gate and verifies them by re-scan + build/tests + a clean frozen install; advises only (exact plan, never edits) for breaking/major upgrades, code-level mitigations, and no-fix cases (VF1-VF8). The apply decision is driven by evidence (reviewed changelog/recipe, no new install scripts, green tests), never the semver delta. Every auto-apply emits a remediation audit record to docs/security/vuln-remediation/. Sibling ship-vuln-scan detects and verifies closure.",
+      "description": "Find known, published vulnerabilities in dependencies, container images and committed secrets. Runs the scanners that are already installed in modes that only read, or asks api.osv.dev about the lock files when none is, and reports only what a tool returned in the session: what was checked, what was not, and what the repository's own ignore files hide. A script reads scanner output (and refuses an error as a result), compares two scans, checks what a lock file change brought in, and looks advisories up in the known-exploited list. Never installs a scanner, never edits anything, never reports clean for what it could not scan.",
       "version": "0.2.0",
       "author": {
         "name": "ship-it-ops"
       },
       "license": "MIT",
-      "keywords": ["vulnerability", "cve", "remediation", "dependency-upgrade", "patch", "supply-chain", "sca", "auto-fix", "security"],
+      "keywords": ["vulnerability", "cve", "sca", "dependency-scanning", "supply-chain", "lockfile", "secrets", "osv", "kev", "security"],
+      "category": "code-quality"
+    },
+    {
+      "name": "ship-vuln-fix",
+      "source": "./plugins/ship-vuln-fix",
+      "description": "Fix known vulnerabilities in dependencies. Applies the fixes that are mechanical (a lock-file update inside the allowed range, a minimal bump, the parent that pulls the package in), checks what each change brings with it before anything is installed, and proves closure by running the same scan again and the project's tests. Major upgrades, versions that add an install script and advisories with no fix are advised, not applied. Never forces, never runs install scripts, never adds an ignore entry on its own judgement, never touches uncommitted work, and says which fixes were confirmed and which were not.",
+      "version": "0.3.0",
+      "author": {
+        "name": "ship-it-ops"
+      },
+      "license": "MIT",
+      "keywords": ["vulnerability", "cve", "remediation", "dependency-upgrade", "patch", "supply-chain", "lockfile", "security"],
       "category": "code-quality"
     }
   ]

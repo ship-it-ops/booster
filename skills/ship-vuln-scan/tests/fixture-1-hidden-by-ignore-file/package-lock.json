@@ -1,0 +1,54 @@
+{
+ "name": "courier-api",
+ "version": "1.8.0",
+ "lockfileVersion": 3,
+ "requires": true,
+ "packages": {
+  "": {
+   "name": "courier-api",
+   "version": "1.8.0",
+   "dependencies": {
+    "datefmt": "^2.3.0",
+    "imgsharp": "^1.4.0",
+    "shipkit": "^2.0.0"
+   },
+   "devDependencies": {
+    "lintkit": "^5.1.0"
+   }
+  },
+  "node_modules/datefmt": {
+   "version": "2.3.0",
+   "resolved": "https://registry.npmjs.org/datefmt/-/datefmt-2.3.0.tgz",
+   "integrity": "sha512-64617465666d74322e332e30",
+   "license": "MIT"
+  },
+  "node_modules/imgsharp": {
+   "version": "1.4.0",
+   "resolved": "https://registry.npmjs.org/imgsharp/-/imgsharp-1.4.0.tgz",
+   "integrity": "sha512-696d677368617270312e342e30",
+   "license": "MIT"
+  },
+  "node_modules/left-padder": {
+   "version": "1.2.0",
+   "resolved": "https://registry.npmjs.org/left-padder/-/left-padder-1.2.0.tgz",
+   "integrity": "sha512-6c6566742d706164646572312e322e30",
+   "license": "MIT"
+  },
+  "node_modules/lintkit": {
+   "version": "5.1.0",
+   "resolved": "https://registry.npmjs.org/lintkit/-/lintkit-5.1.0.tgz",
+   "integrity": "sha512-6c696e746b6974352e312e30",
+   "license": "MIT",
+   "dev": true
+  },
+  "node_modules/shipkit": {
+   "version": "2.0.0",
+   "resolved": "https://registry.npmjs.org/shipkit/-/shipkit-2.0.0.tgz",
+   "integrity": "sha512-736869706b6974322e302e30",
+   "license": "MIT",
+   "dependencies": {
+    "left-padder": "^1.2.0"
+   }
+  }
+ }
+}

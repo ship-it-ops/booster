@@ -1,1 +1,0 @@
-../../../../skills/ship-vuln-scan/reference.md

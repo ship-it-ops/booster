@@ -1,5 +1,5 @@
 {
   "name": "ship-vuln-fix",
-  "description": "Remediate the CVEs that ship-vuln-scan finds. Tiered and evidence-gated: auto-applies only mechanical, reversible fixes (minimal dependency bumps, transitive overrides/resolutions) behind a confirmation gate and verifies them by re-scan + build/tests + a clean frozen install; advises only (exact plan, never edits) for breaking/major upgrades, code-level mitigations, and no-fix cases. The apply decision is driven by evidence (reviewed changelog, no new install scripts, green tests), never the semver delta. Every auto-apply emits a remediation audit record. Sibling ship-vuln-scan detects and verifies.",
-  "version": "0.2.0"
+  "description": "Fix known vulnerabilities in dependencies. Applies the fixes that are mechanical (a lock-file update inside the allowed range, a minimal bump, the parent that pulls the package in), checks what each change brings with it before anything is installed, and proves closure by running the same scan again and the project's tests. Major upgrades, versions that add an install script and advisories with no fix are advised, not applied. Never forces, never runs install scripts, never adds an ignore entry on its own judgement, never touches uncommitted work, and says which fixes were confirmed and which were not.",
+  "version": "0.3.0"
 }

@@ -1,5 +1,5 @@
 {
   "name": "ship-vuln-scan",
-  "description": "Detect known CVEs and supply-chain vulnerabilities across dependencies (SCA), container images, IaC, and secrets. Hybrid: orchestrates real scanners (osv-scanner, trivy, grype, pip-audit, npm/pnpm/yarn audit, checkov, gitleaks, syft) when present, falls back to manual lockfile/advisory analysis otherwise, and always records scan provenance + a coverage flag so 'couldn't scan' is never reported as 'clean'. Triages by CVSS+EPSS+KEV+reachability into a normalized findings artifact. Sibling ship-vuln-fix remediates.",
-  "version": "0.1.0"
+  "description": "Find known, published vulnerabilities in dependencies, container images and committed secrets. Runs the scanners that are already installed in modes that only read, or asks api.osv.dev about the lock files when none is, and reports only what a tool returned in the session: what was checked, what was not, and what the repository's own ignore files hide. A script reads scanner output (and refuses an error as a result), compares two scans, checks what a lock file change brought in, and looks advisories up in the known-exploited list. Never installs a scanner, never edits anything, never reports clean for what it could not scan.",
+  "version": "0.2.0"
 }

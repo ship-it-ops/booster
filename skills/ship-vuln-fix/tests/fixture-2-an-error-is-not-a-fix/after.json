@@ -1,0 +1,6 @@
+{
+  "error": {
+    "code": "ENOTFOUND",
+    "summary": "request to https://api.osv.dev/v1/querybatch failed, reason: getaddrinfo ENOTFOUND api.osv.dev"
+  }
+}
