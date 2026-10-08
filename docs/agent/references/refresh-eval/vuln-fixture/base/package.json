@@ -1,0 +1,17 @@
+{
+  "name": "courier-api",
+  "version": "1.8.0",
+  "private": true,
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "datefmt": "^2.3.0",
+    "imgsharp": "^1.4.0",
+    "shipkit": "^2.0.0"
+  },
+  "devDependencies": {
+    "lintkit": "^5.1.0"
+  }
+}

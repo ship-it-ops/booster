@@ -1,0 +1,30 @@
+{
+  "advisories": [
+    {"id": "GHSA-7xq2-m4vv-9c3p", "aliases": ["CVE-2026-31801"], "package": "left-padder", "ecosystem": "npm", "fixed": "1.2.3", "cvss": 9.8, "label": "CRITICAL", "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H", "summary": "left-padder: prototype pollution in pad() options leads to remote code execution"},
+    {"id": "GHSA-h4j9-2fq3-x7mw", "aliases": ["CVE-2026-20417"], "package": "datefmt", "ecosystem": "npm", "fixed": "2.3.4", "cvss": 7.5, "label": "HIGH", "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H", "summary": "datefmt: regular expression denial of service in parse()"},
+    {"id": "GHSA-pw3c-88rv-4g2j", "aliases": ["CVE-2026-27766"], "package": "imgsharp", "ecosystem": "npm", "fixed": "1.4.1", "cvss": 8.1, "label": "HIGH", "vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H", "summary": "imgsharp: heap buffer overflow when decoding crafted PNG chunks"},
+    {"id": "GHSA-2c9f-vv5q-jr6x", "aliases": ["CVE-2025-49112"], "package": "lintkit", "ecosystem": "npm", "fixed": "5.1.2", "cvss": 5.3, "label": "MODERATE", "vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:L", "summary": "lintkit: arbitrary file read through crafted configuration extends"},
+    {"id": "GHSA-q8m3-6f2c-w9hp", "aliases": ["CVE-2026-11873"], "package": "shipkit", "ecosystem": "npm", "fixed": "3.0.0", "cvss": 7.4, "label": "HIGH", "vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N", "summary": "shipkit: server-side request forgery in fetchLabel() through carrier URL"},
+    {"id": "PYSEC-2026-141", "aliases": ["CVE-2026-22190"], "package": "quillparse", "ecosystem": "PyPI", "fixed": "0.9.4", "cvss": 6.1, "label": "MODERATE", "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N", "summary": "quillparse: HTML injection through unescaped link titles"}
+  ],
+  "registry": {
+    "left-padder": {"1.2.0": {}, "1.2.3": {}},
+    "datefmt": {"2.3.0": {}, "2.3.4": {}},
+    "imgsharp": {"1.4.0": {}, "1.4.1": {"hasInstallScript": true, "scripts": {"postinstall": "node install/download-binary.js"}}},
+    "shipkit": {"2.0.0": {"dependencies": {"left-padder": "^1.2.0"}}, "2.0.5": {"dependencies": {"left-padder": "^1.2.3"}}, "3.0.0": {"dependencies": {"left-padder": "^1.2.3"}}},
+    "lintkit": {"5.1.0": {}, "5.1.2": {}}
+  },
+  "changelogs": {
+    "left-padder": "# Changelog\n\n## 1.2.3\n- Security: reject `__proto__` and `constructor` keys in pad() options (GHSA-7xq2-m4vv-9c3p).\n\n## 1.2.1, 1.2.2\n- Documentation only.\n",
+    "datefmt": "# Changelog\n\n## 2.3.4\n- Security: bound backtracking in parse() (GHSA-h4j9-2fq3-x7mw). No API changes.\n\n## 2.3.1 to 2.3.3\n- Bug fixes for week-of-year formatting. No API changes.\n",
+    "imgsharp": "# Changelog\n\n## 1.4.1\n- Security: validate PNG chunk lengths (GHSA-pw3c-88rv-4g2j).\n- Packaging: the native decoder is no longer bundled; a postinstall script downloads a prebuilt binary for the platform.\n",
+    "shipkit": "# Changelog\n\n## 3.0.0\n- BREAKING: fetchLabel() is now async and returns a stream, not a Buffer.\n- BREAKING: carrier URLs must be on the allowlist passed to configure() (fixes GHSA-q8m3-6f2c-w9hp).\n\n## 2.0.5\n- Raise left-padder to ^1.2.3.\n- No API changes.\n",
+    "lintkit": "# Changelog\n\n## 5.1.2\n- Security: restrict `extends` to the project directory (GHSA-2c9f-vv5q-jr6x).\n\n## 5.1.1\n- Fix a crash on empty files.\n"
+  },
+  "test_failures": [
+    {"package": "shipkit", "major_at_least": 3, "output": "\n> courier-api@1.8.0 test\n> node --test\n\nnot ok 9 - labels: fetchLabel returns a buffer\n  TypeError: fetchLabel(...).slice is not a function\n      at printLabel (src/labels.js:7:38)\n# tests 14\n# pass 13\n# fail 1"}
+  ],
+  "gitleaks": [
+    {"RuleID": "generic-api-key", "Description": "Detected a Generic API Key", "File": "config/legacy.env", "StartLine": 3, "Match": "PAYMENTS_API_KEY=pk!legacy#Zq7-mN2~xR9-courier-0031", "Secret": "pk!legacy#Zq7-mN2~xR9-courier-0031", "Commit": "(set by build)", "Author": "dana", "Fingerprint": "config/legacy.env:generic-api-key:3"}
+  ]
+}

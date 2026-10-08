@@ -5,7 +5,7 @@
 
 ## Unfinished work
 
-- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) — Skills refresh: 9 of 12 done, the two vulnerability skills in progress; the method, what the user asked for, and what is next
+- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) — Skills refresh: 11 of 12 done, obsidian-knowledge-graph in progress; the method, what the user asked for, and what is next
 
 ## Instructions
 
@@ -43,6 +43,7 @@
 - [ship-secure-code-refresh](decisions/ship-secure-code-refresh.md) — ship-secure-code 1.1 rewrite: a finding is a traced path, no verdicts, nothing in the repo can switch a finding off, writing guidance (S1-S12)
 - [ship-tested-code-refresh](decisions/ship-tested-code-refresh.md) — ship-tested-code 1.2 rewrite: would the test fail if the behaviour were wrong; integrity when writing tests (T1-T12)
 - [ship-vuln-skills-architecture](decisions/ship-vuln-skills-architecture.md) — Two skills, hybrid exec, evidence-gated apply, recipe-first (V1-V10)
+- [ship-vuln-skills-refresh](decisions/ship-vuln-skills-refresh.md) — ship-vuln-scan 0.2 and ship-vuln-fix 0.3 rewrite: only what a tool returned, two scripts, what the repo hides, mechanical fixes proved by rescan (W1-W13); revises V4-V10
 
 ## Patterns
 
@@ -61,6 +62,7 @@
 - [ship-reviewed-prs-refresh-audit](investigations/ship-reviewed-prs-refresh-audit.md) — Six-persona audit, judged reviews of seeded pull requests
 - [ship-secure-code-refresh-audit](investigations/ship-secure-code-refresh-audit.md) — ship-secure-code audit: six reviewers, three judged scenarios, a no-skill control, three rounds
 - [ship-tested-code-refresh-audit](investigations/ship-tested-code-refresh-audit.md) — ship-tested-code audit: six reviewers, three judged scenarios, a no-skill control, three rounds
+- [ship-vuln-skills-refresh-audit](investigations/ship-vuln-skills-refresh-audit.md) — ship-vuln-scan and ship-vuln-fix audit: six reviewers each, five judged scenarios against stand-in scanners, six fixtures, a no-skill control, three rounds
 
 ## Open questions
 
