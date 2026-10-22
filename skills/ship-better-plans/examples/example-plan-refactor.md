@@ -4,6 +4,7 @@ status: active
 approval: approved
 created: 2026-09-21
 updated: 2026-09-22
+summary: Extract the payment-provider calls from OrderService into a PaymentGateway module one operation at a time behind characterization tests
 author: claude-opus-5-5
 tags: [refactor, payments, extract-module]
 importance: core

@@ -10,7 +10,8 @@ Usage:
 Checks (errors fail the run; warnings are for the planner to fix or justify):
 
   STRUCTURE     required sections present and non-empty; no placeholders or
-                template comments standing in for content; approval state
+                template comments standing in for content; approval state;
+                a filled `summary:` line in the frontmatter
   TRACEABILITY  every success criterion is carried by a requirement, an
                 acceptance criterion, a task or the final check; every FR has
                 an AC and a task; every AC has an owner; no undefined ids
@@ -89,7 +90,7 @@ ANYWHERE_PLACEHOLDERS = (
     (re.compile(r"\?\?\?"), "???"),
     (re.compile(r"\{(?:title|task title)\}"), "{title}"),
     (re.compile(r"YYYY-MM-DD"), "YYYY-MM-DD"),
-    (re.compile(r"<(?:branch|short-sha|agent-id)>"), "<template placeholder>"),
+    (re.compile(r"<(?:branch|short-sha|agent-id|one-line summary)>"), "<template placeholder>"),
 )
 WHOLE_VALUE_PLACEHOLDER = re.compile(r"(?:TODO|TBD|…|\.\.\.)[.:]?")
 NEW_WORDS = ("new", "create", "created", "add", "added")
@@ -388,6 +389,8 @@ def lint(plan: Path, repo: Path, check_paths: bool, revising: bool, report: Repo
             report.error("STRUCTURE", f"line {i + 1}: unfilled value ('…' or TODO) left in the plan")
     if approval not in ("draft", "approved"):
         report.warn("STRUCTURE", "frontmatter has no `approval: draft | approved`; an executor cannot tell whether this plan may be built")
+    if not meta.get("summary", "").strip():
+        report.warn("STRUCTURE", "frontmatter has no `summary:` line; ship-agent-context indexes the plan by its title and its check warns")
     span = find_section(sections, ("approach",))
     if span and "deciding factor" not in body_text(lines, span).lower() and "n/a" not in body_text(lines, span).lower():
         report.warn("STRUCTURE", "Approach does not name the deciding factor")

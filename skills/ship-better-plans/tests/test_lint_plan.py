@@ -23,6 +23,7 @@ type: plan
 status: active
 approval: draft
 created: 2026-01-05
+summary: A greeting helper used by the entry point
 ---
 
 # Plan: demo
@@ -161,6 +162,22 @@ class Structure(unittest.TestCase):
     def test_angle_brackets_in_real_content_are_allowed(self):
         code, out = run_linter(GOOD_PLAN.replace("Standard library only.", "Paths look like plugins/<name>/skills/<name>/."))
         self.assertEqual(code, 0, out)
+
+    def test_missing_summary_is_a_warning(self):
+        code, out = run_linter(GOOD_PLAN.replace("summary: A greeting helper used by the entry point\n", ""))
+        self.assertEqual(code, 0, out)
+        self.assertIn("frontmatter has no `summary:` line", out)
+        code, out = run_linter(GOOD_PLAN.replace("summary: A greeting helper used by the entry point", "summary:"))
+        self.assertEqual(code, 0, out)
+        self.assertIn("frontmatter has no `summary:` line", out)
+        code, out = run_linter(GOOD_PLAN.replace("summary: A greeting helper used by the entry point", 'summary: "A helper: used by main"'))
+        self.assertEqual(code, 0, out)
+        self.assertIn("0 warning(s)", out)
+
+    def test_summary_placeholder_left_in(self):
+        code, out = run_linter(GOOD_PLAN.replace("summary: A greeting helper used by the entry point", "summary: <one-line summary>"))
+        self.assertEqual(code, 1)
+        self.assertIn("placeholder <template placeholder>", out)
 
 
 class Traceability(unittest.TestCase):

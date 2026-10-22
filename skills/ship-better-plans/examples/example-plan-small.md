@@ -4,6 +4,7 @@ status: active
 approval: approved
 created: 2026-09-30
 updated: 2026-09-30
+summary: Add a --json flag to the report command as a second renderer beside the table; the default output is unchanged
 author: claude-opus-5-5
 tags: [cli, report]
 importance: standard

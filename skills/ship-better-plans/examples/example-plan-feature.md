@@ -4,6 +4,7 @@ status: active
 approval: approved
 created: 2026-09-14
 updated: 2026-09-14
+summary: Per-tenant API rate limiting with a Redis sliding window behind a feature flag; fails open and alerts when Redis is down
 author: claude-opus-5-5
 tags: [feature, api, rate-limit]
 importance: standard
