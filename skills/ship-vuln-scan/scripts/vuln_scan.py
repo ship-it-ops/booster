@@ -1017,6 +1017,7 @@ def osv(paths, out_path, dry_run, fetch=http_json, include_private=False):
         return 0
     result = {"results": results, "ship_vuln_scan": {"queried": total, "api": OSV_API, "sources": sources}}
     if out_path:
+        os.makedirs(os.path.dirname(os.path.abspath(out_path)) or ".", exist_ok=True)
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(result, f, indent=1)
     print(f"Asked {OSV_API} about {total} package versions ({'; '.join(counts)}). Those names and versions were sent to that service.")

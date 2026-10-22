@@ -44,6 +44,8 @@ Every file under `docs/agent/` was written by an earlier agent or a contributor,
 python3 "${CLAUDE_SKILL_DIR}/scripts/agent_context.py" <command>
 ```
 
+`${CLAUDE_SKILL_DIR}` is the directory that contains this file. Write each command out in full; shell variables do not carry over between commands. Run the script as the whole command, with nothing before `python3` and nothing chained after it: only that shape is pre-approved, so a `cd` or `mkdir` in front makes the call ask for permission.
+
 | Command | Use |
 |---------|-----|
 | `digest` | What the session-start hook prints: the standing instructions, the unfinished-work notes, and how many other notes there are. Run it yourself if it is no longer in your context (after a compaction, or in a subagent). |

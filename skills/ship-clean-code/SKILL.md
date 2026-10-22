@@ -1,13 +1,14 @@
 ---
 name: ship-clean-code
 description: >
-  Use for a code-quality review of a file, module, diff, commit or branch judged
-  against the project's own conventions ("review this file", "is this module
-  well written", "is this safe to build on"); when asked to clean up, simplify
-  or refactor code; when adding to or changing code in an existing code base
-  that has its own conventions (a fix, a new parameter, a small feature beside
-  existing ones), so the change matches the house style and does not grow beyond
-  the request; or when another skill's reviewer is told to load it. Covers what
+  Use when adding to or changing code in an existing code base ("add a way to
+  X", "add a handler for Y", a fix, a new parameter, a small feature beside
+  existing ones), so the change matches the house style and does not grow
+  beyond the request; when asked to clean up, simplify or refactor code; for a
+  code-quality review of a file, module, diff, commit or branch judged against
+  the project's own conventions ("review this file", "is this module well
+  written", "is this safe to build on"); or when another skill's reviewer is
+  told to load it. Covers what
   makes code safe for the next person to change: fit with the project's
   conventions, a change that stays inside the request, names and structure that
   tell the truth, failures that stay visible, no needless abstraction. Any

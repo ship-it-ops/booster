@@ -423,6 +423,14 @@ class OsvTest(Scratch):
         tool, findings, _ = vs.load_result(out_path)
         self.assertEqual((findings[0]["package"], findings[0]["id"], findings[0]["fixed"], findings[0]["label"]), ("a", "GHSA-1", "1.0.1", "HIGH"))
 
+    def test_creates_the_directory_the_result_is_written_to(self):
+        lock = self.write("requirements.txt", "a==1.0.0\n")
+        out_path = os.path.join(self.dir, "scan", "osv", "r.json")
+        fetch, _ = self.fake({})
+        with contextlib.redirect_stdout(io.StringIO()):
+            vs.osv([lock], out_path, False, fetch=fetch)
+        self.assertTrue(os.path.isfile(out_path))
+
     def test_a_lock_file_that_parses_to_nothing_is_not_checked(self):
         lock = self.write("pnpm-lock.yaml", "lockfileVersion: '99'\n\nsomething-else:\n  x: 1\n")
         fetch, calls = self.fake({})

@@ -21,7 +21,7 @@ allowed-tools: Read, Grep, Glob, Bash(python3 *ship-vuln-fix/scripts/fix_check.p
 
 A vulnerability is fixed when three things were seen in this session: the lock file resolves a version outside the affected range; the same scanner command that reported it no longer does; and the project's tests pass as they did before. Anything short of that is "changed, not confirmed" or "advised", and the answer says which. A scan that comes out clean because something was told to look away is not a fix.
 
-`${CLAUDE_SKILL_DIR}` is the directory that contains this file. Write each command out in full; shell variables do not carry over between commands.
+`${CLAUDE_SKILL_DIR}` is the directory that contains this file. Write each command out in full; shell variables do not carry over between commands. Run the script as the whole command, with nothing before `python3` and nothing chained after it: only that shape is pre-approved, so a `cd` or `mkdir` in front makes the call ask for permission.
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/fix_check.py" <command>

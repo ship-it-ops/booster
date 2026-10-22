@@ -21,7 +21,7 @@ allowed-tools: Read, Grep, Glob, Bash(python3 *ship-vuln-scan/scripts/vuln_scan.
 
 Every vulnerability, score, date and "no findings" in your answer comes from something a tool printed in this session. What no tool ran against is **not checked**, never clean. An advisory you remember is not a finding: it may be wrong for this version, or not exist; at most mention it as "worth checking, unverified".
 
-`${CLAUDE_SKILL_DIR}` is the directory that contains this file. Write each command out in full; shell variables do not carry over between commands.
+`${CLAUDE_SKILL_DIR}` is the directory that contains this file. Write each command out in full; shell variables do not carry over between commands. Run the script as the whole command, with nothing before `python3` and nothing chained after it: only that shape is pre-approved, so a `cd` or `mkdir` in front makes the call ask for permission.
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/vuln_scan.py" <command>
