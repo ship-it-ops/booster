@@ -4,6 +4,7 @@ status: active
 approval: draft
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
+summary: <one-line summary>
 author: <agent-id>
 tags: [list, of, tags]
 importance: standard

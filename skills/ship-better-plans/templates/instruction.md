@@ -3,6 +3,7 @@ type: instruction
 status: active
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
+summary: <one-line summary>
 author: <agent-id>
 source: user-instruction
 scope: always | when-X | branch:feature/y | until:YYYY-MM-DD
