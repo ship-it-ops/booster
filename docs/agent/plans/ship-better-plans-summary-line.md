@@ -1,6 +1,6 @@
 ---
 type: plan
-status: active
+status: completed
 approval: approved
 created: 2026-10-22
 updated: 2026-10-22
@@ -193,6 +193,13 @@ Nothing disputed, nothing unverified, no reviewer failed. Not covered: the `secu
 
 ## Status
 Draft, written unattended on 2026-10-22: no checkpoint and no approval question were asked. Assumptions not confirmed by anyone: A-1 (no version bump) and A-2 (the wording of the three example summaries). This plan and the regenerated `docs/agent/MANIFEST.md` are uncommitted. Next: the user reads the plan, rules on OQ-1, then builds it with `/ship-execute docs/agent/plans/ship-better-plans-summary-line.md` or asks for changes.
+
+**2026-10-22, executed by `ship-execute` (claude-fable-5-1), unattended.** Nothing is still to be shown elsewhere: every check in the Final check runs locally and all of them passed. Branch `ship/ship-better-plans-summary-line` from `be2ee2b`; commits `4c407ea` (this plan and the rebuilt index), `f6af6e0` (T1), `ef4fed9` (T2), `74f74cd` (T3), then the commit recording this entry. All three tasks `done`, each checked against its card and its `Verify` run on the branch: T1 45 tests OK; T2 each template reports 1, markdownlint 0 issues; T3 validator, links, markdownlint, notes check (56 notes, 0 errors, 0 warnings) and `index --check` all pass, the greps give the expected hits. Final check: AC-1 to AC-7 met; linting the plan template reports 3 `<template placeholder>` errors (was 2); linting this plan gives no `summary:` warning.
+
+- Deviations: (a) the tasks were built one at a time directly on the execution branch, not in worktrees: the harness cut the wave's worktrees from `be2ee2b` instead of the branch tip, so all three isolated agents stopped before changing anything; the check-then-verify-on-the-branch acceptance was unchanged. (b) T3's `index` rebuild produced no diff, because the hand-off's `summary:` line did not change, so `docs/agent/MANIFEST.md` is not in T3's commit. (c) The index was rebuilt in the plan commit `4c407ea`: the baseline notes check failed on the index left stale when this plan was marked approved.
+- Corrections the run revealed: F-8's line numbers for `lint_plan.py` are off by one after T1's docstring line (`lint_plan.py` on this plan now warns that `:130` is a blank line); they were right at the plan's base and are left as written.
+- Review: one independent reviewer with `ship-clean-code`, no blocking findings. Follow-on if wanted: a quoted empty value (`summary: ""`) is not warned, because the parser keeps the quotes; outside this request.
+- Still open: the version question (OQ-1); the version is left at 2.0.0 per A-1. Nothing pushed, no pull request opened.
 
 ## Related
 - [ship-skills-refresh-handoff](../status/ship-skills-refresh-handoff.md) — lists this gap as the open item between `ship-better-plans` and `ship-agent-context`; T3 closes that item
