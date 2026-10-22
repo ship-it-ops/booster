@@ -28,7 +28,7 @@ The whole run rests on one rule: the execution branch only ever holds commits wh
 
 **The execution branch.** `git switch -c ship/<plan-slug>` from the current commit. If that branch already exists and the ledger is empty, someone else's work may be on it: ask before using it.
 
-**Where task agents work.** Every task agent runs in its own worktree, alone or in a wave. An isolated agent (the Workflow tool's `isolation: 'worktree'`, or the Agent tool's `isolation: "worktree"`) starts in a fresh worktree under `.claude/worktrees/`, on its own throwaway branch, cut from the commit that is checked out in the main checkout. So:
+**Where task agents work.** Every task agent runs in its own worktree, alone or in a wave. An isolated agent (the Workflow tool's `isolation: 'worktree'`, or the Agent tool's `isolation: "worktree"`) starts in a fresh worktree under `.claude/worktrees/`, on its own throwaway branch. Both tools were seen to cut it from the tip of the repository's default branch (the branch `origin/HEAD` points at; with no remote, the current HEAD), not from the execution branch, which is why the task-agent prompt has the agent move its throwaway branch to the execution branch tip (`git reset --hard <sha>`, safe because the worktree is fresh and the branch is its own) before it reads its briefing. So:
 
 - Everything a task depends on must be committed on the execution branch, and that branch must be checked out, before the task is dispatched. Uncommitted changes are not in the worktree.
 - A worktree contains tracked files only. Installed dependencies, build output and environment files from the main checkout are not there, which is why the briefing carries the plan's setup. Say in the start summary how many fresh checkouts will need that setup, since it is where the time goes.
@@ -69,7 +69,9 @@ A task agent gets its briefing and nothing else from the plan. The briefing (`pl
 ```text
 You are implementing one task of an implementation plan, in your own git worktree.
 Your worktree should start at commit <sha of the execution branch tip>; if
-`git rev-parse --short HEAD` shows something else, do nothing and say so.
+`git rev-parse --short HEAD` shows another commit and `git status --short` prints
+nothing, run `git reset --hard <that sha>` (your branch is a throwaway one cut for
+this task) and check again; if it is still not that commit, do nothing and say so.
 Read your briefing at <path printed by `brief <task> --out`> in full before doing
 anything. It is everything you need and everything you are allowed to rely on.
 In your result, include the output of `pwd` as well as what the briefing asks for.
@@ -113,7 +115,7 @@ A commit that failed `check`, your `Verify`, the suite after a wave, or a blocki
 | A task that changes no files answers "stop" | Mark it `needs-decision`. Everything after it waits for the user, because the plan said its continuation depends on the answer. |
 | The user declines a gate | `mark` it `declined`. Its dependents are not runnable; `next` reports them. |
 | The suite fails after a wave although each task passed alone | Find which commit introduced the failure by running the suite at each commit of the wave. Revert that commit and treat its task as failing `Verify`. |
-| The agent crashed, or started from the wrong commit | Its worktree holds nothing you want. Remove the worktree and branch, and dispatch again. |
+| The agent crashed, or started from the wrong commit and could not move to the right one | Its worktree holds nothing you want. Remove the worktree and branch (the harness removes one that was left unchanged). Then dispatch again, or cut the worktree yourself from the execution branch tip (`git worktree add .claude/worktrees/<task> -b ship-task/<plan-slug>-<task> <sha>`) and dispatch the agent without isolation, telling it the path and to run every command as `cd <path> && …`; that is what kept a wave parallel when the harness's base commit could not be moved. |
 | The agent finished but left its worktree with uncommitted changes | The commit is what counts. Uncommitted leftovers are discarded with the worktree. |
 
 A task that is `blocked`, `needs-decision` or `declined` stops only the tasks that depend on it (a task that changes no files is the exception: see "Dispatching tasks"). The run continues with everything else, and the report lists what was left. Tasks that can no longer run stay `pending` in the ledger, so a resume picks them up once the user has decided. `skipped` is for a task the user chose to drop.

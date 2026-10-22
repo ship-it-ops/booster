@@ -9,8 +9,11 @@ export const meta = {
 //     tasks: [{ id, briefPath, noCommit? }] }   // briefPath = a briefing file written by plan_tasks.py
 // A task may carry the briefing text itself as `brief` in place of `briefPath`.
 //
-// Each agent runs in a fresh worktree cut from the commit that is checked out in the main
-// checkout, on its own throwaway branch. Nothing reaches the execution branch from here:
+// Each agent runs in a fresh worktree on its own throwaway branch. The harness cuts it from the
+// tip of the repository's default branch (the one origin/HEAD points at; with no remote, the
+// current HEAD), not from the execution branch, so the prompt has the agent move its throwaway
+// branch to startCommit (`git reset --hard`, safe in a clean throwaway worktree) before doing
+// anything. Nothing reaches the execution branch from here:
 // the caller cherry-picks each returned commit, re-runs the task's verification itself,
 // and removes the worktree and branch afterwards.
 //
@@ -56,7 +59,7 @@ const TASK_RESULT_SCHEMA = {
 
 function prompt(t) {
   return `You are implementing one task of an implementation plan, in your own git worktree. Other agents are doing other tasks at the same time in other worktrees, so stay inside yours.
-${START ? `\nYour worktree should start at commit ${START}. Check with \`git rev-parse --short HEAD\`. If it shows something else, do not do the task: return status "blocked" and say what it showed.\n` : ''}
+${START ? `\nYour worktree should start at commit ${START}. Check with \`git rev-parse --short HEAD\`. If it shows another commit: your worktree is a fresh one on a throwaway branch cut for this task, so if \`git status --short\` prints nothing and \`git rev-parse --abbrev-ref HEAD\` starts with "worktree-", run \`git reset --hard ${START}\` and check again. If HEAD is still not ${START}, or those two conditions did not hold, do not do the task: return status "blocked" and say what you saw.\n` : ''}
 ${t.brief ? t.brief : `Your briefing is the file ${t.briefPath}. Read it in full before doing anything; it is everything you need and everything you are allowed to rely on.`}
 
 If the briefing has a line beginning "GATE", do not do the task: return status "blocked" and say that a gated task was sent to a parallel wave.
