@@ -90,7 +90,7 @@ After the checkpoint the success criteria and the approach are settled. If later
 
 ### 5. Specify
 
-Start the plan file now, from [`templates/plan.md`](templates/plan.md), with `approval: draft`, and keep it current from here on so the work survives a long session (see [Where the plan lives](#where-the-plan-lives)). The files in [`examples/`](examples/) show the form and level of detail for a small, a mid-sized and a high-risk plan; read the one closest to your work, and take nothing from it but the form.
+Start the plan file now, from [`templates/plan.md`](templates/plan.md), with `approval: draft`, and keep it current from here on so the work survives a long session (see [Where the plan lives](#where-the-plan-lives)). Fill the frontmatter `summary:` with one line that says what the plan builds and how; `ship-agent-context` builds `docs/agent/MANIFEST.md` from that line and its `check` warns when it is missing. The files in [`examples/`](examples/) show the form and level of detail for a small, a mid-sized and a high-risk plan; read the one closest to your work, and take nothing from it but the form.
 
 - **Requirements** (`FR-n`): atomic, each traced to a success criterion. A mitigation, rollback mechanism or migration step that needs code is a requirement too. A small plan may skip them.
 - **Acceptance criteria** (`AC-n`): each names the requirement or success criterion it verifies and a concrete check: a command, a named test, or what to observe. A new check or gate must be shown failing on a bad case, not only passing on a good one.
@@ -183,7 +183,7 @@ Outside plan mode, write the plan to `docs/agent/plans/<slug>.md` at step 5, whe
 - an open question that outlives the session → `docs/agent/open-questions/<slug>.md`
 - an entry for each in `docs/agent/MANIFEST.md`: when that file says it is generated, rebuild it with the `ship-agent-context` skill's `index` command instead of editing it
 
-Templates are in [`templates/`](templates/) and follow the `ship-agent-context` conventions. If the user gives a standing instruction while planning ("always", "never", "from now on"), record it under `docs/agent/instructions/`; a constraint on this one task is not a standing instruction.
+Templates are in [`templates/`](templates/) and follow the `ship-agent-context` conventions; every note written from them carries a one-line `summary:`, which is what the index and `find` show. If the user gives a standing instruction while planning ("always", "never", "from now on"), record it under `docs/agent/instructions/`; a constraint on this one task is not a standing instruction.
 
 If the repository has no `docs/agent/`, create `docs/agent/plans/` and save only the plan there, keeping decisions and open questions as sections inside it. Tell the user where it went, and mention once that `ship-agent-context` can maintain the rest.
 

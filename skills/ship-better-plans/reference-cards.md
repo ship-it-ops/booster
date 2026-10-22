@@ -109,7 +109,7 @@ An executor that does not know this format (an older `ship-execute`, or another 
 
 When `python3` is not available, check the same things yourself:
 
-1. Every section of the template is present and either filled or `N/A — reason`. No `TBD`, `TODO`, `???`, `…`, template comment or template text is left as content. The frontmatter says `approval: draft` or `approved`.
+1. Every section of the template is present and either filled or `N/A — reason`. No `TBD`, `TODO`, `???`, `…`, template comment or template text is left as content. The frontmatter says `approval: draft` or `approved` and carries a one-line `summary:`.
 2. Every `SC` is named by a requirement, an acceptance criterion, a task's `Covers` or the Final check. Every `FR` has at least one `AC` and a task. Every `AC` names what it verifies, says how, and is in a task's `Covers` or on the Final check line. No id is used that is not defined.
 3. Every card has `Depends on`, `Covers`, `Files`, `Do`, `Verify` and `Reversibility`. `Depends on` is `none` or task ids only. Every dependency is a real task. Following the dependencies never returns to the task you started from. The Execution order section matches the cards.
 4. For every pair of tasks whose files overlap (the same path, a directory and a file inside it, a glob that matches), one depends on the other, directly or through a chain.
