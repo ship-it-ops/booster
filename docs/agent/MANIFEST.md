@@ -5,7 +5,7 @@
 
 ## Unfinished work
 
-- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) — Skills refresh: all 12 done on the branch, no pull request yet; the method, what the user has still to rule on, and what was never tested live
+- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) — Skills refresh: all 12 done and live-tested through the installed plugins on the branch, no pull request yet; the method, what the user has still to rule on, what is still untested
 
 ## Instructions
 
@@ -54,6 +54,7 @@
 
 ## Investigations
 
+- [live-tests-through-installed-plugins](investigations/live-tests-through-installed-plugins.md) — What ran live after the refresh: hooks, pre-approved commands, a trigger survey, and the planner and executor end to end on a real change; four defects found and fixed, what is still untested
 - [obsidian-knowledge-graph-refresh-audit](investigations/obsidian-knowledge-graph-refresh-audit.md) — obsidian-knowledge-graph audit: six reviewers, three judged scenarios in a sandboxed vault, a no-skill control, three rounds and a final run
 - [ship-agent-context-refresh-audit](investigations/ship-agent-context-refresh-audit.md) — ship-agent-context audit: six reviewers, three judged scenarios (pick-up, capture, no folder), three rounds
 - [ship-better-plans-design-audit](investigations/ship-better-plans-design-audit.md) — Audit found plan unbuildable as written; layout+control-flow fixes
@@ -76,9 +77,11 @@
 - [bare-slash-command-unknown-in-action](scars/bare-slash-command-unknown-in-action.md) — Headless SDK needs /plugin:command form not bare
 - [ci-mode-auto-detect-unreliable](scars/ci-mode-auto-detect-unreliable.md) — `CI=true` autodetect fails inside action; pass `--non-interactive` explicitly
 - [hidden-output-blocks-debugging](scars/hidden-output-blocks-debugging.md) — show_full_output false hides Unknown-command and auth diagnostics
+- [isolated-worktrees-cut-from-default-branch-tip](scars/isolated-worktrees-cut-from-default-branch-tip.md) — A worktree subagent (Workflow or Agent tool) starts at the tip of the branch origin/HEAD points at, or at HEAD with no remote; move its throwaway branch to the commit you need or the task cannot start
 - [marketplace-local-path-needs-leading-slash](scars/marketplace-local-path-needs-leading-slash.md) — `plugin_marketplaces: '.'` rejected; needs `./` prefix
 - [marketplace-pluginroot-silently-ignored](scars/marketplace-pluginroot-silently-ignored.md) — Claude Code installer ignores marketplace pluginRoot field
 - [oauth-token-whitespace-silent-fail](scars/oauth-token-whitespace-silent-fail.md) — Whitespace in OAuth secret kills run silently
+- [plugin-command-named-like-its-skill-shadows-it](scars/plugin-command-named-like-its-skill-shadows-it.md) — A command named like the plugin's skill takes the skill's slash slot; the Skill tool then says 'already loaded' and the skill text never arrives
 - [plugin-manifest-rejects-skills-field](scars/plugin-manifest-rejects-skills-field.md) — plugin.json skills field rejected by installer schema
 - [plugin-without-commands-runs-silently](scars/plugin-without-commands-runs-silently.md) — Skill-only plugin runs 5 min posting nothing
 - [tool-policy-guard-bypassable-by-omission](scars/tool-policy-guard-bypassable-by-omission.md) — Policy check that skips on missing field is bypassable
