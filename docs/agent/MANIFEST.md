@@ -15,6 +15,7 @@
 ## Plans
 
 - [ship-better-plans-design](plans/ship-better-plans-design.md) — SHIPPED (commit 47be8cc): audited plan-producing skill + plugin *(completed)*
+- [ship-better-plans-summary-line](plans/ship-better-plans-summary-line.md) — Add a summary: frontmatter line to ship-better-plans' four note templates and three example plans, tell the planner to fill it, and make lint_plan.py warn when a plan has none *(approved)*
 - [ship-execute-design](plans/ship-execute-design.md) — SHIPPED (commit 0eeeba8): DAG-aware execution engine + plugin *(completed)*
 - [ship-vuln-skills-design](plans/ship-vuln-skills-design.md) — SHIPPED (commit 536bee9): ship-vuln-scan + ship-vuln-fix CVE skills *(completed)*
 
