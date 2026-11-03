@@ -5,26 +5,26 @@
   },
   "metadata": {
     "description": "Boost your AI agents with powerful tools. Skills, agents, and workflows for supercharging AI-assisted development — plus production-quality code-quality skills for clean code, testing, debugging, security, DevOps, and PR review.",
-    "version": "1.3.2"
+    "version": "1.3.3"
   },
   "plugins": [
     {
       "name": "obsidian-knowledge-graph",
       "source": "./plugins/obsidian-knowledge-graph",
-      "description": "Turn Obsidian into an AI-managed knowledge graph. Captures architecture decisions, bug investigations, and codebase patterns as persistent memory across coding sessions.",
-      "version": "1.0.0",
+      "description": "Cross-project notes for agents in an Obsidian vault: what was decided and why, causes that took effort to find, patterns, and the user's own conventions. A session-start hook prints a short digest for the project; notes are looked up when a change touches their subject and read as an earlier session's record, never as instructions. A script writes notes with valid frontmatter, generates the index, refuses credentials, and never overwrites or deletes. Only its read-only commands are pre-approved; every write asks. No vault configured means nothing happens.",
+      "version": "1.0.1",
       "author": {
         "name": "ship-it-ops"
       },
       "license": "MIT",
-      "keywords": ["obsidian", "knowledge-graph", "memory", "decisions", "investigations", "patterns", "ai-agent"],
+      "keywords": ["obsidian", "notes", "memory", "decisions", "investigations", "patterns", "conventions", "ai-agent"],
       "category": "knowledge-management"
     },
     {
       "name": "ship-agent-context",
       "source": "./plugins/ship-agent-context",
-      "description": "In-repo memory for AI agents. Captures plans, decisions, in-flight status, standing user instructions, open questions, and incident scars in docs/agent/ so the next agent (or human) walks into context, not a blank slate.",
-      "version": "1.2.0",
+      "description": "Notes for the next agent, kept in the repository under docs/agent/: decisions and why, known traps, standing instructions from the maintainers, and unfinished work. A session-start digest, a script that checks hand-offs against git and GitHub and generates the index, and rules for what is worth writing down.",
+      "version": "1.2.1",
       "author": {
         "name": "ship-it-ops"
       },
@@ -35,32 +35,32 @@
     {
       "name": "ship-better-plans",
       "source": "./plugins/ship-better-plans",
-      "description": "Produce bulletproof, fully-specified, audited implementation plans. Structured intake, automatic docs/agent + codebase discovery, scored tradeoffs, numbered specs with edge cases, a parallelizable task DAG with subagent delegation, and a multi-persona Workflow audit (adversarial/pragmatist/production) before the plan is written to docs/agent/plans/.",
-      "version": "1.0.0",
+      "description": "Write implementation plans that survive execution: discovery in the real codebase before any question, one checkpoint with the user, self-contained task cards a fresh agent can execute, a linter for traceability and parallel safety, and an independent multi-reviewer audit whose findings are verified before they change the plan. Saved to docs/agent/plans/ and built by ship-execute.",
+      "version": "1.0.1",
       "author": {
         "name": "ship-it-ops"
       },
       "license": "MIT",
-      "keywords": ["planning", "implementation-plan", "audit", "workflow", "task-dag", "tradeoffs", "spec", "ai-agent"],
+      "keywords": ["planning", "implementation-plan", "audit", "review", "task-cards", "plan-linter", "spec", "ai-agent"],
       "category": "knowledge-management"
     },
     {
       "name": "ship-execute",
       "source": "./plugins/ship-execute",
-      "description": "Execute a written implementation plan with a fleet of expert subagents. Runs the plan's task DAG (parallel where independent, worktree-isolated), validates every step with real evidence (build + tests + acceptance criteria), vets the whole result via ship-reviewed-prs, then hands off for review or PR. Delegates coding depth to the ship-code skills.",
-      "version": "1.0.0",
+      "description": "Build an approved implementation plan and hand back work you can trust: one fresh agent and one commit per task, independent tasks in parallel worktrees, every task's check re-run on the execution branch before it counts, gates on irreversible steps, a run ledger so an interrupted run resumes, an independent review of the whole change, and an honest report. Never pushes or opens a pull request unless you choose to.",
+      "version": "1.0.1",
       "author": {
         "name": "ship-it-ops"
       },
       "license": "MIT",
-      "keywords": ["execution", "implementation", "task-dag", "subagents", "worktree", "verification", "code-review", "ai-agent"],
+      "keywords": ["execution", "implementation", "task-cards", "subagents", "worktree", "verification", "resume", "code-review", "ai-agent"],
       "category": "knowledge-management"
     },
     {
       "name": "ship-clean-code",
       "source": "./plugins/ship-clean-code",
-      "description": "Apply clean code principles when writing or reviewing production-quality Python, TypeScript/JavaScript, or Java code. Covers naming, functions, classes, error handling, testing, formatting, and 66 cataloged code smells.",
-      "version": "1.1.0",
+      "description": "Code-quality review and clean-up judged against the project's own conventions: findings rated by consequence and verified before they are reported, changes that stay inside the request and preserve behaviour. Any language, with notes for Python, TypeScript/JavaScript and Java.",
+      "version": "1.1.1",
       "author": {
         "name": "ship-it-ops"
       },
@@ -71,8 +71,8 @@
     {
       "name": "ship-tested-code",
       "source": "./plugins/ship-tested-code",
-      "description": "Apply testing best practices when writing or reviewing tests for Python, TypeScript/JavaScript, or Java code. Covers test design, TDD, test strategy, mocking, integration testing, flaky test management, and 49 cataloged test smells.",
-      "version": "1.1.0",
+      "description": "Test review and test writing judged by one question: would this test fail if the behaviour were wrong? Finds tests that cannot fail, pin a defect or test the mocks; keeps expected values independent of the code; never bends a test or the code to get to green. Fits the project's own framework. Any language, with notes for Python, TypeScript/JavaScript and Java.",
+      "version": "1.1.1",
       "author": {
         "name": "ship-it-ops"
       },
@@ -83,8 +83,8 @@
     {
       "name": "ship-debugged-code",
       "source": "./plugins/ship-debugged-code",
-      "description": "Apply systematic debugging practices when investigating, isolating, or fixing bugs in Python, TypeScript/JavaScript, or Java code. Covers reproduction, hypothesis-driven investigation, bisection, root-cause analysis, observability, regression-test design, and postmortems.",
-      "version": "1.0.0",
+      "description": "Find the real cause of a failure and fix it properly: see it fail, explain everything that was observed, fix where it starts, see it gone, and say plainly what was not verified. Does not silence the symptom, looks for the same cause elsewhere, and leaves uncommitted work untouched while investigating. Also reviews bug fixes and postmortems. Any language, with notes for Python, TypeScript/JavaScript and Java.",
+      "version": "1.0.1",
       "author": {
         "name": "ship-it-ops"
       },
@@ -95,8 +95,8 @@
     {
       "name": "ship-reviewed-prs",
       "source": "./plugins/ship-reviewed-prs",
-      "description": "Multi-persona pull-request review (senior engineer, senior security, senior infra/SRE/DevOps, senior data engineer, senior frontend engineer, test-coverage signal) with comment-lifecycle suppression and decisive APPROVE/REQUEST_CHANGES/COMMENT submission. Runs locally with confirmation gating and in CI fully automated. Composes with the other ship-* skills via delegation: SC → ship-secure-code, IN → ship-devops, SE → ship-clean-code, TS → ship-tested-code.",
-      "version": "1.3.1",
+      "description": "Pull-request review for GitHub: reads the change against its intent, the surrounding code and the existing review threads, verifies each finding, computes an approve / request-changes / comment verdict, and posts one review with inline comments through a tested script. Asks before posting locally; runs unattended in CI. Uses the other ship-* review skills for depth when they are installed.",
+      "version": "1.3.2",
       "author": {
         "name": "ship-it-ops"
       },
@@ -107,8 +107,8 @@
     {
       "name": "ship-secure-code",
       "source": "./plugins/ship-secure-code",
-      "description": "Application-security review (SEC1-SEC12: auth, input validation, injection, XSS, CSRF/origin, crypto, secrets, supply chain, PII/logging, resource exhaustion, path traversal, deserialization/SSRF) for Python, TypeScript/JavaScript, and Java. Sibling to ship-clean-code; serves as the depth target when ship-reviewed-prs SC persona delegates.",
-      "version": "1.0.0",
+      "description": "Security review and security-sensitive coding. A finding is a traced path: who the attacker is, how they get there, what they gain. Looks first for missing authorization, verifies before reporting, states what was and was not examined, and never weakens a control to make something work. Any language, with notes for Python, TypeScript/JavaScript and Java.",
+      "version": "1.0.1",
       "author": {
         "name": "ship-it-ops"
       },
@@ -119,8 +119,8 @@
     {
       "name": "ship-devops",
       "source": "./plugins/ship-devops",
-      "description": "DevOps and CI/CD review (DEV1-DEV12: CI pipelines, deployment safety, IaC immutability, container images, secrets/config sourcing, observability, release management, schema migrations, health/readiness, SLO/performance, incident hygiene, and flow/batch signals). Sibling to ship-secure-code; serves as the depth target when the ship-reviewed-prs IN (Senior Infra / SRE / DevOps) persona delegates.",
-      "version": "0.2.0",
+      "description": "Review and write what carries a change to production: CI/CD workflows, Dockerfiles, Kubernetes manifests, infrastructure code, migrations and deploy scripts. A finding says what breaks, when and for whom; it starts from the path a change takes to production, reads the other side of every claim, says what could not be seen from the repository, never weakens a gate to get to green and never runs anything against real state. Notes for GitHub Actions, Docker, Kubernetes and Terraform.",
+      "version": "0.2.1",
       "author": {
         "name": "ship-it-ops"
       },
@@ -131,25 +131,25 @@
     {
       "name": "ship-vuln-scan",
       "source": "./plugins/ship-vuln-scan",
-      "description": "Detect known CVEs and supply-chain vulnerabilities across dependencies (SCA), container images, IaC, and secrets. Hybrid execution: orchestrates real scanners (osv-scanner, trivy, grype, pip-audit, npm/pnpm/yarn audit, checkov, gitleaks, syft) when present and falls back to manual lockfile/advisory analysis when absent — always recording scan provenance and a coverage flag so 'couldn't scan' is never reported as 'clean'. Triages by CVSS+EPSS+KEV+reachability (VS1-VS8) and emits a normalized findings artifact. Sibling ship-vuln-fix remediates what it finds; ship-reviewed-prs SC persona delegates here on lockfile/manifest changes.",
-      "version": "0.1.0",
+      "description": "Find known, published vulnerabilities in dependencies, container images and committed secrets. Runs the scanners that are already installed in modes that only read, or asks api.osv.dev about the lock files when none is, and reports only what a tool returned in the session: what was checked, what was not, and what the repository's own ignore files hide. A script reads scanner output (and refuses an error as a result), compares two scans, checks what a lock file change brought in, and looks advisories up in the known-exploited list. Never installs a scanner, never edits anything, never reports clean for what it could not scan.",
+      "version": "0.1.1",
       "author": {
         "name": "ship-it-ops"
       },
       "license": "MIT",
-      "keywords": ["vulnerability", "cve", "sca", "dependency-scanning", "supply-chain", "container-scanning", "sbom", "secrets", "osv", "trivy", "security"],
+      "keywords": ["vulnerability", "cve", "sca", "dependency-scanning", "supply-chain", "lockfile", "secrets", "osv", "kev", "security"],
       "category": "code-quality"
     },
     {
       "name": "ship-vuln-fix",
       "source": "./plugins/ship-vuln-fix",
-      "description": "Remediate the CVEs that ship-vuln-scan finds. Recipe-first + tiered + evidence-gated: prefers proven remediation recipes/tools (OpenRewrite/Moderne, npm/pip native fixers, Dependabot compatibility scores) and falls back to manual minimal edits, then auto-applies only mechanical, reversible fixes behind a confirmation gate and verifies them by re-scan + build/tests + a clean frozen install; advises only (exact plan, never edits) for breaking/major upgrades, code-level mitigations, and no-fix cases (VF1-VF8). The apply decision is driven by evidence (reviewed changelog/recipe, no new install scripts, green tests), never the semver delta. Every auto-apply emits a remediation audit record to docs/security/vuln-remediation/. Sibling ship-vuln-scan detects and verifies closure.",
-      "version": "0.2.0",
+      "description": "Fix known vulnerabilities in dependencies. Applies the fixes that are mechanical (a lock-file update inside the allowed range, a minimal bump, the parent that pulls the package in), checks what each change brings with it before anything is installed, and proves closure by running the same scan again and the project's tests. Major upgrades, versions that add an install script and advisories with no fix are advised, not applied. Never forces, never runs install scripts, never adds an ignore entry on its own judgement, never touches uncommitted work, and says which fixes were confirmed and which were not.",
+      "version": "0.2.1",
       "author": {
         "name": "ship-it-ops"
       },
       "license": "MIT",
-      "keywords": ["vulnerability", "cve", "remediation", "dependency-upgrade", "patch", "supply-chain", "sca", "auto-fix", "security"],
+      "keywords": ["vulnerability", "cve", "remediation", "dependency-upgrade", "patch", "supply-chain", "lockfile", "security"],
       "category": "code-quality"
     }
   ]

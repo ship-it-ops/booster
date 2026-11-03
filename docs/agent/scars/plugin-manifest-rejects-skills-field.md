@@ -8,6 +8,7 @@ tags: [marketplace, plugins, claude-code, install, schema]
 importance: core
 incident-date: 2026-05-19
 tripwire: "if a plugin install fails with 'Validation errors: skills: Invalid input', remove the `skills` field from plugin.json — Claude Code rejects it; skills auto-discover from `<plugin>/skills/<name>/SKILL.md`"
+summary: plugin.json skills field rejected by installer schema
 ---
 
 # Don't put a `skills` array on plugin.json — Claude Code's schema rejects it

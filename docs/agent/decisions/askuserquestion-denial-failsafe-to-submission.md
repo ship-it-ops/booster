@@ -2,10 +2,11 @@
 type: decision
 status: active
 created: 2026-06-07
-updated: 2026-06-07
+updated: 2026-11-02
 author: claude-session-2026-06-07
 tags: [ship-reviewed-prs, ci-mode, ask-user-question, failsafe, submission-gate]
 importance: core
+summary: AskUserQuestion denial at gate switches to CI submit
 ---
 
 # Treat `AskUserQuestion` denial at the submission gate as CI mode (failsafe)
@@ -60,3 +61,4 @@ Specifically:
 - [ci-mode-auto-detect-unreliable](../scars/ci-mode-auto-detect-unreliable.md) — the parent scar; this decision is its long-term mitigation.
 - [bare-slash-command-unknown-in-action](../scars/bare-slash-command-unknown-in-action.md) — the sibling trap that the new template also defends against.
 - [relaxed-approve-decision-matrix](relaxed-approve-decision-matrix.md) — the decision-matrix policy that runs before the gate.
+- [ship-reviewed-prs-refresh](ship-reviewed-prs-refresh.md) — the 1.3.2 rewrite narrows this: a missing question tool posts only when the script has found the run to be unattended (R7).

@@ -1,13 +1,13 @@
 ---
-description: Produce a bulletproof, audited implementation plan (intake → discovery → tradeoffs → spec → task DAG → multi-persona audit) written to docs/agent/plans/. Append "ultra" for the loop-until-dry convergence audit.
+description: Write an implementation plan grounded in the codebase and reviewed before approval, saved to docs/agent/plans/. Start the arguments with "ultra" for the deepest review.
 argument-hint: "[ultra] <what you want to plan>"
 ---
 
-Invoke the **ship-better-plans** skill to produce an audited implementation plan.
+Use the **ship-better-plans** skill to plan the work described below.
 
 Arguments: `$ARGUMENTS`
 
-- If the arguments begin with `ultra`, run in **ultra** mode (full persona set + adversarial-verify + loop-until-dry). Otherwise run **standard** mode.
-- Treat the rest of the arguments as the planning request. If empty, ask the user what to plan (one question at a time).
+- If the arguments begin with `ultra`, the user has chosen ultra depth. Otherwise the skill asks for the review depth at its checkpoint.
+- The rest of the arguments is the planning request. If it is empty, ask the user what they want planned.
 
-Follow the skill exactly: structured intake, automatic `docs/agent/` + codebase discovery, 2–3 scored tradeoff options, numbered specs with edge cases, a Mermaid task DAG with subagent delegation, and the **D6 audit cost gate** before launching the Workflow audit. Respect plan mode (D5): if plan mode is active, keep Phases 1–6 read-only, call ExitPlanMode for approval, and defer all `docs/agent/` writes until after approval. End by offering the execution choice — do not auto-execute.
+The user asked for a plan explicitly, so begin the skill's process without asking whether to plan.

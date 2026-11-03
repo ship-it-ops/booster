@@ -3,6 +3,7 @@ type: open-question
 status: active
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
+summary: <one-line summary>
 opened: YYYY-MM-DD
 answer-source: docs | maintainer | experiment | unknown
 author: <agent-id>

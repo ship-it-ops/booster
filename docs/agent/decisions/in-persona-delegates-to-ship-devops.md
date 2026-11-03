@@ -2,10 +2,11 @@
 type: decision
 status: active
 created: 2026-06-02
-updated: 2026-06-02
+updated: 2026-11-02
 author: claude-session-2026-06-02
 tags: [ship-reviewed-prs, ship-devops, persona, delegation, in]
 importance: core
+summary: IN persona depth target wired to ship-devops
 ---
 
 # IN persona depth target = ship-devops
@@ -55,3 +56,4 @@ New test fixture: `ship-reviewed-prs/tests/fixture-9-devops-delegation/` exercis
 - [[ship-devops-12-category-catalog]] — the rubric this decision binds the IN persona to.
 - [[pr-review-table-driven-summary-format]] — the rendered output shape that compound tags live inside.
 - [[relaxed-approve-decision-matrix]] — the parent decision matrix that this delegation respects.
+- [ship-reviewed-prs-refresh](ship-reviewed-prs-refresh.md) — the 1.3.2 rewrite loads ship-devops during the review; the IN persona, its IDs and the compound tags are gone (R2, R4).

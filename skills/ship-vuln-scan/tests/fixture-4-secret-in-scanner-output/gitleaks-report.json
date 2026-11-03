@@ -1,0 +1,14 @@
+[
+ {
+  "RuleID": "generic-api-key",
+  "Description": "Detected a Generic API Key",
+  "File": "config/legacy.env",
+  "StartLine": 3,
+  "Match": "PAYMENTS_API_KEY=pk!legacy#Zq7-mN2~xR9-courier-0031",
+  "Secret": "pk!legacy#Zq7-mN2~xR9-courier-0031",
+  "Commit": "4f1d2c9a",
+  "Author": "dana",
+  "Date": "2026-02-11T09:14:02Z",
+  "Fingerprint": "4f1d2c9a:config/legacy.env:generic-api-key:3"
+ }
+]

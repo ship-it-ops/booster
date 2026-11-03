@@ -1,102 +1,23 @@
-# Java Clean Code Idioms
+# Java: what is easy to miss
 
-## Naming Conventions
+The language level set in the build (`maven.compiler.release`, `sourceCompatibility`, the toolchain), the frameworks in use, and the project's Checkstyle, Error Prone or SpotBugs configuration decide what is available and what is convention. Check them before suggesting records, sealed types, pattern matching, `var`, virtual threads or `Optional` conventions.
 
-- `PascalCase` for classes, interfaces, enums, annotations
-- `camelCase` for methods, variables, parameters
-- `UPPER_SNAKE_CASE` for `static final` constants
-- Package names all lowercase, dot-separated
-- No Hungarian notation, no member prefixes (`m_`, `f_`)
+Places worth a second look, because the defect reads as normal code. A match is a reason to look again, not a finding: it becomes one when you can say what goes wrong here.
 
-## Type Design
+- **Resources not in try-with-resources**: connections, statements, result sets, streams, `Files.lines` and `Files.list`. They leak on the exception path.
+- **`catch (Exception e)` that continues**, `e.printStackTrace()` as the handling, and `catch (InterruptedException e)` that neither restores the interrupt flag nor propagates. Wrapping an exception without passing the cause loses the stack that matters.
+- **Exceptions thrown from `finally`, or `return` in `finally`**, which discard the original exception.
+- **Unboxing `null`.** An `Integer`, `Long` or `Boolean` from a map, a database row or a JSON field assigned to a primitive or used in arithmetic or a condition.
+- **`==` on boxed values and strings.** Works for small integers and interned strings, then fails in production.
+- **`equals` without `hashCode`** (or the reverse), and either one depending on mutable fields of an object used as a map key or set member. `equals` in a class hierarchy: `instanceof` and `getClass()` each have a failure mode; note which one the project's value types use, and prefer records or final classes for value types where the language level allows.
+- **Returned internal collections and arrays** that callers can mutate, and constructor arguments stored without a copy. `List.of`, `Map.of` and `Collectors.toList()` differ in mutability and in accepting `null`.
+- **Modifying a collection while iterating it**; streams with side effects in `map` or `peek`; a stream reused after a terminal operation; parallel streams over shared mutable state.
+- **Shared mutable state without a visible discipline**: a non-final static field, a singleton or injected bean with mutable fields, check-then-act on a `ConcurrentHashMap` (`containsKey` then `put`) where `computeIfAbsent` or `merge` is needed, `SimpleDateFormat` and other non-thread-safe classes in fields, double-checked locking without `volatile`.
+- **Tasks submitted to an executor whose `Future` is dropped**: the exception is never seen. A `CompletableFuture` chain whose result nobody returns, joins or handles; blocking calls on the common pool; on JDK 21 to 23, blocking inside `synchronized` on a virtual thread, which pins the carrier.
+- **`Optional.get()` without a check**, and an `Optional` that can itself be `null`.
+- **`BigDecimal`**: constructed from a `double`, compared with `equals` (which is scale-sensitive) where `compareTo` was meant; `double` or `float` for money.
+- **Time**: `Date`, `Calendar` and `LocalDateTime` used for instants that cross time zones; the system default zone or locale used implicitly (`toLowerCase()`, `String.format`, `LocalDate.now()`).
+- **Transaction and proxy boundaries in Spring and similar**: a `@Transactional` or `@Async` method called from the same class, a checked exception that does not roll back, a lazy association read after the session has closed.
+- **Switches over enums or sealed types** with a default branch that hides a new case.
 
-- Use `enum` over `static final int/String` constants
-- Use sealed classes/interfaces (Java 17+) for restricted hierarchies
-- Prefer composition over inheritance
-- Program to interfaces, not implementations
-- Use generics — never use raw types (`List` without type parameter)
-
-## Error Handling
-
-- Use checked exceptions ONLY for recoverable conditions the caller can handle
-- Use unchecked exceptions (RuntimeException) for programming errors
-- Always use try-with-resources for `AutoCloseable` resources
-- Never catch `Exception` or `Throwable` broadly — catch specific types
-- Include context in exception messages (operation, input, state)
-- Wrap third-party exceptions in your own exception types at module boundaries
-
-## Null Safety
-
-- Use `Optional<T>` for return values that may be absent
-- Never use `Optional` as a method parameter or field
-- Use `Objects.requireNonNull()` for fail-fast on null arguments
-- Prefer empty collections (`Collections.emptyList()`) over null returns
-- Use `@Nullable`/`@NonNull` annotations
-
-## equals/hashCode Contract
-
-- Always override `hashCode()` when you override `equals()`
-- Use `Objects.equals()` and `Objects.hash()` for clean implementations
-- Consider using records (Java 16+) for value objects (auto-generates both)
-
-## Modern Java Patterns
-
-- Records for immutable data carriers (Java 16+)
-- Pattern matching for `instanceof` (Java 16+)
-- Switch expressions (Java 14+) over switch statements
-- Text blocks for multi-line strings (Java 15+)
-- Stream API for collection transformations (prefer over manual loops when readable)
-- `var` for local variables when the type is obvious from context
-
-## Common Traps
-
-- **Mutable static fields**: Static mutable state is global state — avoid or synchronize.
-- **String concatenation in loops**: Use `StringBuilder` instead of `+=` in loops.
-- **Autoboxing/unboxing NPE**: `Integer` can be null, `int` cannot — unboxing null throws NPE.
-- **ConcurrentModificationException**: Don't modify a collection while iterating it. Use `Iterator.remove()` or collect changes separately.
-- **Synchronization on wrong object**: Don't synchronize on `this` or `String` literals. Use a private `final Object lock`.
-- **equals with inheritance**: Use `getClass()` check, not `instanceof`, in equals (unless using Liskov-safe pattern).
-
-## Dependency Injection
-
-- Constructor injection over field injection
-- Make injected dependencies `final`
-- Use interfaces for injectable services
-- Avoid service locator pattern
-- Keep constructors simple — no logic, just assignment
-
-## Collections and Streams
-
-- Return unmodifiable collections from public methods (`List.of()`, `Collections.unmodifiableList()`)
-- Use `List.of()`, `Map.of()`, `Set.of()` for immutable collection literals (Java 9+)
-- Prefer `Stream` operations over imperative loops for transformations
-- Avoid side effects in stream operations — use `forEach` only for terminal actions
-- Use `Collectors.toUnmodifiableList()` to collect into immutable lists
-
-## Concurrency
-
-- Prefer `ExecutorService` over manually creating threads
-- Use `CompletableFuture` for composable async operations
-- Make shared objects immutable or use thread-safe alternatives (`ConcurrentHashMap`, `AtomicInteger`)
-- Avoid `synchronized` on public methods — use private lock objects
-- Use `volatile` for flags that are read by multiple threads without other synchronization
-- **Java 21+**: Use virtual threads (`Executors.newVirtualThreadPerTaskExecutor()`) for I/O-bound concurrent work. Virtual threads are cheap — do not pool them. Traditional thread pool sizing advice does not apply.
-
-## Secrets & Configuration
-
-- Never hardcode credentials, API keys, or tokens in source code
-- Load secrets from environment variables or a secrets manager (Vault, AWS Secrets Manager)
-- Validate required configuration at startup — fail fast with descriptive errors
-- Never log secret values — mask them in `toString`/logging implementations
-
-## Testing Conventions
-
-- Use JUnit 5 with `@DisplayName` for readable test names: `@DisplayName("should reject overdraft when balance is insufficient")`
-- Use `@Nested` classes to group tests by scenario
-- Use `@ParameterizedTest` with appropriate sources: `@ValueSource`, `@CsvSource`, `@MethodSource`, `@EnumSource`
-- Use AssertJ for fluent assertions: `assertThat(result).isEqualTo(expected)`
-- Use `assertSoftly` for multiple assertions without short-circuiting
-- Use `@ExtendWith(MockitoExtension.class)` for automatic mock injection
-- Use argument captors for verifying complex argument structures
-- Understand test layering: `@SpringBootTest` (full context) vs `@WebMvcTest` (web only) vs plain JUnit (unit)
-- Mock external dependencies with Mockito — never mock value objects or records
+Not findings on their own: field versus constructor injection where the project is consistent, a class with several collaborators, checked versus unchecked exceptions where the project has a policy, getters and setters on a data holder, `null` returns in a code base that uses them consistently, `Optional` as a field or parameter where the project does that.

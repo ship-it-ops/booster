@@ -1,1 +1,0 @@
-../../../../skills/ship-reviewed-prs/reference-personas.md

@@ -1,0 +1,302 @@
+{
+ "results": [
+  {
+   "source": {
+    "path": "package-lock.json",
+    "type": "lockfile"
+   },
+   "packages": [
+    {
+     "package": {
+      "name": "datefmt",
+      "version": "2.3.0",
+      "ecosystem": "npm"
+     },
+     "vulnerabilities": [
+      {
+       "id": "GHSA-h4j9-2fq3-x7mw",
+       "aliases": [
+        "CVE-2026-20417"
+       ],
+       "summary": "datefmt: regular expression denial of service in parse()",
+       "affected": [
+        {
+         "package": {
+          "name": "datefmt",
+          "ecosystem": "npm"
+         },
+         "ranges": [
+          {
+           "type": "SEMVER",
+           "events": [
+            {
+             "introduced": "0"
+            },
+            {
+             "fixed": "2.3.4"
+            }
+           ]
+          }
+         ]
+        }
+       ],
+       "severity": [
+        {
+         "type": "CVSS_V3",
+         "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+        }
+       ],
+       "database_specific": {
+        "severity": "HIGH"
+       }
+      }
+     ],
+     "groups": [
+      {
+       "ids": [
+        "GHSA-h4j9-2fq3-x7mw"
+       ],
+       "aliases": [
+        "GHSA-h4j9-2fq3-x7mw",
+        "CVE-2026-20417"
+       ],
+       "max_severity": "7.5"
+      }
+     ]
+    },
+    {
+     "package": {
+      "name": "imgsharp",
+      "version": "1.4.0",
+      "ecosystem": "npm"
+     },
+     "vulnerabilities": [
+      {
+       "id": "GHSA-pw3c-88rv-4g2j",
+       "aliases": [
+        "CVE-2026-27766"
+       ],
+       "summary": "imgsharp: heap buffer overflow when decoding crafted PNG chunks",
+       "affected": [
+        {
+         "package": {
+          "name": "imgsharp",
+          "ecosystem": "npm"
+         },
+         "ranges": [
+          {
+           "type": "SEMVER",
+           "events": [
+            {
+             "introduced": "0"
+            },
+            {
+             "fixed": "1.4.1"
+            }
+           ]
+          }
+         ]
+        }
+       ],
+       "severity": [
+        {
+         "type": "CVSS_V3",
+         "score": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H"
+        }
+       ],
+       "database_specific": {
+        "severity": "HIGH"
+       }
+      }
+     ],
+     "groups": [
+      {
+       "ids": [
+        "GHSA-pw3c-88rv-4g2j"
+       ],
+       "aliases": [
+        "GHSA-pw3c-88rv-4g2j",
+        "CVE-2026-27766"
+       ],
+       "max_severity": "8.1"
+      }
+     ]
+    },
+    {
+     "package": {
+      "name": "left-padder",
+      "version": "1.2.0",
+      "ecosystem": "npm"
+     },
+     "vulnerabilities": [
+      {
+       "id": "GHSA-7xq2-m4vv-9c3p",
+       "aliases": [
+        "CVE-2026-31801"
+       ],
+       "summary": "left-padder: prototype pollution in pad() options leads to remote code execution",
+       "affected": [
+        {
+         "package": {
+          "name": "left-padder",
+          "ecosystem": "npm"
+         },
+         "ranges": [
+          {
+           "type": "SEMVER",
+           "events": [
+            {
+             "introduced": "0"
+            },
+            {
+             "fixed": "1.2.3"
+            }
+           ]
+          }
+         ]
+        }
+       ],
+       "severity": [
+        {
+         "type": "CVSS_V3",
+         "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+        }
+       ],
+       "database_specific": {
+        "severity": "CRITICAL"
+       }
+      }
+     ],
+     "groups": [
+      {
+       "ids": [
+        "GHSA-7xq2-m4vv-9c3p"
+       ],
+       "aliases": [
+        "GHSA-7xq2-m4vv-9c3p",
+        "CVE-2026-31801"
+       ],
+       "max_severity": "9.8"
+      }
+     ]
+    },
+    {
+     "package": {
+      "name": "lintkit",
+      "version": "5.1.0",
+      "ecosystem": "npm"
+     },
+     "vulnerabilities": [
+      {
+       "id": "GHSA-2c9f-vv5q-jr6x",
+       "aliases": [
+        "CVE-2025-49112"
+       ],
+       "summary": "lintkit: arbitrary file read through crafted configuration extends",
+       "affected": [
+        {
+         "package": {
+          "name": "lintkit",
+          "ecosystem": "npm"
+         },
+         "ranges": [
+          {
+           "type": "SEMVER",
+           "events": [
+            {
+             "introduced": "0"
+            },
+            {
+             "fixed": "5.1.2"
+            }
+           ]
+          }
+         ]
+        }
+       ],
+       "severity": [
+        {
+         "type": "CVSS_V3",
+         "score": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:L"
+        }
+       ],
+       "database_specific": {
+        "severity": "MODERATE"
+       }
+      }
+     ],
+     "groups": [
+      {
+       "ids": [
+        "GHSA-2c9f-vv5q-jr6x"
+       ],
+       "aliases": [
+        "GHSA-2c9f-vv5q-jr6x",
+        "CVE-2025-49112"
+       ],
+       "max_severity": "5.3"
+      }
+     ]
+    },
+    {
+     "package": {
+      "name": "shipkit",
+      "version": "2.0.0",
+      "ecosystem": "npm"
+     },
+     "vulnerabilities": [
+      {
+       "id": "GHSA-q8m3-6f2c-w9hp",
+       "aliases": [
+        "CVE-2026-11873"
+       ],
+       "summary": "shipkit: server-side request forgery in fetchLabel() through carrier URL",
+       "affected": [
+        {
+         "package": {
+          "name": "shipkit",
+          "ecosystem": "npm"
+         },
+         "ranges": [
+          {
+           "type": "SEMVER",
+           "events": [
+            {
+             "introduced": "0"
+            },
+            {
+             "fixed": "3.0.0"
+            }
+           ]
+          }
+         ]
+        }
+       ],
+       "severity": [
+        {
+         "type": "CVSS_V3",
+         "score": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N"
+        }
+       ],
+       "database_specific": {
+        "severity": "HIGH"
+       }
+      }
+     ],
+     "groups": [
+      {
+       "ids": [
+        "GHSA-q8m3-6f2c-w9hp"
+       ],
+       "aliases": [
+        "GHSA-q8m3-6f2c-w9hp",
+        "CVE-2026-11873"
+       ],
+       "max_severity": "7.4"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

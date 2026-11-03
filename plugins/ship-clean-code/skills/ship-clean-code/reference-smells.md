@@ -1,1 +1,0 @@
-../../../../skills/ship-clean-code/reference-smells.md

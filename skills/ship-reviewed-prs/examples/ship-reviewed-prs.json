@@ -1,0 +1,10 @@
+{
+  "max_event": "COMMENT",
+  "nits": "summary",
+  "resolve_own_threads": true,
+  "skip_paths": ["web/src/generated/*"],
+  "notes": [
+    "Outbound HTTP always passes a timeout.",
+    "Public API changes need an entry in CHANGELOG.md."
+  ]
+}

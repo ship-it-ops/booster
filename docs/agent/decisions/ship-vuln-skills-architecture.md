@@ -6,6 +6,7 @@ updated: 2026-06-18
 author: claude-opus-4-8
 tags: [skills, security, vulnerability, architecture, allowed-tools]
 importance: core
+summary: Two skills, hybrid exec, evidence-gated apply, recipe-first (V1-V10)
 ---
 
 # ship-vuln-scan + ship-vuln-fix — Architecture Decisions (V1–V10)

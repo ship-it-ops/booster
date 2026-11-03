@@ -8,6 +8,7 @@ tags: [plugin, slash-commands, github-action, ship-reviewed-prs]
 importance: core
 incident-date: 2026-05-25
 tripwire: "If a plugin must be invoked via /<name> (especially in a headless GitHub Action), it MUST have plugins/<name>/commands/<command>.md. A skill alone is not reachable as a slash command."
+summary: Skill-only plugin runs 5 min posting nothing
 ---
 
 # A plugin without a commands/ file silently runs for 5 minutes producing nothing

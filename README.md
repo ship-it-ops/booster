@@ -10,27 +10,34 @@ Two complementary memory skills — use either one, or both together.
 
 ### obsidian-knowledge-graph — cross-repo memory
 
-Turn Obsidian into a persistent, AI-managed knowledge graph. Captures decisions, bug investigations, and codebase patterns as linked notes in a central vault that follows you across every project.
+Notes for agents in a folder (`_ai/`) of your Obsidian vault, shared by every project on the machine: what was decided and why, causes that took effort to find, patterns, and your own conventions for how agents should work.
 
-- **Central vault** — One knowledge base across all your repos
-- **Cross-project discovery** — A pattern from project A surfaces when working in project B
-- **MANIFEST-first retrieval** — Compact index, 1–2 reads to find what you need
-- **Scoped writes** — Agent only writes to `_ai/` inside your vault
+- **One vault across all your repositories** — A lesson from project A is offered as a lead when you work in project B
+- **A short digest at session start** — The bundled SessionStart hook (marketplace install) prints how many notes the project has and one line per recorded rule; silent with no vault or no notes
+- **A colleague's notes, not commands** — A note can make an agent more careful; it never grants permission, and one that tries to direct agents is flagged and reported
+- **Written by a script** — Valid frontmatter, a generated index, no overwrites, no deletions, credentials refused; only the commands that read are pre-approved, so every write asks you
+- **Nothing happens unasked** — No vault configured means no prompts and no setup offers; your own notes outside `_ai/` are never read
 
 ```bash
+# Recommended: install via the plugin marketplace for the session-start digest
+/plugin install obsidian-knowledge-graph@booster
+
+# Or, manual install (no bundled hook)
 npx skills add ship-it-ops/booster --skill obsidian-knowledge-graph
 ```
 
+Then, once: `python3 <skill>/scripts/vault.py init --vault <path to your vault> --scaffold`, or ask the agent to set it up.
+
 ### ship-agent-context — in-repo memory
 
-Manages `docs/agent/` inside the repo itself — committed alongside the code so every branch and every agent sees the same handoff context. Designed for the multi-agent / next-agent handoff problem: plans that didn't finish, decisions made and *why*, what's in flight on parallel branches, open questions, and incident scars.
+Notes for the next agent, kept in the repository under `docs/agent/` and committed with the code: decisions and *why*, traps that already cost time, standing instructions from the maintainers, and work left unfinished.
 
-- **Travels with the code** — Lives in git, not an external vault
-- **Standalone** — No dependency on Obsidian or any other skill
-- **Auto-activates** — Ships a bundled SessionStart hook (when installed via the plugin marketplace) that fires automatically in any repo with `docs/agent/`; silent everywhere else
-- **Complements AGENTS.md / CLAUDE.md** — Those hold static rules; this holds dynamic state
-- **Parallel-agent coordination** — `status/` entries prevent agents from stomping each other
-- **Captures what `git log` doesn't** — Rejected alternatives, blockers, scars, in-flight intent
+- **Travels with the code** — Plain Markdown in git, not an external vault; people can read and edit it
+- **A short digest at session start** — The bundled SessionStart hook (marketplace install) prints the standing instructions and open hand-offs; silent in repositories without `docs/agent/`
+- **Checked, not trusted** — A script verifies hand-offs against git and GitHub before they are relied on, and treats every note as a colleague's notes, never as commands
+- **Generated index** — `MANIFEST.md` is built from the notes, so it cannot drift
+- **Complements AGENTS.md / CLAUDE.md** — Those hold the project's rules; this holds what was decided, learned and left open
+- **Captures what `git log` doesn't** — Rejected alternatives, root causes, scars, standing instructions
 
 ```bash
 # Recommended: install via the plugin marketplace for auto-activation
@@ -40,22 +47,22 @@ Manages `docs/agent/` inside the repo itself — committed alongside the code so
 npx skills add ship-it-ops/booster --skill ship-agent-context
 ```
 
-The two are independent. Use the in-repo one for handoff context that should travel with branches, and the obsidian one for cross-repo pattern reuse.
+The two are independent. Use the in-repo one for what should travel with a repository and its branches, and the Obsidian one for what should travel with you across repositories. When a repository has `docs/agent/`, the Obsidian skill writes nothing about that repository.
 
 ## Code-Quality Skills
 
-Production-quality review and engineering-practice skills, migrated here from the former `ship-it-ops/ship-code` marketplace. They compose: `ship-reviewed-prs` delegates depth to the others (security → `ship-secure-code`, infra → `ship-devops`, code quality → `ship-clean-code`, tests → `ship-tested-code`).
+Production-quality review and engineering-practice skills, migrated here from the former `ship-it-ops/ship-code` marketplace. They compose: `ship-reviewed-prs` and `ship-execute` load the others for depth when they are installed (security → `ship-secure-code`, infra → `ship-devops`, restructuring and code quality → `ship-clean-code`, tests → `ship-tested-code`).
 
 | Skill | What it covers |
 |-------|----------------|
-| **ship-clean-code** | Clean code principles for Python/TypeScript/Java — naming, functions, classes, error handling, 66 cataloged code smells |
-| **ship-tested-code** | Test design, TDD, mocking, integration testing, flaky-test management, 49 cataloged test smells |
-| **ship-debugged-code** | Systematic debugging — reproduction, hypothesis-driven investigation, bisection, root-cause analysis, postmortems |
-| **ship-secure-code** | Application security (SEC1–SEC12) — auth, injection, XSS, crypto, secrets, supply chain, SSRF, and more |
-| **ship-reviewed-prs** | Multi-persona PR review with lifecycle-aware suppression and decisive APPROVE/REQUEST_CHANGES/COMMENT submission; works locally and fully automated in CI |
-| **ship-devops** | DevOps/CI-CD review (DEV1–DEV12) for Terraform, Kubernetes, Docker, and GitHub Actions |
-| **ship-vuln-scan** | Known-CVE / vulnerability detection (VS1–VS8) across dependencies, container images, IaC, and secrets. Hybrid: orchestrates real scanners (osv-scanner, trivy, grype, pip-audit, checkov, gitleaks) when present, falls back to manual analysis, and never reports "clean" when it couldn't scan. Triages by CVSS/EPSS/KEV |
-| **ship-vuln-fix** | Vulnerability remediation (VF1–VF8) — the fix half of the pair. **Recipe-first** (prefers proven recipes/tools — OpenRewrite/Moderne, native fixers, Dependabot scores — then manual fallback) + tiered + evidence-gated: auto-applies only mechanical, reversible fixes behind a confirmation gate and verifies by re-scan + tests + clean frozen install; advises only for breaking upgrades, mitigations, and no-fix cases. Evidence-driven, not semver-driven; audits every apply |
+| **ship-clean-code** | Code-quality review and clean-up judged against the project's own conventions: findings rated by consequence and verified first, changes that stay inside the request. Any language, with notes for Python, TypeScript/JavaScript and Java |
+| **ship-tested-code** | Test review and test writing judged by one question: would this test fail if the behaviour were wrong? Finds tests that cannot fail, pin a defect or test the mocks; never bends a test or the code to get to green; fits the project's own framework |
+| **ship-debugged-code** | Finding the real cause of a failure and fixing it: a fix is done when the failure was seen, explained, removed and seen gone; the symptom is never silenced, uncommitted work is left alone, and what was not verified is said |
+| **ship-secure-code** | Security review and security-sensitive coding: findings are traced paths (who, how, what they gain), missing authorization is looked for first, coverage is always stated, and a control is never weakened to make something work |
+| **ship-reviewed-prs** | Pull-request review: reads the change against its intent, the surrounding code and the existing threads, verifies each finding, and posts one review with inline comments and a computed verdict; asks before posting locally, runs unattended in CI |
+| **ship-devops** | Review and writing of pipelines, images, manifests, infrastructure code and migrations: a finding says what breaks, when and for whom; coverage is always stated; a gate is never weakened to get to green and nothing is run against real state |
+| **ship-vuln-scan** | Finding known, published vulnerabilities in dependencies, images and committed secrets: runs the scanners already installed in modes that only read (or asks api.osv.dev about the lock files), reports only what a tool returned, says what was and was not checked and what the repository's ignore files hide; a script refuses an error as a result, compares scans and checks what a lock file change brought in |
+| **ship-vuln-fix** | Fixing them: applies the mechanical fixes (a lock-file update in range, a minimal bump, the parent), checks what each change brings with it before anything is installed, and proves closure with the same scan and the tests; major upgrades and new install scripts are advised, not applied; never forces, never hides a finding, never touches uncommitted work |
 
 ```bash
 /plugin install ship-clean-code@booster
@@ -80,7 +87,7 @@ This repo is a Claude Code plugin marketplace. Add it once and get access to all
 
 # Examples:
 /plugin install ship-agent-context@booster        # in-repo agent memory + auto-activation hook
-/plugin install obsidian-knowledge-graph@booster  # AI-managed knowledge graph in your Obsidian vault
+/plugin install obsidian-knowledge-graph@booster  # cross-project notes for agents in your Obsidian vault
 
 # To see all available skills:
 /plugin marketplace list booster
@@ -107,7 +114,7 @@ You can also configure your project to recommend this marketplace to your team. 
 }
 ```
 
-> **Note for Options 2–7**: These install the skill's files only. They do **not** install plugin-bundled hooks. For `ship-agent-context` specifically, you can recover guaranteed activation by adding the `CLAUDE.md` / `AGENTS.md` anchor described in [`skills/ship-agent-context/examples/initialization-example.md`](skills/ship-agent-context/examples/initialization-example.md).
+> **Note for Options 2–7**: These install the skill's files only. They do **not** install plugin-bundled hooks. For `ship-agent-context` specifically, you can get the same effect by adding one line to the repository's `CLAUDE.md` / `AGENTS.md`: "This repository keeps agent notes in `docs/agent/`. At the start of a session run the ship-agent-context skill's `agent_context.py digest` and read what it prints."
 
 ### Option 2: npx (one command, single skill)
 

@@ -6,6 +6,7 @@ updated: 2026-06-02
 author: claude-opus-4-7
 tags: [meta, agent-context, instructions, user-rules]
 importance: core
+summary: Add instructions/ content type for standing user rules
 ---
 
 # Add `instructions/` content type for standing user rules

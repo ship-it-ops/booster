@@ -149,12 +149,67 @@ jobs:
           done
           exit $fail
 
+  plan-lint:
+    name: Plan linter and plan reader tests, bundled example plans
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run the plan linter's unit tests
+        run: python3 -m unittest discover -s skills/ship-better-plans/tests -v
+
+      - name: Run the plan reader's unit tests (ship-execute)
+        run: |
+          git config --global init.defaultBranch main
+          python3 -m unittest discover -s skills/ship-execute/tests -v
+
+      - name: Run the review script's unit tests (ship-reviewed-prs)
+        run: python3 -m unittest discover -s skills/ship-reviewed-prs/tests -v
+
+      - name: Run the notes script's unit tests (ship-agent-context)
+        run: python3 -m unittest discover -s skills/ship-agent-context/tests -v
+
+      - name: Run the scan script's unit tests (ship-vuln-scan)
+        run: python3 -m unittest discover -s skills/ship-vuln-scan/tests -v
+
+      - name: Run the fix script's unit tests (ship-vuln-fix)
+        run: |
+          git config --global init.defaultBranch main
+          python3 -m unittest discover -s skills/ship-vuln-fix/tests -v
+
+      - name: Run the vault script's unit tests (obsidian-knowledge-graph)
+        run: python3 -m unittest discover -s skills/obsidian-knowledge-graph/tests -v
+
+      - name: This repository's own docs/agent must pass its check
+        run: python3 skills/ship-agent-context/scripts/agent_context.py check
+
+      - name: The plan reader must accept the example plans the linter accepts
+        run: |
+          set -e
+          for plan in skills/ship-better-plans/examples/example-plan-*.md; do
+            echo "read: $plan"
+            python3 skills/ship-execute/scripts/plan_tasks.py "$plan" summary --ledger "$RUNNER_TEMP/ledger.json" > /dev/null
+          done
+
+      - name: The example plans must pass the linter they illustrate
+        run: |
+          set -e
+          for plan in skills/ship-better-plans/examples/example-plan-*.md; do
+            echo "lint: $plan"
+            python3 skills/ship-better-plans/scripts/lint_plan.py "$plan" --no-paths
+          done
+
   # Summary gate — branch protection can require this single job instead of
   # listing every individual check.
   all:
     name: All checks pass
     if: always()
-    needs: [structure, links, markdown, json, yaml, plugin-symlinks]
+    needs: [structure, links, markdown, json, yaml, plugin-symlinks, plan-lint]
     runs-on: ubuntu-latest
     steps:
       - name: Verify all required jobs succeeded
@@ -166,7 +221,8 @@ jobs:
             "${{ needs.markdown.result }}" \
             "${{ needs.json.result }}" \
             "${{ needs.yaml.result }}" \
-            "${{ needs.plugin-symlinks.result }}"
+            "${{ needs.plugin-symlinks.result }}" \
+            "${{ needs.plan-lint.result }}"
           do
             if [ "$status" != "success" ]; then
               fail=1

@@ -1,1 +1,0 @@
-../../../../skills/ship-vuln-fix/reference-categories.md

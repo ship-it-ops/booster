@@ -6,6 +6,7 @@ updated: 2026-05-20
 author: claude-opus-4-7
 tags: [marketplace, plugins, naming, conventions]
 importance: standard
+summary: Marketplace plugin name matches source directory basename
 ---
 
 # Marketplace plugin `name` matches its source directory

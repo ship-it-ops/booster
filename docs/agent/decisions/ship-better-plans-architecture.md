@@ -2,10 +2,11 @@
 type: decision
 status: active
 created: 2026-06-09
-updated: 2026-06-10
+updated: 2026-11-02
 author: claude-opus-4-7
 tags: [skill, plugin, planning, audit, workflow, ship-family]
 importance: core
+summary: Parallel skill, Workflow audit, plan-mode + opt-in control flow (D1-D7)
 ---
 
 # `ship-better-plans` architecture: parallel skill, Workflow-based audit, `docs/agent/` integration
@@ -17,6 +18,8 @@ The user is building `ship-better-plans` — a new skill in this repo that produ
 Four architectural decisions were locked during the initial brainstorm (each chosen by the user from a 3-way multiple-choice question). Capturing them here so the rationale survives implementation handoff. The full design is in [ship-better-plans-design](../plans/ship-better-plans-design.md).
 
 ## Decision
+
+> **2026-10-01:** the rewrite (released as 1.0.1) keeps D1–D5 and D7 and revises D6 (review consent is collected at the checkpoint) and the reviewer set. See [ship-better-plans-v2-refresh](ship-better-plans-v2-refresh.md).
 
 ### D1 — Relationship to existing skills: **Parallel**
 
@@ -89,6 +92,7 @@ One skill with auto-trigger enabled (`disable-model-invocation` unset/false) plu
 ## Related
 
 - [ship-better-plans-design](../plans/ship-better-plans-design.md) — the full plan, expanded scope, and open questions
-- [ship-better-plans-handoff](../status/ship-better-plans-handoff.md) — the fresh-agent pickup instructions
+- [ship-better-plans-handoff](../archive/ship-better-plans-handoff.md) — the fresh-agent pickup instructions (archived)
+- [ship-better-plans-v2-refresh](ship-better-plans-v2-refresh.md) — what the rewrite keeps and revises
 - [agent-context-initialized](agent-context-initialized.md) — the `docs/agent/` foundation D3 builds on
 - [add-user-instructions-to-skill](add-user-instructions-to-skill.md) — Phase 7 emits to the `instructions/` surface defined here

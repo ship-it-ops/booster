@@ -2,12 +2,13 @@
 type: open-question
 status: active
 created: 2026-05-25
-updated: 2026-05-25
+updated: 2026-11-02
 author: claude-session-2026-05-25
 tags: [ship-reviewed-prs, versioning, semver]
 importance: standard
 opened: 2026-05-25
 answer-source: maintainer
+summary: Still open: rewrite shipped as 1.3.2 (a patch), v2 held back
 ---
 
 # When do we release ship-reviewed-prs v2.0.0?
@@ -27,3 +28,11 @@ Captured the relaxed-matrix change as a decision with explicit `Revisit Triggers
 The repo maintainer (user). They will signal when downstream dogfooding has confirmed the new matrix is stable enough to attach the v2.0.0 label.
 
 When the answer is "ship it": bump *both* `plugins/ship-reviewed-prs/.claude-plugin/plugin.json:version` and the `ship-reviewed-prs` entry in `.claude-plugin/marketplace.json:version` from `1.1.0` to `2.0.0` in the same commit. CI's marketplace-consistency check requires they match.
+
+## Update 2026-10-04
+
+The full rewrite of the skill ([ship-reviewed-prs-refresh](../decisions/ship-reviewed-prs-refresh.md)) was first set to 2.0.0. The user declined: "No v2 yet - just a minor version bump is enough." It ships as 1.4.0. The question of when to cut v2.0.0 is still open and still the maintainer's to answer.
+
+## Update 2026-11-02
+
+The user asked that the whole skills refresh ship as patch versions in one pull request (#9), so the rewrite is 1.3.2, not 1.4.0. Still open.

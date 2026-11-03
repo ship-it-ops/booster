@@ -1,152 +1,21 @@
-# Python Testing Idioms
+# Python tests: what is easy to miss
 
-## Test Runner & Conventions
+The project's runner and its configuration (`pyproject.toml`, `pytest.ini`, `setup.cfg`, `tox.ini`, `conftest.py`) and the existing tests decide the framework, plugins and helpers. Do not add `pytest`, `freezegun`, `factory_boy`, `hypothesis`, `pytest-asyncio` or anything else the project does not already use, and mention one only when it is the fix for a real finding; `unittest` with hand-written fakes is a complete way to test. Several lines below depend on the Python and runner versions: check them before reporting.
 
-- Use **pytest** as the test runner (not unittest)
-- Name test files `test_*.py`, test functions `test_should_*` or `test_<behavior>_when_<condition>`
-- Group related tests in classes (no inheritance from `unittest.TestCase` needed with pytest)
-- Use `conftest.py` for shared fixtures -- fixtures are inherited by all tests in the directory and below
+Places worth a second look, because the test reads as normal and proves nothing. A match is a reason to look again, not a finding: it becomes one when you can say what goes wrong here.
 
-## Fixtures
+- **Mock attributes that look like assertions.** `mock.assert_called_once` without the parentheses checks nothing on any version. `mock.called_once()` and `mock.called_with(...)` pass silently before Python 3.12, and on any mock created with `unsafe=True`; on current Python they raise. `assert mock.called` with no check of the arguments is weaker than it reads.
+- **`assert` on a tuple or a non-empty value.** `assert (a == b, "message")` is always true. `assertTrue(a, b)` treats `b` as the message; `assertEqual` was meant.
+- **Assertions inside `try` / `except Exception`**, or inside a callback or thread: `AssertionError` is caught or lost and the test passes.
+- **Code after the raising line inside `pytest.raises` / `assertRaises`.** It never runs. A `raises(Exception)` so broad that a typo's `NameError` satisfies it.
+- **An async test whose body never runs.** An `async def` test in a plain `unittest.TestCase` passes with a warning (`IsolatedAsyncioTestCase` is needed); under pytest with no async plugin it is skipped with a warning or, on recent versions, fails. A coroutine called without `await` inside a test does nothing.
+- **A test the runner does not collect**: a function or file whose name does not match the pattern, a `unittest` method without the `test` prefix, a class that does not subclass `TestCase` or has an `__init__`, two tests with the same name in one class (the second replaces the first).
+- **`MagicMock` standing in for the thing under test's data.** Every attribute exists and every comparison "works"; arithmetic and truthiness on a Mock rarely mean what the test implies.
+- **`patch` aimed at where a name is defined, not where it is used**, so the real object still runs; a patch started and not stopped, leaking into later tests.
+- **State shared between tests**: module-level objects, class attributes, mutable default arguments in helpers, fixtures with `scope="module"` or `"session"` that tests mutate, environment variables set and not restored.
+- **Time**: `datetime.now()` or `date.today()` in the test or the code, hard-coded dates that will pass, naive against aware datetimes, a test that fails near midnight or at month end.
+- **Order and equality of unordered things**: comparing a list built from a set or from unordered query results; `==` on floats.
+- **Parametrised cases that are all the same path**, or a parametrised list that is empty and so runs nothing.
+- **A different engine in tests** (SQLite for PostgreSQL) asserting behaviour that differs between them: locking, JSON, case sensitivity, constraint timing.
 
-- Use `@pytest.fixture` for setup. Understand scope hierarchy: `function` (default), `class`, `module`, `session`
-- Use `yield` fixtures for setup + teardown in one function
-- Compose fixtures: a fixture can request other fixtures as parameters
-- Use `@pytest.fixture(autouse=True)` sparingly -- only for truly universal setup (e.g., database transaction rollback)
-- Keep fixture scope as narrow as possible. Session-scoped fixtures with mutable state cause test coupling
-
-```python
-@pytest.fixture
-def active_user(db_session):
-    user = UserFactory.active()
-    db_session.add(user)
-    db_session.flush()
-    yield user
-    # teardown happens automatically with transaction rollback
-```
-
-## Parametrize
-
-- Use `@pytest.mark.parametrize` with `ids=` for readable failure output
-- Use tuple unpacking for multi-argument parametrize
-- Combine multiple parametrize decorators for cartesian product testing
-
-```python
-@pytest.mark.parametrize("input_val, expected", [
-    ("valid@email.com", True),
-    ("no-at-sign", False),
-    ("", False),
-    ("a@b.c", True),
-], ids=["valid", "missing-at", "empty", "minimal-valid"])
-def test_email_validation(input_val, expected):
-    assert is_valid_email(input_val) == expected
-```
-
-## Exception Testing
-
-- Use `pytest.raises(ExceptionType, match="regex")` -- always include `match` to verify the message
-- For custom exceptions, assert on exception attributes
-
-```python
-def test_withdraw_exceeding_balance_raises():
-    account = Account(balance=50)
-    with pytest.raises(InsufficientFundsError, match="Cannot withdraw 100") as exc_info:
-        account.withdraw(100)
-    assert exc_info.value.available_balance == 50
-```
-
-## Mocking & Faking
-
-- **Prefer fakes over `unittest.mock.patch`** for service dependencies. Fakes are explicit and catch more bugs.
-- When mocking is necessary: use `unittest.mock.patch` as a context manager or decorator (not `patch.object` on instances)
-- Use `monkeypatch` fixture for environment variables and simple attribute overrides
-- Use `pytest.raises` for exception paths, not mock side effects when avoidable
-
-```python
-# GOOD: Fake for state-based testing
-class FakeEmailService:
-    def __init__(self):
-        self.sent = []
-
-    def send(self, to, subject, body):
-        self.sent.append({"to": to, "subject": subject, "body": body})
-
-def test_order_confirmation_sends_email():
-    email = FakeEmailService()
-    service = OrderService(email_service=email)
-    service.place_order(OrderFactory.standard())
-    assert len(email.sent) == 1
-    assert "confirmation" in email.sent[0]["subject"].lower()
-```
-
-## Time & Async
-
-- Use `freezegun` or `time-machine` for time-dependent tests. Prefer `time-machine` (faster, fewer edge cases)
-- Use `pytest-asyncio` with `@pytest.mark.asyncio` for async test functions
-- Never use `time.sleep()` in tests -- use `asyncio` test patterns or explicit waits
-
-```python
-import time_machine
-
-@time_machine.travel("2025-01-15 10:00:00")
-def test_subscription_expires_after_30_days():
-    sub = Subscription(started_at=datetime(2024, 12, 15))
-    assert sub.is_expired()
-```
-
-## Property-Based Testing
-
-- Use **hypothesis** for property-based tests. Define strategies with `@given`
-- Good properties to test: roundtrip (serialize/deserialize), invariants (sorted output length == input length), idempotence (applying twice == applying once)
-- Use `@settings(max_examples=200)` for CI, `@settings(max_examples=1000)` for deep runs
-
-```python
-from hypothesis import given, strategies as st
-
-@given(st.lists(st.integers()))
-def test_sort_preserves_length(lst):
-    assert len(sorted(lst)) == len(lst)
-
-@given(st.text())
-def test_json_roundtrip(s):
-    assert json.loads(json.dumps(s)) == s
-```
-
-## Test Data Factories
-
-- Use **factory_boy** or hand-written factories with sensible defaults
-- Factory methods should reveal intent: `UserFactory.admin()`, `OrderFactory.with_discount()`
-- Use `faker` (via factory_boy's `Faker`) for realistic data with `factory.Faker.override_default_locale("en_US")`
-
-## Integration Testing
-
-- Use **testcontainers-python** for real databases, Redis, Kafka in tests
-- Use `@pytest.fixture(scope="session")` for container lifecycle (start once, share across tests)
-- Use transaction rollback per test for database isolation (faster than recreating)
-
-```python
-@pytest.fixture(scope="session")
-def postgres_container():
-    with PostgresContainer("postgres:16") as pg:
-        yield pg
-
-@pytest.fixture
-def db_session(postgres_container):
-    engine = create_engine(postgres_container.get_connection_url())
-    with Session(engine) as session:
-        yield session
-        session.rollback()
-```
-
-## Coverage & Mutation Testing
-
-- Use `pytest-cov` for coverage: `pytest --cov=src --cov-branch --cov-report=term-missing`
-- Use **mutmut** for mutation testing: `mutmut run --paths-to-mutate=src/domain/`
-- Target mutation testing at business logic, not I/O or configuration code
-
-## Common Traps
-
-- **Mutable default in fixtures**: `@pytest.fixture` with mutable default arguments shares state. Use factory functions.
-- **Forgetting `await`**: Missing `await` in async tests silently passes. Use strict mode or linting.
-- **`conftest.py` scope creep**: A root `conftest.py` with 50 fixtures slows down all tests. Keep fixtures close to where they are used.
-- **Testing with SQLite when production uses Postgres**: Behavioral differences in locking, JSON, array types. Use TestContainers.
+Not findings on their own: `unittest` in place of `pytest`, `setUp` in place of fixtures, a helper function in place of a factory, plain `assert`, several assertions about one result, no assertion messages, `unittest.mock.patch` on the module's clock where the code offers no injection point.

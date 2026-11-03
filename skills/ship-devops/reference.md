@@ -1,346 +1,53 @@
-# DevOps Reference
-
-Methodology, sources, cross-cutting principles, and anti-overlap with sibling skills. The per-category rubric (antipatterns, fixes, false-positives) lives in `reference-categories.md`. Platform-specific patterns live in `ci-github-actions.md`, `iac-terraform.md`, `container-docker.md`, `k8s.md`, and `observability.md`.
-
----
-
-## 1. Methodology
-
-### Pipeline modeling at review time
-
-Every DevOps review begins with an implicit pipeline-model question: **what changes does this PR push toward production, and through what path?** The reviewer maps:
-
-1. **Triggers** — `git push`, tag creation, manual workflow_dispatch, scheduled job, external webhook.
-2. **Stages** — lint, unit, integration, build, sign, publish, plan, apply, smoke, promote.
-3. **Targets** — local, ephemeral PR env, staging, canary cohort, prod.
-4. **Gates** — required checks, manual approvals, environment protection rules, branch protection.
-5. **Artifacts** — built images, signed packages, infrastructure plans, deploy manifests.
-
-A finding fires when a trigger → stage → target path lacks an appropriate gate, artifact lineage, or rollback. The output format requires the path to be explicit ("deploy path: trigger → action → blast radius").
-
-### Severity is a function of two things
-
-- **Reachability**: does the change reach prod automatically, on merge, on tag, or only via manual approval? Reachability scales severity up; non-prod paths scale it down.
-- **Blast radius**: what does the failure mode affect? A failed migration on the primary database is high blast radius. A broken dev-only Makefile target is low. Severity scales with blast radius.
-
-The skill's tier-1 / tier-2 / tier-3-5 split codifies these two axes. Tier-1 = reaches prod + high blast radius; tier-2 = secondary defense missing OR low-blast-radius path; tier-3-5 = hygiene and depth.
-
-### What gets reviewed, what doesn't
-
-| Reviewed | Skipped |
-|----------|---------|
-| CI workflows (`.github/workflows/*.yml`, `.gitlab-ci.yml`, `Jenkinsfile`, `.circleci/config.yml`, `azure-pipelines.yml`) | Generated manifests (`*.generated.yaml`, files with `# DO NOT EDIT` header) |
-| IaC (`*.tf`, `*.tf.json`, Pulumi `index.*`, CloudFormation `*.yaml`, Ansible `*.yml`, Chef `recipes/*.rb`, Puppet `*.pp`) | Vendored modules (`.terraform/`, `vendor/`, `node_modules/`) |
-| Container files (`Dockerfile*`, `docker-compose.yml`, `*.dockerfile`, `.dockerignore`) | Binary blobs |
-| k8s manifests (`*.yaml` containing `apiVersion`, Helm charts, Kustomize overlays) | Build outputs (`dist/`, `build/`, `.next/`) |
-| Application code that touches deploy concerns (config loaders, health-check handlers, telemetry instrumentation, migration tooling) | Pure styling, formatting, lint config |
-| Schema migrations (`migrations/*.sql`, Alembic/Flyway/Goose files) | Lockfiles (read for drift signal only, not full-text review) |
-| Deploy scripts (`deploy/*.sh`, `scripts/release.*`, `Makefile` targets that mutate state) | Documentation that doesn't include runnable pipeline / IaC samples |
-| Observability config (Prometheus alert rules, Grafana dashboards as JSON, OpenTelemetry collector configs) | Tests for non-deploy code (defer to ship-tested-code) |
-| Process / ownership files (`CODEOWNERS`, `RUNBOOK.md`, `oncall.md`, on-call configs, runbook indexes) | |
-
-Skipped categories are noted in the Confidence section with counts.
-
----
-
-## 2. The 12 categories — high-level boundaries
-
-### DEV1 — CI-PIPELINE
-
-Owns: the merge gate. What runs, what passes, what blocks, how fast. Floating action references, missing test gates, slow feedback, skipped tests, privileged tokens.
-
-- **Tier 1**: New workflow uses a floating action / image; merge gate has no real test; `continue-on-error: true` on the canonical test job; CI uses long-lived PAT with broad scope where OIDC is available.
-- **Tier 2**: CI feedback >15 min; cache misconfigured; skipped tests added without a linked issue; matrix legs disabled silently.
-- **Tier 3-5**: workflow-level `permissions:` block missing on a new workflow even though job-level ones exist; cache key not pinned to a lockfile hash.
-
-### DEV2 — DEPLOYMENT-SAFETY
-
-Owns: how the change reaches prod and how it gets undone. Rollback path, progressive rollout, idempotency, pre-deploy validation, post-deploy smoke.
-
-- **Tier 1**: No rollback path on a user-facing deploy; `Recreate` strategy on a service that serves traffic; non-idempotent prod deploy script; deploy with no canary/flag for non-trivial blast radius.
-- **Tier 2**: Manual deploy step; missing staging environment; missing post-deploy smoke; rollback path exists but is untested.
-- **Tier 3-5**: Documentation of the rollback flow missing; rollout pauses not configured for canary.
-
-### DEV3 — IAC-IMMUTABILITY
-
-Owns: infrastructure as code. Drift, state, modules, provisioners, rename safety.
-
-- **Tier 1**: Hand-edited prod resource with no IaC backing; provisioner mutating prod state; `terraform.tfstate` committed.
-- **Tier 2**: Local state only; renamed Terraform resource without `moved {}`; environment files have diverged structure.
-- **Tier 3-5**: Modules versioned by branch instead of tag; missing `required_providers` constraints.
-
-### DEV4 — CONTAINER-IMAGE
-
-Owns: image hygiene. `USER`, base, multi-stage, build secrets, HEALTHCHECK.
-
-- **Tier 1**: Container runs as root in prod; base image floats / unpinned; secret baked into image build.
-- **Tier 2**: Single-stage build pulls toolchain into runtime; missing `.dockerignore`; HEALTHCHECK absent on long-lived service.
-- **Tier 3-5**: Image size unexplained; no SBOM.
-
-### DEV5 — CONFIG-MGMT
-
-Owns: how the application sources config and secrets at runtime. Env vs. vault, fallback discipline, per-env overrides, structure parity.
-
-- **Tier 1**: Prod-required secret hardcoded; silent fallback default for required env value; same config artifact across envs with prod values baked in.
-- **Tier 2**: `.env` committed (also SEC7.2); runtime-mutable config without version pinning; per-env structure drift.
-- **Tier 3-5**: Boot-time config not snapshotted in logs; missing schema validation on config.
-
-Anti-overlap with SEC7: ship-secure-code owns "this literal is a leaked credential" (data leak). ship-devops owns "this code reaches its secret via a fragile mechanism" (sourcing discipline). On the same line both can apply; SEC7 wins for the user-facing finding, DEV5 cross-references.
-
-### DEV6 — OBSERVABILITY
-
-Owns: how production changes become visible. Logs, metrics, traces, dashboards, alerts.
-
-- **Tier 1**: New user-facing endpoint logs nothing on entry/exit; PII landing in INFO logs (cross-ref SEC9).
-- **Tier 2**: Unstructured logging; missing golden signals; correlation IDs absent across the call chain; dashboard added only in the UI.
-- **Tier 3-5**: Log levels inconsistent across services; metric naming inconsistent.
-
-### DEV7 — RELEASE-MGMT
-
-Owns: how artifacts go from commit to consumable. Versioning, CHANGELOG, tag policy, lockfile, signing.
-
-- **Tier 1**: Breaking change shipped under a non-major version on a public library or API; lockfile drift on a security-sensitive dep.
-- **Tier 2**: Missing or stale CHANGELOG; tag points at the wrong commit; published artifact unsigned.
-- **Tier 3-5**: Conventional-commit footer missing; release notes lack migration guidance.
-
-### DEV8 — SCHEMA-MIGRATION
-
-Owns: schema changes and the deploy choreography around them. Two-phase, online DDL, reversibility, canary safety.
-
-- **Tier 1**: Non-reversible migration shipped with code that depends on the new schema (rollback breaks); `ALTER TABLE` adds NOT NULL with no default on a populated hot table.
-- **Tier 2**: Long-running lock on a hot table without online-DDL variant; forward-only tooling; ordering not canary-safe.
-- **Tier 3-5**: Down-migration not exercised; migration not timed on staging.
-
-### DEV9 — HEALTH-READINESS
-
-Owns: liveness/readiness/startup probes, graceful shutdown, smoke tests.
-
-- **Tier 1**: No health endpoint on a k8s/ECS/Cloud-Run service; health endpoint requires auth.
-- **Tier 2**: Liveness depends on downstream (cascading failures); missing startup probe on slow boot; no graceful shutdown.
-- **Tier 3-5**: Health response not structured; probe timeouts default; smoke test only on staging.
-
-### DEV10 — SLO-PERFORMANCE
-
-Owns: resource limits, timeouts, perf regression detection, SLOs.
-
-- **Tier 1**: k8s workload missing `requests` and `limits` in a shared cluster; HTTP client to a third-party service with no timeout.
-- **Tier 2**: No perf test in pipeline; no circuit breaker on flaky downstream; SLO not documented.
-- **Tier 3-5**: HPA not configured on autoscale-eligible workload; alerting on average latency only.
-
-### DEV11 — INCIDENT-HYGIENE
-
-Owns: runbooks, on-call docs, alert quality, ownership, post-mortem traces.
-
-- **Tier 1**: New critical-path service with no runbook; CODEOWNERS missing on a production path.
-- **Tier 2**: Alert created without `runbook_url`; on-call doc references departed people; fix PR has no postmortem link when one exists.
-- **Tier 3-5**: Runbook last-updated > 1 year; CODEOWNERS uses individuals instead of teams.
-
-### DEV12 — FLOW-BATCH
-
-Owns: PR shape signals visible in the diff. Size, age, partial-work, atomicity.
-
-- **Tier 1**: (none — DEV12 is signal-based; tier-1 escalations come from correlation with rule violations in other categories).
-- **Tier 2**: Oversized PR + correlated DEV2.1 / DEV8.1 violation (large + irreversible = high blast radius); long-lived branch (> 30 days behind main); partial work shipped without a flag.
-- **Tier 3-5**: WIP commit messages unsquashed; atomic-commit violations.
-
----
-
-## 3. Decision matrix (full)
-
-Compute from the merged finding list:
-
-| Condition | Decision (standalone run) | When invoked via ship-reviewed-prs IN delegation |
-|-----------|---------------------------|--------------------------------------------------|
-| Any tier-1 finding | `REQUEST_CHANGES` | Maps to IN1 / IN3 / IN5 / IN6 priority-1 at the parent level (per the IN↔DEV mapping in `ship-reviewed-prs/reference-personas.md`) |
-| Only tier-2 findings | `COMMENT` | Maps to IN*.3 (priority-3) at parent |
-| Only tier-3-5 findings | `COMMENT` | Maps to IN*.5+ (priority-5+) at parent |
-| Zero findings | `APPROVE` (or `NO_FINDINGS`) | IN persona reports clean |
-
-The skill never APPROVEs on a tier-1 finding regardless of overrides. `ci_max_decision: COMMENT` is honored for parent-skill submission but the skill's own report still names the finding as Critical.
-
----
-
-## 4. Cross-cutting principles (expanded)
-
-### 4.1 Automation: where to automate
-
-Automate the **handoff**, not the artisanal skill. Deploys, IaC applies, image builds, migrations, smoke tests, rollbacks — all handoffs.
-
-Things that should *not* be automated: the decision to deploy a risky change (gate it on human approval), the decision to bypass a failed check (don't bypass — fix the check or the code), incident response runbooks (have humans run them with tooling support, not vice versa).
-
-Common mistakes:
-- Auto-merge on green CI without a human review — the test suite isn't the only filter.
-- Skipping `terraform plan` on the assumption that "it's just a small change."
-- One-button rollback that doesn't restore data state alongside code.
-
-Rule: every state change between commit and prod is either code-defined or human-approved. The skill flags state changes that are neither.
-
-### 4.2 Reversibility: how to make a change undoable
-
-Three mechanisms, used in combination:
-
-1. **Two-phase migrations** for schema and contract changes. Release N stops writing the old shape; release N+1 stops reading it; release N+2 deletes it.
-2. **Feature flags** for code paths. The new behavior ships disabled; ops flip it on after smoke; flip it off if something burns.
-3. **Progressive rollout** (canary, blue/green, cohort) for everything else. The new version takes a slice of traffic; observability tells you whether to promote or roll back.
-
-A change that uses none of these is a tier-1 DEV2.1 finding.
-
-### 4.3 Observability is a feature, not a follow-up
-
-Telemetry lands with the code that produces it. Logs / metrics / traces / dashboard updates appear in the same PR as the new endpoint, the new job, the new client.
-
-Findings:
-- **Telemetry deferred to "later"** → tier 2. There is no "later."
-- **Telemetry present but in unstructured form** → tier 2; the data is unqueryable in an incident.
-- **Telemetry missing on the user-facing path** → tier 1.
-
-### 4.4 Fail closed in prod, fail loud in CI
-
-Prod failure denies access / refuses requests / returns 500 with a clear correlation id. CI failure is loud, fast, and blocks merge.
-
-The catch-and-continue antipattern is the most common operability bug in code that *looks* defended:
-- Migration runner that catches the SQL error and continues.
-- Deploy script that catches the kubectl error and reports "deploy succeeded."
-- CI step with `|| true` appended to silence a flaky test.
-
-### 4.5 Least-privilege at every layer
-
-- CI tokens scoped to repo and minimum permission.
-- Container `USER` non-root; capabilities dropped.
-- IAM roles per-service, per-stage; OIDC federation over static keys.
-- k8s service accounts mount only what they need; `automountServiceAccountToken: false` by default.
-- Database users per-service with table-level grants.
-
-DEV4, DEV5, DEV3 all carry sub-rules for their layer; cross-refs SEC1.4.
-
----
-
-## 5. Anti-overlap with sibling skills
-
-### vs. `ship-secure-code`
-
-| Concern | Owned by | Boundary |
-|---------|----------|----------|
-| Hardcoded secret literal in code | SEC7.1 | The data-leak framing. SEC wins the user-facing finding. |
-| Same hardcoded literal but framed as "wrong sourcing mechanism" | DEV5.1 | Cross-reference only; don't double-report. |
-| `.env` committed | SEC7.2 + DEV5.4 | Both fire — SEC for the leak, DEV for the config-source. Parent skill merges. |
-| Container running as root | SEC1.4 + DEV4.1 | SEC for least-privilege framing; DEV for image-hygiene framing. Same tier-1 fires once via parent. |
-| Floating action reference / typosquat | SEC8.1 + DEV1.1 | SEC for supply-chain framing; DEV for pipeline-pinning framing. |
-| PII in logs | SEC9 | SEC owns the deep rubric; DEV6 cross-refs. |
-| Privileged CI token reaching forks | SEC1 + DEV1.5 | SEC for the auth/escalation surface; DEV for the workflow design. |
-
-On overlap, the skill that owns the "user-impact" framing wins; the other cross-references.
-
-### vs. `ship-clean-code`
-
-`ship-clean-code` covers naming, structure, error handling, formatting — at the file level. `ship-devops` covers operability. A poorly named Terraform variable is ship-clean-code; a Terraform module that mutates state outside `terraform plan` review is DEV3.
-
-### vs. `ship-tested-code`
-
-`ship-tested-code` reviews test design. DEV1 reviews whether tests *run in CI*, *fail fast*, and *gate merge*. Non-overlapping by intent: the same test can be well-designed (clean-tested approves) and run in a workflow that doesn't gate merge (DEV1 flags). Both findings stand.
-
-### vs. `ship-debugged-code`
-
-After an incident, `ship-debugged-code` designs the regression test; `ship-devops` reviews the pipeline change that lands the fix and ensures the post-mortem link and alert tuning are present (DEV11.5).
-
-### vs. `ship-reviewed-prs`
-
-`ship-reviewed-prs` IN persona (Senior Infra / SRE / DevOps) is the **detection** orchestrator: it scans the diff with high-precision patterns for IN1-IN7 hits, then delegates depth to this skill. Specifically:
-
-- Hits the IN orchestrator emits directly (high-confidence single-line patterns): floating action ref, missing `USER` in Dockerfile, missing `resources.limits` in Deployment, secret literal in workflow YAML, `fetch(url)` without timeout, `Recreate` strategy on traffic-serving Deployment.
-- Hits the IN orchestrator turns into a delegation bullet: anything requiring multi-file pipeline trace (workflow + Dockerfile + manifest + migration in one PR), environment-context awareness (which env does this deploy reach?), migration-choreography reasoning (DEV8 depth), or compound DEV category overlap (e.g., DEV2 + DEV4 + DEV9 all firing across a single new-service PR).
-
-The delegation is one-way: `ship-reviewed-prs` IN → `ship-devops`. Running `ship-devops` does not back-invoke `ship-reviewed-prs`.
-
-Compound tagging: when invoked from delegation, this skill's findings appear in the orchestrator's output as `[INn / DEVm.t-LABEL]` so the parent's priority code and this skill's category are both visible. See `ship-reviewed-prs/reference-personas.md` § IN → IN ↔ DEV ID mapping for the full table.
-
----
-
-## 6. Triage: file-bucketing for the skill
-
-When invoked on a directory or PR diff, classify files first:
-
-| Bucket | Heuristic | Action |
-|--------|-----------|--------|
-| `ci-pipeline` | `.github/workflows/*.yml`, `.gitlab-ci.yml`, `Jenkinsfile`, `.circleci/config.yml` | Full review (DEV1, DEV2, DEV7) |
-| `iac` | `*.tf`, `*.tf.json`, `Pulumi.yaml`, CloudFormation templates, Ansible playbooks | Full review (DEV3, DEV5) |
-| `container` | `Dockerfile*`, `docker-compose.yml`, `*.dockerfile`, `.dockerignore` | Full review (DEV4) |
-| `k8s-manifest` | YAML containing `apiVersion`/`kind` for k8s, Helm charts, Kustomize | Full review (DEV2, DEV9, DEV10) |
-| `migration` | `migrations/*.sql`, Alembic versions, Flyway `V*__*.sql`, Goose | Full review (DEV8) |
-| `deploy-script` | `deploy/*.sh`, `scripts/release.*`, `Makefile` targets that mutate state | Full review (DEV2) |
-| `observability-config` | Prometheus rules, Grafana dashboards as JSON, OpenTelemetry collector config, alert YAML | Full review (DEV6, DEV11) |
-| `code-deploy-touching` | App code that loads config, exposes health endpoints, emits metrics, runs migrations | Targeted review (DEV5, DEV6, DEV9, DEV10) |
-| `process` | `CODEOWNERS`, `RUNBOOK.md`, `oncall.md`, runbook indexes | Targeted review (DEV11) |
-| `generated`, `vendor` | Generated manifests, vendored modules | Skip; count in Confidence |
-| `lockfile` | `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`, `Pipfile.lock`, `poetry.lock`, `Cargo.lock`, `terraform.lock.hcl` | Read for DEV7.4 drift; full-text not reviewed |
-
----
-
-## 7. Output schema (machine-readable, for delegation)
-
-When invoked from `ship-reviewed-prs` IN persona, the skill returns a structured object:
-
-```json
-{
-  "scope": "services/api/Dockerfile, .github/workflows/deploy.yml",
-  "summary": {
-    "tier_1": 2,
-    "tier_2": 1,
-    "tier_3_5": 0
-  },
-  "findings": [
-    {
-      "id": "DEV4.1-IMAGE-ROOT-USER",
-      "tier": 1,
-      "path": "services/api/Dockerfile",
-      "line": 8,
-      "trigger": "git push to main",
-      "action": "image built and pushed to prod registry",
-      "blast_radius": "container compromise gives attacker root in pod",
-      "fix": "RUN addgroup -S app && adduser -S app -G app\\nUSER app"
-    }
-  ],
-  "what_good": [
-    "Multi-stage build keeps toolchain out of final image",
-    "Base image pinned by digest"
-  ],
-  "confidence": "Reviewed 1 Dockerfile + 1 workflow. Skipped helm-charts/generated/. Pipeline identified as Build → Push → Promote."
-}
-```
-
-The parent skill maps this into its own decision matrix.
-
----
-
-## 8. Quick-Reference Checklist
-
-| Area | Key Question |
-|------|--------------|
-| Pipeline | Does the merge gate run real tests, on every PR, with pinned actions and minimum permissions? |
-| Rollback | Can this change be undone within minutes, without manual intervention? |
-| IaC | Is every prod resource defined in code, with a `plan`/`diff` gate before apply? |
-| Image | Non-root `USER`, pinned base, multi-stage, no build-time secrets, HEALTHCHECK? |
-| Config | Required values fail loudly on missing; per-env overrides; secrets sourced at runtime? |
-| Observability | Logs + metrics + (where applicable) trace for the changed path; dashboard-as-code? |
-| Release | Semver respected; CHANGELOG updated; tags signed and lockfile consistent? |
-| Migration | Two-phase; reversible; online-DDL on hot tables; canary-safe ordering? |
-| Health | `/healthz` + `/readyz` distinct; graceful shutdown; post-deploy smoke? |
-| SLO/Perf | `requests`+`limits` set; timeouts on external calls; perf test as gate? |
-| Incident | Runbook present; CODEOWNERS covers prod; alerts have `runbook_url`? |
-| Flow | PR size appropriate to risk; partial work flagged; branch fresh? |
-
----
-
-## 9. Sources
-
-The rubric is grounded in three canonical DevOps texts and a working knowledge of the platforms it reviews:
-
-- **The DevOps Handbook** (Kim, Humble, Debois, Willis, 2nd ed.). Primary source for DEV1, DEV2, DEV6, DEV11. The Three Ways framing maps to DEV1+DEV2 (Flow), DEV6+DEV11 (Feedback), and to the "small batches" emphasis in DEV12 (Continual Learning).
-- **The Phoenix Project** (Kim, Behr, Spafford, 2013). Primary source for DEV12 (Four Types of Work — business projects, internal projects, changes, unplanned work — and the Theory-of-Constraints lens on the pipeline) and DEV11 (unplanned-work / firefighting tells).
-- **Effective DevOps** (Davis, Daniels, O'Reilly 2016). Primary source for DEV5 (CAMS automation pillar applied to config), DEV11 (sharing pillar — runbooks, CODEOWNERS, on-call docs), and the PR-visible cultural signals in DEV12.
-- **Accelerate** (Forsgren, Humble, Kim, 2018) — implicit source for the DEV10.5 / DEV11 metrics framing (deploy frequency, lead time, MTTR, change failure rate).
-- **Site Reliability Engineering** (Beyer, Jones, Petoff, Murphy, eds., Google 2016) — implicit source for DEV9 (probes), DEV10 (SLO/error budget, golden signals), DEV11 (post-mortems).
-- **OWASP CI/CD Top 10** (2022) — overlapping reference for DEV1.5 / DEV1.1 (privileged CI tokens, supply chain in pipeline).
-- **CNCF / Kubernetes documentation**, **Terraform documentation**, **Docker best-practices** — platform-specific authoritative sources, captured in each platform reference file.
-
-The skill's specific organization (12-category catalog, tier sub-tags, deploy-path output requirement, anti-overlap with ship-secure-code/ship-tested-code/ship-clean-code) is original to this repo and chosen for review legibility.
+# Rollouts, migrations, health checks and secrets: what is easy to miss
+
+Read the sections for what the change touches. Each lists where a competent reviewer still slips, and the difference between a fix that removes the risk and one that only moves it. Nothing here is a finding by itself: a finding says what breaks, when and for whom (see `SKILL.md`). Engine and tool behaviour differs by version; check the version in use before relying on a detail.
+
+## Schema migrations against running code
+
+During a rollout the old and the new version of the service run at the same time against one schema, and a rollback runs the old version against the new schema. A migration is safe only if every version that can be running works before it, during it and after it.
+
+- **The other side is the code.** Search for every reader and writer of the table or column: queries, ORM models, reports, background jobs, other services. Many ORMs name every column of a model in each query, so dropping a column breaks the old version even where no line of application code mentions it.
+- **Expand, then contract, in separate releases.** Adding is safe before the code that uses it; removing is safe only after no deployed version uses it. Rename is a remove and an add, in this order: add the new column; deploy code that writes both and still reads the old one; backfill once no running version writes only the old one; deploy code that reads the new one; stop writing the old one; drop it in a later release. Switching reads in the same release that starts the dual writes is the usual mistake: rows written by the old version during that rollout have no value in the new column.
+- **A new required column.** `ADD COLUMN ... NOT NULL` with no default is refused by PostgreSQL on a table that has rows; MySQL accepts it and fills existing rows with the type's implicit default, silently. On PostgreSQL, and on MySQL in strict mode (the default), the old version's inserts, which do not name the column, fail from the moment it exists, and again after a rollback. Add it nullable or with a default, backfill, then add the constraint. Whether adding a column with a default rewrites the table depends on the engine and version (PostgreSQL 11 and later do not rewrite for a constant default; earlier versions and volatile defaults do).
+- **Constraints on existing data.** In PostgreSQL, making an existing column `NOT NULL` or adding a check scans the table under a lock that blocks reads and writes; adding a foreign key blocks writes on both tables. The staged form is: add the constraint `NOT VALID`, then `VALIDATE CONSTRAINT` (which takes a weaker lock), and from version 12 a validated `CHECK (col IS NOT NULL)` lets `SET NOT NULL` skip the scan.
+- **Indexes.** In PostgreSQL a plain `CREATE INDEX` blocks writes for as long as it runs. `CREATE INDEX CONCURRENTLY` does not, but cannot run inside a transaction, so it fails under a migration tool that wraps each file in one unless that is switched off for the file, and a failed run leaves an invalid index to drop. MySQL's InnoDB builds most indexes online; what is left is a metadata lock at the start and end, and replica lag.
+- **Lock queues.** A statement waiting for a table lock makes every later query on that table wait behind it, so a "fast" DDL statement can stall the service while it waits for one long transaction. A lock timeout with a retry is the usual guard.
+- **Changing a type usually rewrites the table** (some widenings do not; check the engine), and a rewrite holds the strongest lock for as long as it takes.
+- **Backfills** belong outside the schema change's transaction, in batches, and must be safe to resume.
+- **Running twice and running partly.** Does the pipeline record which migrations have run, or re-run files? If a file fails halfway, is it rolled back as a unit (transactional DDL) or left half-applied (MySQL, and PostgreSQL statements that cannot run in a transaction)?
+- **Order against the rollout.** Additions run before the new version starts; removals run after the old version is gone. A pipeline that runs every migration at one fixed point can do only one of those safely.
+- **Down migrations** that drop what the up migration added destroy data written since. Rolling back the application, not the schema, is the normal path, which is why the previous version must work with the new schema.
+- **Destructive statements** (`DROP`, `TRUNCATE`, a `DELETE` or `UPDATE` without a narrow condition) need a stated way back: a verified backup, or the data kept somewhere until it is confirmed unneeded. A planned removal after every reader and writer is gone is the last step of the sequence above, not a finding; whether a backup exists is a line of coverage unless the files show there is none.
+
+## Rollouts and rollbacks
+
+- **What exactly is deployed?** An artifact that can be named again later (a digest or a tag derived from the commit) can be redeployed; `latest`, an environment name or a branch name cannot, because the next build overwrites it. If the manifest does not change between releases, some tools see nothing to do.
+- **How is a bad release undone, and has that path ever run?** "Re-run the previous pipeline" rebuilds from source, possibly with different dependencies; redeploying the previous artifact does not.
+- **Half-way failure.** Follow each step and ask what state things are in if it fails: image pushed but not deployed, migration applied but rollout failed, one region or service updated and the next not.
+- **Two deploys at once.** Merges in quick succession start overlapping runs unless the pipeline serialises them; cancelling a deploy in progress can leave it half-applied.
+- **A check after the deploy that can fail the deploy.** A smoke test that always exits zero, or whose failure does not stop or reverse the rollout, is decoration.
+- **Configuration is part of the release.** A new required setting that exists in one environment and not the next fails at start-up in the next; a secret rotated in the store but not picked up by running instances fails later.
+- **Anything two versions share is a schema:** a queue message, a cached value, a job payload, an API between services that deploy separately. The old version must tolerate what the new one writes, during the rollout and after a rollback. Find the reader.
+- **Feature flags and gradual rollouts** are one way to make a release reversible, not the only one, and not a finding when absent.
+
+## Health checks and shutdown
+
+- **What does the check really do?** Open the handler. "Healthy" should mean what the platform will do about it.
+- **A liveness or restart check answers "would restarting this process help?"** One that calls the database or another service restarts every instance when that dependency has a blip, which adds an outage of your own to theirs. It should check only the process.
+- **A readiness check answers "should this instance get traffic now?"** With none, traffic arrives as soon as the process starts. One that depends on a shared dependency takes every instance out of rotation together when it fails: decide whether serving errors or serving nothing is better, and say which the code does.
+- **Slow start-up** needs its own allowance (a start-up check), not a long delay on the liveness check.
+- **Shutdown.** Does the process handle the termination signal, stop accepting, and finish in-flight work within the grace period? A process started through a shell or a package-manager script may never receive the signal, and a process that runs as process 1 gets it only if it installs a handler. Requests can still arrive for a short time after termination begins.
+
+## Secrets and configuration
+
+- **Where does the value end up?** A build argument or an environment instruction is stored in the image's metadata; a file written in any layer or build stage stays in that layer, and is copied forward by a broad `COPY`; a command-line argument is visible to other processes and often logged; CI log masking hides exact matches only, not encoded, split or derived forms; a debug step that prints the environment prints everything.
+- **A default or fallback for a secret or a production setting** takes effect whenever the real value is missing, silently. Fail at start-up instead.
+- **One environment's credentials reachable from another's pipeline:** a job that any branch can trigger holding production credentials, shared service accounts, one state or one secret store for all environments.
+- **Infrastructure state and plans** contain the values of secrets the tool manages, whatever is marked sensitive in the code; treat the state, saved plans and plan output posted to a pull request as secret.
+- **Rotation.** A secret that reached a commit, an image, a log or state is compromised; the fix includes rotating it.
+
+## Seeing a failure
+
+- For a change on a path users depend on, ask what would tell the team it broke: an error rate, a failing check, a log line someone alerts on. One concrete signal is enough; a list of every signal the service could have is padding.
+- An alert that pages should be something a person can act on. A threshold copied from another service, or an alert on a metric the change stops emitting, is worth saying.
+- A scheduled job, a queue consumer or a migration job that fails silently (its exit status ignored, its retries unlimited or absent) is the usual blind spot.
