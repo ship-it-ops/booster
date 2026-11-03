@@ -2,7 +2,7 @@
 type: investigation
 status: active
 created: 2026-10-04
-updated: 2026-10-04
+updated: 2026-11-02
 author: claude-opus-5-5
 tags: [ship-execute, audit, evaluation, personas, workflow, worktree, plan-reader]
 importance: core
@@ -13,7 +13,7 @@ summary: Six-persona audit, judged executions, live worktree tests
 
 ## Symptoms
 
-`ship-execute` was written in June 2026 and had only been patched (1.1.0) to read the new `ship-better-plans` plan format. The user asked for the same full audit and rewrite that `ship-better-plans` got, one skill at a time, on the same branch.
+`ship-execute` was written in June 2026 and had only been patched on this branch to read the new `ship-better-plans` plan format. The user asked for the same full audit and rewrite that `ship-better-plans` got, one skill at a time, on the same branch.
 
 ## Method
 
@@ -37,7 +37,7 @@ The isolation probe established the facts the rewrite rests on: an isolated agen
 
 ## Fix
 
-Version 2.0, described in [ship-execute-v2-refresh](../decisions/ship-execute-v2-refresh.md).
+The rewrite (drafted as 2.0, released as 1.0.1), described in [ship-execute-v2-refresh](../decisions/ship-execute-v2-refresh.md).
 
 ### Results
 

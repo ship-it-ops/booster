@@ -2,18 +2,18 @@
 type: decision
 status: active
 created: 2026-10-05
-updated: 2026-10-05
-summary: "ship-agent-context 1.3 rewrite: digest hook, notes as a colleague's notes, script-checked hand-offs, generated index (C1-C12)"
+updated: 2026-11-02
+summary: "ship-agent-context 1.2.1 rewrite: digest hook, notes as a colleague's notes, script-checked hand-offs, generated index (C1-C12)"
 paths: [skills/ship-agent-context/*, plugins/ship-agent-context/*]
 ---
 
-# `ship-agent-context` 1.3: the full rewrite, what changed from the earlier design, and why
+# `ship-agent-context` 1.2.1: the full rewrite, what changed from the earlier design, and why
 
 ## Context
 
 Fourth skill in the `ship-*` refresh, done with the same loop as [ship-reviewed-prs-refresh](ship-reviewed-prs-refresh.md): six independent reviewers audited the existing skill, the existing skill was run in three scratch repositories and judged independently, then rewrite, re-audit and re-run, three rounds. The evidence is in [ship-agent-context-refresh-audit](../investigations/ship-agent-context-refresh-audit.md).
 
-The earlier design is recorded in [agent-context-initialized](agent-context-initialized.md) and [add-user-instructions-to-skill](add-user-instructions-to-skill.md). This note records what the rewrite keeps and what it revises. The revisions were reported to the user on 2026-10-05; none has been explicitly confirmed yet. The version is 1.3.0, a minor bump, following the user's choice for `ship-reviewed-prs` ("No v2 yet").
+The earlier design is recorded in [agent-context-initialized](agent-context-initialized.md) and [add-user-instructions-to-skill](add-user-instructions-to-skill.md). This note records what the rewrite keeps and what it revises. The revisions were reported to the user on 2026-10-05; none has been explicitly confirmed yet. The version is 1.2.1, a patch: it was first set to 1.3.0, a minor bump following the user's choice for `ship-reviewed-prs` ("No v2 yet"), and on 2026-11-02 the user asked that the whole refresh ship as patch versions.
 
 ## Decision
 

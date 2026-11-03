@@ -2,12 +2,12 @@
 type: decision
 status: active
 created: 2026-10-05
-updated: 2026-10-05
-summary: "ship-tested-code 1.2 rewrite: would the test fail if the behaviour were wrong; integrity when writing tests (T1-T12)"
+updated: 2026-11-02
+summary: "ship-tested-code 1.1.1 rewrite: would the test fail if the behaviour were wrong; integrity when writing tests (T1-T12)"
 paths: [skills/ship-tested-code/*, plugins/ship-tested-code/*]
 ---
 
-# `ship-tested-code` 1.2: the full rewrite, what changed, and why
+# `ship-tested-code` 1.1.1: the full rewrite, what changed, and why
 
 ## Context
 
@@ -40,7 +40,7 @@ There was no earlier decision note for this skill. The user has been told what w
 - **T9 — Removed:** `reference.md` (ten sections including TDD, test strategy, architectures, security and performance testing, resilience and culture), the 49-code smell catalogue, the before/after examples, Quickstart, Team Adoption, the overrides template and the in-skill `overrides.md` location, the mandatory "What's Good" and the ten-finding cap.
 - **T10 — The description triggers on changing tests and on "get the failing tests passing"**, not only on writing tests for existing code, because that is where bending happens.
 - **T11 — Fixtures are must / must-not checklists**, six of them.
-- **T12 — Version 1.2.0**, minor, as for `ship-clean-code`.
+- **T12 — Version 1.1.1**, a patch, as for `ship-clean-code` (first set to 1.2.0, minor).
 
 ## Alternatives Considered
 

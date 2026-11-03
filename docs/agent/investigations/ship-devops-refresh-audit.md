@@ -2,7 +2,7 @@
 type: investigation
 status: active
 created: 2026-10-08
-updated: 2026-10-08
+updated: 2026-11-02
 summary: "ship-devops audit: six reviewers, three judged scenarios, four writing fixtures, a no-skill control, three rounds"
 ---
 
@@ -29,7 +29,7 @@ The work spanned two sessions: rounds 1 and 2 in the first, round 3 and the rest
 
 ## Fix
 
-The rewrite, released as 0.3.0, described in [ship-devops-refresh](../decisions/ship-devops-refresh.md).
+The rewrite, released as 0.2.1, described in [ship-devops-refresh](../decisions/ship-devops-refresh.md).
 
 ### Results
 

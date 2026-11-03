@@ -6,7 +6,7 @@ metadata:
 type: decision
 status: active
 created: 2026-05-26
-updated: 2026-05-26
+updated: 2026-11-02
 author: claude-session-2026-05-26
 tags: [ship-reviewed-prs, output-format, summary-body, verdict-labels]
 importance: core
@@ -60,4 +60,4 @@ The JSON output and exit codes keep the formal `APPROVE` / `REQUEST_CHANGES` / `
 - [[pr-review-summary-body-layout]] — pattern note capturing the canonical layout for quick reference during a review
 - [[pr-review-installs-plugin-from-pr-head]] — the dogfood workflow that will exercise this format change on the next PR
 - [[relaxed-approve-decision-matrix]] — the matrix that now maps to `LGTM` vs `LGTM (with caveats)` in the friendly verdict
-- [ship-reviewed-prs-refresh](ship-reviewed-prs-refresh.md) — the 1.4.0 rewrite keeps the labels, findings table and "What's solid"; drops the persona and lifecycle tables (R6).
+- [ship-reviewed-prs-refresh](ship-reviewed-prs-refresh.md) — the 1.3.2 rewrite keeps the labels, findings table and "What's solid"; drops the persona and lifecycle tables (R6).

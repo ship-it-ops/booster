@@ -2,12 +2,12 @@
 type: decision
 status: active
 created: 2026-10-08
-updated: 2026-10-08
-summary: "obsidian-knowledge-graph 1.1 rewrite: notes as a record not instructions, a script and a digest hook, writes that ask, nothing overwritten (O1-O14); revises the March 2026 design"
+updated: 2026-11-02
+summary: "obsidian-knowledge-graph 1.0.1 rewrite: notes as a record not instructions, a script and a digest hook, writes that ask, nothing overwritten (O1-O14); revises the March 2026 design"
 paths: [skills/obsidian-knowledge-graph/*, plugins/obsidian-knowledge-graph/*]
 ---
 
-# `obsidian-knowledge-graph` 1.1: the full rewrite, what changed, and why
+# `obsidian-knowledge-graph` 1.0.1: the full rewrite, what changed, and why
 
 ## Context
 
@@ -36,7 +36,7 @@ The control run: with no skill, told only where the vault was, a current model f
 - **O11 — Where a fact belongs:** when a repository has `docs/agent/`, everything about that repository goes there. The vault is for what should travel across projects, the user's own working preferences, and projects with no notes of their own. Nothing is copied into the harness's memory as well.
 - **O12 — With no vault configured, nothing happens** and none is proposed. The one exception is the upgrade: a vault that 1.0.0 used is named once from the permission rules it added, and recorded only when the user says yes.
 - **O13 — Other sessions, the app and sync write here too:** exclusive creates, atomic replaces, no symbolic links followed, sync-conflict copies not read until the user has merged them. The ledger scheme for several sessions is gone.
-- **O14 — Version 1.1.0,** minor.
+- **O14 — Version 1.0.1,** a patch (first set to 1.1.0, minor; patch versions for the whole refresh at the user's request of 2026-11-02).
 
 ## Alternatives Considered
 

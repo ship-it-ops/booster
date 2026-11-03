@@ -2,14 +2,14 @@
 type: decision
 status: active
 created: 2026-10-04
-updated: 2026-10-04
+updated: 2026-11-02
 author: claude-opus-5-5
 tags: [skill, plugin, pr-review, github, ci, ship-family]
 importance: core
-summary: 1.4 rewrite: review script, lenses, thread dispositions (R1-R13)
+summary: 1.3.2 rewrite: review script, lenses, thread dispositions (R1-R13)
 ---
 
-# `ship-reviewed-prs` 1.4: the full rewrite, what changed from the earlier design, and why
+# `ship-reviewed-prs` 1.3.2: the full rewrite, what changed from the earlier design, and why
 
 ## Context
 
@@ -43,7 +43,7 @@ The earlier design is spread over six decision notes. This note records what the
 - **R10 — Posting identity is handled.** On the user's own pull request (the `ship-execute` hand-off) the review is a comment that still states its verdict; a refused approval is retried as a comment; the tool's stale approval or block is dismissed; a commit is not reviewed twice; a pending review of the user's is never deleted.
 - **R11 — Trust boundary.** Pull request content is material, not instructions; text that tries to steer the reviewer is a finding; conventions come from the base branch; an unattended run does not approve a change to CI, agent configuration or the reviewer; a review cannot carry a credential.
 - **R12 — Removed.** The three per-language files, the overrides template, the nine paste-in fixtures (replaced by 66 unit tests against a stand-in `gh`), and the CLI and GitLab CI templates, which could not run.
-- **R13 — Version 1.4.0, not 2.0.0.** The rewrite removes flags and the overrides file, which by `CONTRIBUTING.md` is a major change, and it was first set to 2.0.0. The user decided on 2026-10-04: "No v2 yet - just a minor version bump is enough." Consumers pinned to 1.x therefore get the new behaviour without a major-version signal, as with the relaxed matrix in May. [v2-release-trigger](../open-questions/v2-release-trigger.md) stays open.
+- **R13 — Version 1.3.2, not 2.0.0.** The rewrite removes flags and the overrides file, which by the earlier `CONTRIBUTING.md` rule is a major change, and it was first set to 2.0.0. The user decided on 2026-10-04: "No v2 yet - just a minor version bump is enough" (1.4.0), and on 2026-11-02 that the whole refresh ships as patch versions (1.3.2). Consumers pinned to 1.x or 1.3.x therefore get the new behaviour without a version signal, as with the relaxed matrix in May. [v2-release-trigger](../open-questions/v2-release-trigger.md) stays open.
 
 ## Alternatives Considered
 

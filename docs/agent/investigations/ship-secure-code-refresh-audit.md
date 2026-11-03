@@ -2,7 +2,7 @@
 type: investigation
 status: active
 created: 2026-10-05
-updated: 2026-10-05
+updated: 2026-11-02
 summary: "ship-secure-code audit: six reviewers, three judged scenarios, a no-skill control, three rounds"
 ---
 
@@ -38,7 +38,7 @@ The workflow script is [`eval-ship-secure-code.workflow.js`](../references/refre
 
 ## Fix
 
-The rewrite, released as 1.1.0, described in [ship-secure-code-refresh](../decisions/ship-secure-code-refresh.md).
+The rewrite, released as 1.0.1, described in [ship-secure-code-refresh](../decisions/ship-secure-code-refresh.md).
 
 ### Results
 

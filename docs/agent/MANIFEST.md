@@ -5,7 +5,7 @@
 
 ## Unfinished work
 
-- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) — Skills refresh: all 12 done and live-tested through the installed plugins on the branch, no pull request yet; the method, what the user has still to rule on, what is still untested
+- [ship-skills-refresh-handoff](status/ship-skills-refresh-handoff.md) — Skills refresh: all 12 done and live-tested; pull request #9 opened 2026-11-02 with every plugin one patch above main; the method, what the user has still to rule on, what is still untested
 
 ## Instructions
 
@@ -26,26 +26,26 @@
 - [askuserquestion-denial-failsafe-to-submission](decisions/askuserquestion-denial-failsafe-to-submission.md) — AskUserQuestion denial at gate switches to CI submit
 - [in-persona-delegates-to-ship-devops](decisions/in-persona-delegates-to-ship-devops.md) — IN persona depth target wired to ship-devops
 - [merge-ship-code-into-booster](decisions/merge-ship-code-into-booster.md) — All 6 ship-code plugins migrated; booster is the single marketplace
-- [obsidian-knowledge-graph-refresh](decisions/obsidian-knowledge-graph-refresh.md) — obsidian-knowledge-graph 1.1 rewrite: notes as a record not instructions, a script and a digest hook, writes that ask, nothing overwritten (O1-O14); revises the March 2026 design
+- [obsidian-knowledge-graph-refresh](decisions/obsidian-knowledge-graph-refresh.md) — obsidian-knowledge-graph 1.0.1 rewrite: notes as a record not instructions, a script and a digest hook, writes that ask, nothing overwritten (O1-O14); revises the March 2026 design
 - [plugin-name-matches-source-dir](decisions/plugin-name-matches-source-dir.md) — Marketplace plugin name matches source directory basename
 - [pr-review-auto-resolves-own-threads](decisions/pr-review-auto-resolves-own-threads.md) — Auto-resolve bot-authored threads when finding no longer fires
 - [pr-review-installs-plugin-from-pr-head](decisions/pr-review-installs-plugin-from-pr-head.md) — Dogfood workflow uses local checkout, not main URL
 - [pr-review-table-driven-summary-format](decisions/pr-review-table-driven-summary-format.md) — Summary body adopts tables and LGTM-style verdict labels
 - [relaxed-approve-decision-matrix](decisions/relaxed-approve-decision-matrix.md) — APPROVE allowed with suggestions and pending CI caveats
-- [ship-agent-context-refresh](decisions/ship-agent-context-refresh.md) — ship-agent-context 1.3 rewrite: digest hook, notes as a colleague's notes, script-checked hand-offs, generated index (C1-C12)
+- [ship-agent-context-refresh](decisions/ship-agent-context-refresh.md) — ship-agent-context 1.2.1 rewrite: digest hook, notes as a colleague's notes, script-checked hand-offs, generated index (C1-C12)
 - [ship-better-plans-architecture](decisions/ship-better-plans-architecture.md) — Parallel skill, Workflow audit, plan-mode + opt-in control flow (D1-D7)
-- [ship-better-plans-v2-refresh](decisions/ship-better-plans-v2-refresh.md) — 2.0 rewrite: cards, linter, grounded review; revises D6/Q3
-- [ship-clean-code-refresh](decisions/ship-clean-code-refresh.md) — ship-clean-code 1.2 rewrite: one test and three rules, severity by consequence, caller's format wins, restraint when writing (K1-K14)
-- [ship-debugged-code-refresh](decisions/ship-debugged-code-refresh.md) — ship-debugged-code 1.1 rewrite: one test for fixed, run and working-tree rules, confirmed against likely, short honest reports (G1-G12)
+- [ship-better-plans-v2-refresh](decisions/ship-better-plans-v2-refresh.md) — Rewrite released as 1.0.1 (drafted as 2.0): cards, linter, grounded review; revises D6/Q3
+- [ship-clean-code-refresh](decisions/ship-clean-code-refresh.md) — ship-clean-code 1.1.1 rewrite: one test and three rules, severity by consequence, caller's format wins, restraint when writing (K1-K14)
+- [ship-debugged-code-refresh](decisions/ship-debugged-code-refresh.md) — ship-debugged-code 1.0.1 rewrite: one test for fixed, run and working-tree rules, confirmed against likely, short honest reports (G1-G12)
 - [ship-devops-12-category-catalog](decisions/ship-devops-12-category-catalog.md) — DEV1-DEV12 rubric for new ship-devops skill
-- [ship-devops-refresh](decisions/ship-devops-refresh.md) — ship-devops 0.3 rewrite: what breaks when and for whom, run rules by what a command touches, writing guidance, no verdicts (V1-V12)
+- [ship-devops-refresh](decisions/ship-devops-refresh.md) — ship-devops 0.2.1 rewrite: what breaks when and for whom, run rules by what a command touches, writing guidance, no verdicts (V1-V12)
 - [ship-execute-architecture](decisions/ship-execute-architecture.md) — Standalone DAG-aware executor; ship-code delegation (E1-E5)
-- [ship-execute-v2-refresh](decisions/ship-execute-v2-refresh.md) — 2.0 rewrite: plan reader, git protocol, local review; revises E5
-- [ship-reviewed-prs-refresh](decisions/ship-reviewed-prs-refresh.md) — 1.4 rewrite: review script, lenses, thread dispositions (R1-R13)
-- [ship-secure-code-refresh](decisions/ship-secure-code-refresh.md) — ship-secure-code 1.1 rewrite: a finding is a traced path, no verdicts, nothing in the repo can switch a finding off, writing guidance (S1-S12)
-- [ship-tested-code-refresh](decisions/ship-tested-code-refresh.md) — ship-tested-code 1.2 rewrite: would the test fail if the behaviour were wrong; integrity when writing tests (T1-T12)
+- [ship-execute-v2-refresh](decisions/ship-execute-v2-refresh.md) — Rewrite released as 1.0.1 (drafted as 2.0): plan reader, git protocol, local review; revises E5
+- [ship-reviewed-prs-refresh](decisions/ship-reviewed-prs-refresh.md) — 1.3.2 rewrite: review script, lenses, thread dispositions (R1-R13)
+- [ship-secure-code-refresh](decisions/ship-secure-code-refresh.md) — ship-secure-code 1.0.1 rewrite: a finding is a traced path, no verdicts, nothing in the repo can switch a finding off, writing guidance (S1-S12)
+- [ship-tested-code-refresh](decisions/ship-tested-code-refresh.md) — ship-tested-code 1.1.1 rewrite: would the test fail if the behaviour were wrong; integrity when writing tests (T1-T12)
 - [ship-vuln-skills-architecture](decisions/ship-vuln-skills-architecture.md) — Two skills, hybrid exec, evidence-gated apply, recipe-first (V1-V10)
-- [ship-vuln-skills-refresh](decisions/ship-vuln-skills-refresh.md) — ship-vuln-scan 0.2 and ship-vuln-fix 0.3 rewrite: only what a tool returned, two scripts, what the repo hides, mechanical fixes proved by rescan (W1-W13); revises V4-V10
+- [ship-vuln-skills-refresh](decisions/ship-vuln-skills-refresh.md) — ship-vuln-scan 0.1.1 and ship-vuln-fix 0.2.1 rewrite: only what a tool returned, two scripts, what the repo hides, mechanical fixes proved by rescan (W1-W13); revises V4-V10
 
 ## Patterns
 
@@ -70,7 +70,7 @@
 
 ## Open questions
 
-- [v2-release-trigger](open-questions/v2-release-trigger.md) — Still open: rewrite shipped as 1.4.0, v2 held back
+- [v2-release-trigger](open-questions/v2-release-trigger.md) — Still open: rewrite shipped as 1.3.2 (a patch), v2 held back
 
 ## Scars
 

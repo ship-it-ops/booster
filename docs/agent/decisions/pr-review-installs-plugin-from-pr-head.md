@@ -2,7 +2,7 @@
 type: decision
 status: active
 created: 2026-05-25
-updated: 2026-05-25
+updated: 2026-11-02
 author: claude-session-2026-05-25
 tags: [pr-review-workflow, github-action, security, dogfooding]
 importance: core
@@ -45,4 +45,4 @@ Use the local path: `plugin_marketplaces: '.'`.
 
 - [plugin-without-commands-runs-silently](../scars/plugin-without-commands-runs-silently.md) — one of the regressions a local-checkout install would have caught on the *introducing* PR.
 - [plugin-command-discovery](../patterns/plugin-command-discovery.md) — the layout the action expects when installing from a path.
-- [ship-reviewed-prs-refresh](ship-reviewed-prs-refresh.md) — kept in the 1.4.0 rewrite; the workflow now asks for a comment-only review when a pull request changes the reviewer.
+- [ship-reviewed-prs-refresh](ship-reviewed-prs-refresh.md) — kept in the 1.3.2 rewrite; the workflow now asks for a comment-only review when a pull request changes the reviewer.

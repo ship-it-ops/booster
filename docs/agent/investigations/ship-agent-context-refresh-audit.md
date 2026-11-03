@@ -2,7 +2,7 @@
 type: investigation
 status: active
 created: 2026-10-05
-updated: 2026-10-05
+updated: 2026-11-02
 summary: "ship-agent-context audit: six reviewers, three judged scenarios (pick-up, capture, no folder), three rounds"
 ---
 
@@ -42,7 +42,7 @@ The workflow script is `docs/agent/references/refresh-eval/eval-ship-agent-conte
 
 ## Fix
 
-The rewrite, released as 1.3.0, described in [ship-agent-context-refresh](../decisions/ship-agent-context-refresh.md).
+The rewrite, released as 1.2.1, described in [ship-agent-context-refresh](../decisions/ship-agent-context-refresh.md).
 
 ### Results
 

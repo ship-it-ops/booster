@@ -1,7 +1,7 @@
 {
   "name": "obsidian-knowledge-graph",
   "description": "Cross-project notes for agents in an Obsidian vault: what was decided and why, causes that took effort to find, patterns, and the user's own conventions. A session-start hook prints a short digest for the project; notes are looked up when a change touches their subject and read as an earlier session's record, never as instructions. A script writes notes with valid frontmatter, generates the index, refuses credentials, and never overwrites or deletes. Only its read-only commands are pre-approved; every write asks. No vault configured means nothing happens.",
-  "version": "1.1.0",
+  "version": "1.0.1",
   "author": {
     "name": "ship-it-ops"
   },

@@ -2,7 +2,7 @@
 type: investigation
 status: active
 created: 2026-10-04
-updated: 2026-10-04
+updated: 2026-11-02
 author: claude-opus-5-5
 tags: [ship-reviewed-prs, audit, evaluation, personas, workflow, github-api, pr-review]
 importance: core
@@ -43,7 +43,7 @@ The workflow script is saved as [`eval-ship-reviewed-prs.workflow.js`](../refere
 
 ## Fix
 
-The rewrite, released as 1.4.0, described in [ship-reviewed-prs-refresh](../decisions/ship-reviewed-prs-refresh.md).
+The rewrite, released as 1.3.2, described in [ship-reviewed-prs-refresh](../decisions/ship-reviewed-prs-refresh.md).
 
 ### Results
 

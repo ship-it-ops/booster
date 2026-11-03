@@ -2,12 +2,12 @@
 type: decision
 status: active
 created: 2026-10-05
-updated: 2026-10-05
-summary: "ship-secure-code 1.1 rewrite: a finding is a traced path, no verdicts, nothing in the repo can switch a finding off, writing guidance (S1-S12)"
+updated: 2026-11-02
+summary: "ship-secure-code 1.0.1 rewrite: a finding is a traced path, no verdicts, nothing in the repo can switch a finding off, writing guidance (S1-S12)"
 paths: [skills/ship-secure-code/*, plugins/ship-secure-code/*]
 ---
 
-# `ship-secure-code` 1.1: the full rewrite, what changed, and why
+# `ship-secure-code` 1.0.1: the full rewrite, what changed, and why
 
 ## Context
 
@@ -41,7 +41,7 @@ Earlier decisions touched: [in-persona-delegates-to-ship-devops](in-persona-dele
 - **S9 — The skill now covers writing and fixing.** 1.0.0 was review-only and sent writing to `ship-clean-code`, which disclaims security. The new section: use the project's and the framework's mechanism; never weaken a control to make something work (with a narrow path when the owner, told what it exposes, still asks; a dispatched agent stops); a change to who can do what is never a side effect; do not write code that only looks defended; stay compatible with a weak existing scheme and say it is weak; fix the cause and find the siblings.
 - **S10 — One reference file of vulnerability classes**, written as what is easy to miss and what a fix that works looks like (for example, why a denylist does not stop SSRF), and language files that say where each ecosystem's frameworks enforce access and which calls are less safe than they look. Version boundaries are stated next to the claims that depend on them.
 - **S11 — Fixtures are must / must-not checklists**, seven of them.
-- **S12 — Version 1.1.0**, minor, at the user's standing request.
+- **S12 — Version 1.0.1**, a patch (first set to 1.1.0, minor, at the user's standing request; patch versions for the whole refresh at their request of 2026-11-02).
 
 ## Alternatives Considered
 

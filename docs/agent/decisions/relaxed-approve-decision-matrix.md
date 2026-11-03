@@ -2,7 +2,7 @@
 type: decision
 status: active
 created: 2026-05-25
-updated: 2026-05-25
+updated: 2026-11-02
 author: claude-session-2026-05-25
 tags: [ship-reviewed-prs, decision-matrix, approve, ci]
 importance: core
@@ -63,4 +63,4 @@ APPROVE may carry optional "Suggestions", "Delegations", or "Awaiting CI" caveat
 - [pr-review-installs-plugin-from-pr-head](pr-review-installs-plugin-from-pr-head.md) — the workflow change that makes this matrix self-review on the PR introducing it.
 - `SKILL.md` Decision Matrix section — the canonical spec.
 - `reference.md` §5 Decision Matrix — Elaboration — the count-predicate version.
-- [ship-reviewed-prs-refresh](ship-reviewed-prs-refresh.md) — the 1.4.0 rewrite keeps this cascade; severity now comes from consequence, not a finding ID.
+- [ship-reviewed-prs-refresh](ship-reviewed-prs-refresh.md) — the 1.3.2 rewrite keeps this cascade; severity now comes from consequence, not a finding ID.

@@ -2,12 +2,12 @@
 type: decision
 status: active
 created: 2026-10-08
-updated: 2026-10-08
-summary: "ship-devops 0.3 rewrite: what breaks when and for whom, run rules by what a command touches, writing guidance, no verdicts (V1-V12)"
+updated: 2026-11-02
+summary: "ship-devops 0.2.1 rewrite: what breaks when and for whom, run rules by what a command touches, writing guidance, no verdicts (V1-V12)"
 paths: [skills/ship-devops/*, plugins/ship-devops/*]
 ---
 
-# `ship-devops` 0.3: the full rewrite, what changed, and why
+# `ship-devops` 0.2.1: the full rewrite, what changed, and why
 
 ## Context
 
@@ -40,7 +40,7 @@ This revises two earlier decisions of the user's, [ship-devops-12-category-catal
 - **V9 — The skill now covers writing.** 0.2.0 was review-only. Project's own mechanisms; least privilege; never a weakened gate; every change safe to roll out and back, with later steps kept out of where the pipeline would run them; anything touching shared state is a proposal; no SHA or digest from memory.
 - **V10 — Platform files state facts with their conditions.** Rewritten as what is easy to miss and which fixes look right and are not. About twenty factual corrections came from reviewers in round 2 and three more in round 3. Two were checked against GitHub's changelog on 2026-10-07: the December 2025 change to `pull_request_target`, and the 2026 `actions/checkout` refusal of fork pull requests, which the notes tell the reader never to treat as lowering the finding.
 - **V11 — Fixtures are must / must-not checklists**, eight of them; four test writing and not running things.
-- **V12 — Version 0.3.0**, minor.
+- **V12 — Version 0.2.1**, a patch (first set to 0.3.0, minor; patch versions for the whole refresh at the user's request of 2026-11-02).
 
 ## Alternatives Considered
 

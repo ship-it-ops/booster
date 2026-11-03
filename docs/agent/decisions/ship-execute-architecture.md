@@ -2,7 +2,7 @@
 type: decision
 status: active
 created: 2026-06-11
-updated: 2026-10-04
+updated: 2026-11-02
 author: claude-opus-4-8
 tags: [skill, plugin, execution, workflow, ship-family, ship-code]
 importance: core
@@ -19,7 +19,7 @@ Five decisions locked with the user (each from a multiple-choice question). The 
 
 ## Decision
 
-> **2026-10-04:** version 2.0 keeps E1–E4 and revises E5 (the final review is local; `ship-reviewed-prs` runs after a pull request exists) and specifies the git protocol E2 left open. See [ship-execute-v2-refresh](ship-execute-v2-refresh.md).
+> **2026-10-04:** the rewrite (released as 1.0.1) keeps E1–E4 and revises E5 (the final review is local; `ship-reviewed-prs` runs after a pull request exists) and specifies the git protocol E2 left open. See [ship-execute-v2-refresh](ship-execute-v2-refresh.md).
 
 ### E1 — Architecture: **Standalone engine + `ship-code` delegation**
 

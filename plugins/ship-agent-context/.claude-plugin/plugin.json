@@ -1,7 +1,7 @@
 {
   "name": "ship-agent-context",
   "description": "Notes for the next agent, kept in the repository under docs/agent/: decisions and why, known traps, standing instructions from the maintainers, and unfinished work. A session-start digest, a script that checks hand-offs against git and GitHub and generates the index, and rules for what is worth writing down.",
-  "version": "1.3.0",
+  "version": "1.2.1",
   "author": {
     "name": "ship-it-ops"
   },

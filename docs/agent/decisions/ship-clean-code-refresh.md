@@ -2,12 +2,12 @@
 type: decision
 status: active
 created: 2026-10-05
-updated: 2026-10-05
-summary: "ship-clean-code 1.2 rewrite: one test and three rules, severity by consequence, caller's format wins, restraint when writing (K1-K14)"
+updated: 2026-11-02
+summary: "ship-clean-code 1.1.1 rewrite: one test and three rules, severity by consequence, caller's format wins, restraint when writing (K1-K14)"
 paths: [skills/ship-clean-code/*, plugins/ship-clean-code/*]
 ---
 
-# `ship-clean-code` 1.2: the full rewrite, what changed, and why
+# `ship-clean-code` 1.1.1: the full rewrite, what changed, and why
 
 ## Context
 
@@ -42,7 +42,7 @@ There was no earlier decision note for this skill; it arrived with the `ship-cod
 - **K11 — Language files hold places where a defect reads as normal code**, each opening with "check the project's configuration first" and closing with what is not a finding. Naming tables, framework mandates and testing-tool prescriptions are gone.
 - **K12 — Fixtures are must / must-not checklists**, six of them, including the three paths the rewrite is meant to change: a commit reviewed for a calling agent with a steering comment in the code, a two-line change next to tempting clean-ups, and an open-ended clean-up.
 - **K13 — `ship-reviewed-prs` lists the skill as a sibling for one case:** a change that is mostly a refactor. Its README had claimed a general delegation that the skill never made.
-- **K14 — Version 1.2.0.** Removing files and the overrides locations would be a major change under `CONTRIBUTING.md`; the user's standing rule for this refresh is minor versions unless asked ([v2-release-trigger](../open-questions/v2-release-trigger.md) stays open).
+- **K14 — Version 1.1.1.** Removing files and the overrides locations would be a major change under the earlier `CONTRIBUTING.md` rule; the user's rule for this refresh was minor versions unless asked, and on 2026-11-02 patch versions for the whole pull request, so 1.2.0 became 1.1.1 ([v2-release-trigger](../open-questions/v2-release-trigger.md) stays open).
 
 ## Alternatives Considered
 

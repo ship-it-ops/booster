@@ -86,7 +86,7 @@ The weak card's dependency is prose, so a tool reads it as no dependency; it say
 
 ## The plan as a contract with the executor
 
-`ship-execute` (version 2.0.0 and later) reads the plan with its own parser, hands each card to a fresh agent, runs independent cards in parallel worktrees, and brings each task's commit onto one execution branch. What it takes from the plan:
+`ship-execute` (version 1.0.1 and later) reads the plan with its own parser, hands each card to a fresh agent, runs independent cards in parallel worktrees, and brings each task's commit onto one execution branch. What it takes from the plan:
 
 | Plan element | Executor use |
 |--------------|--------------|

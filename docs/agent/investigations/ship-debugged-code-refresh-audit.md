@@ -2,7 +2,7 @@
 type: investigation
 status: active
 created: 2026-10-08
-updated: 2026-10-08
+updated: 2026-11-02
 summary: "ship-debugged-code audit: six reviewers, three judged scenarios, three fixtures, a no-skill control, three rounds"
 ---
 
@@ -29,7 +29,7 @@ The workflow scripts are [`eval-ship-debugged-code.workflow.js`](../references/r
 
 ## Fix
 
-The rewrite, released as 1.1.0, described in [ship-debugged-code-refresh](../decisions/ship-debugged-code-refresh.md).
+The rewrite, released as 1.0.1, described in [ship-debugged-code-refresh](../decisions/ship-debugged-code-refresh.md).
 
 ### Results
 

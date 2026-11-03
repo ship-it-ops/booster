@@ -2,12 +2,12 @@
 type: decision
 status: active
 created: 2026-10-08
-updated: 2026-10-08
-summary: "ship-vuln-scan 0.2 and ship-vuln-fix 0.3 rewrite: only what a tool returned, two scripts, what the repo hides, mechanical fixes proved by rescan (W1-W13); revises V4-V10"
+updated: 2026-11-02
+summary: "ship-vuln-scan 0.1.1 and ship-vuln-fix 0.2.1 rewrite: only what a tool returned, two scripts, what the repo hides, mechanical fixes proved by rescan (W1-W13); revises V4-V10"
 paths: [skills/ship-vuln-scan/*, skills/ship-vuln-fix/*, plugins/ship-vuln-scan/*, plugins/ship-vuln-fix/*]
 ---
 
-# `ship-vuln-scan` 0.2 and `ship-vuln-fix` 0.3: the full rewrite, what changed, and why
+# `ship-vuln-scan` 0.1.1 and `ship-vuln-fix` 0.2.1: the full rewrite, what changed, and why
 
 ## Context
 
@@ -33,7 +33,7 @@ The control run set the direction. With no skill, a current model found every ad
 - **W10 — One named package at a time, install scripts off, and `lockdiff` before anything installs.** No wipe-and-reinstall to verify. `--force` is run only when the user asks again after being told what it does here, on a clean tree, and never by a dispatched agent.
 - **W11 — A scan is never made to pass by hiding a finding.** An ignore entry is written only when the person the skill works for accepts the risk: one advisory, their reason, an expiry, reported as accepted and still open.
 - **W12 — Recipe runners are gone (V10), and so is the mandatory audit log (V9).** A recipe runner downloads and executes third-party code to make an edit that is one line in a manifest. The commit and the final message are the record.
-- **W13 — Versions 0.2.0 and 0.3.0,** minor.
+- **W13 — Versions 0.1.1 and 0.2.1,** patches (first set to 0.2.0 and 0.3.0, minor; patch versions for the whole refresh at the user's request of 2026-11-02).
 
 ## Alternatives Considered
 

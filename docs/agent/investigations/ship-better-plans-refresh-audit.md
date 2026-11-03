@@ -2,7 +2,7 @@
 type: investigation
 status: active
 created: 2026-10-01
-updated: 2026-10-01
+updated: 2026-11-02
 author: claude-fable-5-1
 tags: [ship-better-plans, audit, evaluation, personas, workflow, plan-linter]
 importance: core
@@ -35,7 +35,7 @@ summary: Six-persona audit plus before/after evaluation of ship-better-plans
 
 ## Fix
 
-Version 2.0, described in [ship-better-plans-v2-refresh](../decisions/ship-better-plans-v2-refresh.md): discovery first and a single checkpoint; self-contained task cards; a deterministic plan linter; a rewritten review (repository-grounded reviewers, three-way verification, bounded ultra, recheck, light depth, Agent fallback); explicit draft and approval; three example plans that pass the linter; `ship-execute` 1.1.0 reading the new format.
+The rewrite (drafted as 2.0, released as 1.0.1), described in [ship-better-plans-v2-refresh](../decisions/ship-better-plans-v2-refresh.md): discovery first and a single checkpoint; self-contained task cards; a deterministic plan linter; a rewritten review (repository-grounded reviewers, three-way verification, bounded ultra, recheck, light depth, Agent fallback); explicit draft and approval; three example plans that pass the linter; `ship-execute` reading the new format.
 
 ### Results
 
@@ -52,7 +52,7 @@ The remaining blocking ambiguity in the 2.0 migration plan is the plan's own `ap
 
 Blind pairwise comparison (old against the 2.0 draft, order randomized): the new plan was chosen in both scenarios at about 80% stated confidence. Executability 9 against 5 and 9 against 4. The old plans were rated higher on end-to-end proof (showing a new check fail before it passes, a real install before merge) and, in one scenario, on grounding; both points were folded into 2.0 (a new check must be shown failing; expected behaviours that rest on existing code are claims to check).
 
-Reviewer findings by round, for the three reviewers present in every round (prompt, cold-start, executor): critical 6 → 1 → 0; major 29 → 19 → 14. All six reviewers: 90 findings with 14 critical on 1.0; 79 with 1 critical on the rewrite draft (the one critical, `ship-execute` not honouring the new format, was fixed by `ship-execute` 1.1.0).
+Reviewer findings by round, for the three reviewers present in every round (prompt, cold-start, executor): critical 6 → 1 → 0; major 29 → 19 → 14. All six reviewers: 90 findings with 14 critical on 1.0; 79 with 1 critical on the rewrite draft (the one critical, `ship-execute` not honouring the new format, was fixed by the `ship-execute` change on this branch).
 
 Live runs of the review script on real plans:
 

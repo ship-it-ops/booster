@@ -2,14 +2,16 @@
 type: decision
 status: active
 created: 2026-10-04
-updated: 2026-10-04
+updated: 2026-11-02
 author: claude-opus-5-5
 tags: [skill, plugin, execution, workflow, worktree, ship-family, ship-better-plans]
 importance: core
-summary: 2.0 rewrite: plan reader, git protocol, local review; revises E5
+summary: Rewrite released as 1.0.1 (drafted as 2.0): plan reader, git protocol, local review; revises E5
 ---
 
-# `ship-execute` 2.0: what changed from the 1.0 architecture, and why
+# `ship-execute` 1.0.1 (the rewrite drafted as 2.0): what changed from the 1.0 architecture, and why
+
+> **2026-11-02:** released as 1.0.1, a patch, at the user's request that the whole refresh ship as patch versions. "2.0" below names this rewrite as it was drafted, not a released version.
 
 ## Context
 

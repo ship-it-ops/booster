@@ -2,12 +2,12 @@
 type: decision
 status: active
 created: 2026-10-08
-updated: 2026-10-08
-summary: "ship-debugged-code 1.1 rewrite: one test for fixed, run and working-tree rules, confirmed against likely, short honest reports (G1-G12)"
+updated: 2026-11-02
+summary: "ship-debugged-code 1.0.1 rewrite: one test for fixed, run and working-tree rules, confirmed against likely, short honest reports (G1-G12)"
 paths: [skills/ship-debugged-code/*, plugins/ship-debugged-code/*]
 ---
 
-# `ship-debugged-code` 1.1: the full rewrite, what changed, and why
+# `ship-debugged-code` 1.0.1: the full rewrite, what changed, and why
 
 ## Context
 
@@ -32,7 +32,7 @@ No earlier decision note covers this skill. No other skill in the repository loa
 - **G9 — The final message leads with the state** and is plain sentences, most within 150 words. An empty item is left out; what was not verified is never cut for length.
 - **G10 — Reviewing a fix** asks whether the failure is gone or hidden, whether anything would notice if it came back, and whether something was bent to get to green; severity by consequence; a change from someone else is read, not run.
 - **G11 — Files:** `hard-cases.md` replaces `reference.md` and `reference-smells.md`; the language notes keep only evidence an agent can get without a debugger and causes that mislead; six fixtures are must / must-not checklists.
-- **G12 — Version 1.1.0,** minor.
+- **G12 — Version 1.0.1,** a patch (first set to 1.1.0, minor; patch versions for the whole refresh at the user's request of 2026-11-02).
 
 ## Alternatives Considered
 

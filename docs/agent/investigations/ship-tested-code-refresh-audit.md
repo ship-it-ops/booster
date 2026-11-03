@@ -2,7 +2,7 @@
 type: investigation
 status: active
 created: 2026-10-05
-updated: 2026-10-05
+updated: 2026-11-02
 summary: "ship-tested-code audit: six reviewers, three judged scenarios, a no-skill control, three rounds"
 ---
 
@@ -36,7 +36,7 @@ The workflow script is [`eval-ship-tested-code.workflow.js`](../references/refre
 
 ## Fix
 
-The rewrite, released as 1.2.0, described in [ship-tested-code-refresh](../decisions/ship-tested-code-refresh.md).
+The rewrite, released as 1.1.1, described in [ship-tested-code-refresh](../decisions/ship-tested-code-refresh.md).
 
 ### Results
 

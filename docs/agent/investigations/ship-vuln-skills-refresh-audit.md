@@ -2,7 +2,7 @@
 type: investigation
 status: active
 created: 2026-10-08
-updated: 2026-10-08
+updated: 2026-11-02
 summary: "ship-vuln-scan and ship-vuln-fix audit: six reviewers each, five judged scenarios against stand-in scanners, six fixtures, a no-skill control, three rounds"
 ---
 
@@ -37,7 +37,7 @@ In the scenarios the old skills and no skill at all found the same things (every
 
 ## Fix
 
-The rewrite, released as 0.2.0 and 0.3.0, described in [ship-vuln-skills-refresh](../decisions/ship-vuln-skills-refresh.md).
+The rewrite, released as 0.1.1 and 0.2.1, described in [ship-vuln-skills-refresh](../decisions/ship-vuln-skills-refresh.md).
 
 ### Results
 

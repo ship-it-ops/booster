@@ -2,17 +2,17 @@
 type: status
 status: active
 created: 2026-10-04
-updated: 2026-10-22
+updated: 2026-11-02
 author: claude-opus-5-5
 branch: ship-better-plans-v2
 agent: claude-code-session-2026-10-01
 tags: [handoff, skills-refresh, ship-family, evaluation]
 importance: core
-summary: "Skills refresh: all 12 done and live-tested through the installed plugins on the branch, no pull request yet; the method, what the user has still to rule on, what is still untested"
-done_when: manual
+summary: "Skills refresh: all 12 done and live-tested; pull request #9 opened 2026-11-02 with every plugin one patch above main; the method, what the user has still to rule on, what is still untested"
+done_when: pr:9
 ---
 
-# Hand-off: refreshing the skills, one at a time (12 of 12 done and live-tested; nothing merged yet)
+# Hand-off: refreshing the skills, one at a time (12 of 12 done and live-tested; pull request #9 open)
 
 ## Scope
 
@@ -22,24 +22,24 @@ The user is refreshing every skill in this repository for current models and the
 
 | Skill | Version | Decision note | Evidence |
 |-------|---------|---------------|----------|
-| `ship-better-plans` | 2.0.0 | [ship-better-plans-v2-refresh](../decisions/ship-better-plans-v2-refresh.md) | [ship-better-plans-refresh-audit](../investigations/ship-better-plans-refresh-audit.md) |
-| `ship-execute` | 2.0.0 | [ship-execute-v2-refresh](../decisions/ship-execute-v2-refresh.md) | [ship-execute-refresh-audit](../investigations/ship-execute-refresh-audit.md) |
-| `ship-reviewed-prs` | 1.4.0 | [ship-reviewed-prs-refresh](../decisions/ship-reviewed-prs-refresh.md) | [ship-reviewed-prs-refresh-audit](../investigations/ship-reviewed-prs-refresh-audit.md) |
-| `ship-agent-context` | 1.3.0 | [ship-agent-context-refresh](../decisions/ship-agent-context-refresh.md) | [ship-agent-context-refresh-audit](../investigations/ship-agent-context-refresh-audit.md) |
-| `ship-clean-code` | 1.2.0 | [ship-clean-code-refresh](../decisions/ship-clean-code-refresh.md) | [ship-clean-code-refresh-audit](../investigations/ship-clean-code-refresh-audit.md) |
-| `ship-tested-code` | 1.2.0 | [ship-tested-code-refresh](../decisions/ship-tested-code-refresh.md) | [ship-tested-code-refresh-audit](../investigations/ship-tested-code-refresh-audit.md) |
-| `ship-secure-code` | 1.1.0 | [ship-secure-code-refresh](../decisions/ship-secure-code-refresh.md) | [ship-secure-code-refresh-audit](../investigations/ship-secure-code-refresh-audit.md) |
-| `ship-devops` | 0.3.0 | [ship-devops-refresh](../decisions/ship-devops-refresh.md) | [ship-devops-refresh-audit](../investigations/ship-devops-refresh-audit.md) |
-| `ship-debugged-code` | 1.1.0 | [ship-debugged-code-refresh](../decisions/ship-debugged-code-refresh.md) | [ship-debugged-code-refresh-audit](../investigations/ship-debugged-code-refresh-audit.md) |
-| `ship-vuln-scan` | 0.2.0 | [ship-vuln-skills-refresh](../decisions/ship-vuln-skills-refresh.md) | [ship-vuln-skills-refresh-audit](../investigations/ship-vuln-skills-refresh-audit.md) |
-| `ship-vuln-fix` | 0.3.0 | [ship-vuln-skills-refresh](../decisions/ship-vuln-skills-refresh.md) | [ship-vuln-skills-refresh-audit](../investigations/ship-vuln-skills-refresh-audit.md) |
-| `obsidian-knowledge-graph` | 1.1.0 | [obsidian-knowledge-graph-refresh](../decisions/obsidian-knowledge-graph-refresh.md) | [obsidian-knowledge-graph-refresh-audit](../investigations/obsidian-knowledge-graph-refresh-audit.md) |
+| `ship-better-plans` | 1.0.1 | [ship-better-plans-v2-refresh](../decisions/ship-better-plans-v2-refresh.md) | [ship-better-plans-refresh-audit](../investigations/ship-better-plans-refresh-audit.md) |
+| `ship-execute` | 1.0.1 | [ship-execute-v2-refresh](../decisions/ship-execute-v2-refresh.md) | [ship-execute-refresh-audit](../investigations/ship-execute-refresh-audit.md) |
+| `ship-reviewed-prs` | 1.3.2 | [ship-reviewed-prs-refresh](../decisions/ship-reviewed-prs-refresh.md) | [ship-reviewed-prs-refresh-audit](../investigations/ship-reviewed-prs-refresh-audit.md) |
+| `ship-agent-context` | 1.2.1 | [ship-agent-context-refresh](../decisions/ship-agent-context-refresh.md) | [ship-agent-context-refresh-audit](../investigations/ship-agent-context-refresh-audit.md) |
+| `ship-clean-code` | 1.1.1 | [ship-clean-code-refresh](../decisions/ship-clean-code-refresh.md) | [ship-clean-code-refresh-audit](../investigations/ship-clean-code-refresh-audit.md) |
+| `ship-tested-code` | 1.1.1 | [ship-tested-code-refresh](../decisions/ship-tested-code-refresh.md) | [ship-tested-code-refresh-audit](../investigations/ship-tested-code-refresh-audit.md) |
+| `ship-secure-code` | 1.0.1 | [ship-secure-code-refresh](../decisions/ship-secure-code-refresh.md) | [ship-secure-code-refresh-audit](../investigations/ship-secure-code-refresh-audit.md) |
+| `ship-devops` | 0.2.1 | [ship-devops-refresh](../decisions/ship-devops-refresh.md) | [ship-devops-refresh-audit](../investigations/ship-devops-refresh-audit.md) |
+| `ship-debugged-code` | 1.0.1 | [ship-debugged-code-refresh](../decisions/ship-debugged-code-refresh.md) | [ship-debugged-code-refresh-audit](../investigations/ship-debugged-code-refresh-audit.md) |
+| `ship-vuln-scan` | 0.1.1 | [ship-vuln-skills-refresh](../decisions/ship-vuln-skills-refresh.md) | [ship-vuln-skills-refresh-audit](../investigations/ship-vuln-skills-refresh-audit.md) |
+| `ship-vuln-fix` | 0.2.1 | [ship-vuln-skills-refresh](../decisions/ship-vuln-skills-refresh.md) | [ship-vuln-skills-refresh-audit](../investigations/ship-vuln-skills-refresh-audit.md) |
+| `obsidian-knowledge-graph` | 1.0.1 | [obsidian-knowledge-graph-refresh](../decisions/obsidian-knowledge-graph-refresh.md) | [obsidian-knowledge-graph-refresh-audit](../investigations/obsidian-knowledge-graph-refresh-audit.md) |
 
 **Not started:** nothing. Every skill in the repository has been through the refresh, and on 2026-10-22 the hooks, the pre-approved command patterns, the descriptions and the planner-to-executor path were tested through the plugins loaded from disk in headless runs; the findings and the fixes they led to are in [live-tests-through-installed-plugins](../investigations/live-tests-through-installed-plugins.md).
 
-**What is left is the user's:** the pull request (below), and a ruling on the revisions to their earlier decisions, which each decision note lists under Consequences. The ones nobody has answered yet: `ship-reviewed-prs` (other than the two confirmed below), `ship-agent-context` (hand-offs reconciled when relied on, not at every session start), `ship-devops` (a read-only command the user names is run after they are told what it contacts), the two vulnerability skills (V4 to V10 of `ship-vuln-skills-architecture`), and `obsidian-knowledge-graph` (the March 2026 design recorded in the user's vault, and where notes about a repository with `docs/agent/` go).
+**What is left is the user's:** the merge of pull request #9, and a ruling on the revisions to their earlier decisions, which each decision note lists under Consequences. The ones nobody has answered yet: `ship-reviewed-prs` (other than the two confirmed below), `ship-agent-context` (hand-offs reconciled when relied on, not at every session start), `ship-devops` (a read-only command the user names is run after they are told what it contacts), the two vulnerability skills (V4 to V10 of `ship-vuln-skills-architecture`), and `obsidian-knowledge-graph` (the March 2026 design recorded in the user's vault, and where notes about a repository with `docs/agent/` go).
 
-**No pull request has been opened.** The user said to wait. Do not open one without being asked.
+**Pull request #9 was opened on 2026-11-02** when the user asked ("Go ahead and do so"), with every plugin one patch version above `main`, also at their request. Its run of `pr-review.yml` is the first live test of `ship-reviewed-prs` against GitHub; the outcome is recorded under "Open items" below.
 
 ## Why
 
@@ -92,7 +92,7 @@ The evaluation harness from the refreshes is saved in [`../references/refresh-ev
 - Both skills have now run end to end unattended on a real change (the `summary:` line; its five commits are on this branch): the planner's discovery, plan, Workflow review and recheck, and the executor's branch, per-task checks, review, record and report. Still untested: every interactive question (the planner's checkpoint and approval, the executor's start, gate and hand-off questions) and resume. The planner's discovery cost about ten dollars for a twenty-line change; whether its "sized to the work" rule needs teeth is for the user. Two further executor runs confirmed the fixes that run produced: the renamed command loads the skill text, and a task agent that moves its fresh worktree to the execution branch tip lets the wave run in parallel (22 turns against 40 sequential).
 - `ship-better-plans`: grounding did not improve without a review; the last reviewer round's remaining majors are listed in its investigation note.
 - `ship-execute`: the command is now `/ship-execute:build` and a task agent moves a fresh worktree that started at the wrong commit to the execution branch tip instead of blocking (both from the live runs; see the investigation note); three red-team requests were not done (listing and pattern-flagging every command a plan will run, an `--allow` override for `check`, rebuilding a lost ledger from the plan's Status section); see its investigation note.
-- `ship-reviewed-prs`: nothing has run against GitHub itself. The first real pull request through this repository's `pr-review.yml` is the test of the result file reaching the check step, thread resolving and review dismissal with the workflow token, and the bot login match. The user chose a minor version (1.4.0), not 2.0.0: do not bump a skill to a new major version in this refresh without asking first. They confirmed that the bot's approvals should count as approvals (unattended approval stays the default). They have not yet commented on the other revisions to their earlier decisions (listed in its decision note). The red team's remaining requests are listed in its investigation note.
+- `ship-reviewed-prs`: nothing has run against GitHub itself. The first real pull request through this repository's `pr-review.yml` is the test of the result file reaching the check step, thread resolving and review dismissal with the workflow token, and the bot login match. The user chose a minor version (1.4.0) over 2.0.0 on 2026-10-04, then patch versions for the whole pull request on 2026-11-02 (1.3.2): do not bump a skill past a patch version in this refresh without asking first. They confirmed that the bot's approvals should count as approvals (unattended approval stays the default). They have not yet commented on the other revisions to their earlier decisions (listed in its decision note). The red team's remaining requests are listed in its investigation note.
 - `ship-agent-context`: the hook's `${CLAUDE_PLUGIN_ROOT}` path, the digest reaching the agent and the pre-approval of its script as typed are confirmed in headless runs; the digest after compaction is not. The user has not yet commented on its revisions to their earlier decisions, chiefly that hand-offs are reconciled when relied on instead of at every session start. `docs/agent/` in this repository is now maintained with the skill's script: create notes with `new`, never edit `MANIFEST.md` by hand, and run `check` before committing. `ship-better-plans`' note templates and examples carry a `summary:` line, and its `lint_plan.py` warns when a plan has none.
 - `ship-clean-code`: its description now leads with the writing case; with the earlier wording an ordinary feature request loaded the skill in one of five headless runs, with the new one in three of three, and review prompts still load it; the last round of fixes was not re-audited beyond three fixture runs; the user has been told what was removed and has not yet commented. What is still weak is listed in its investigation note.
 - `ship-tested-code`: the review and write-tests prompts load it in every headless run, but "add tests" inside a feature request does not (the feature request loads `ship-clean-code`); the last fixes were not re-audited. Its scenarios never provoked the failure the skill most exists to prevent (bending a test or the code to get to green), so those rules rest on reviewers' judgement; a harder fixture is listed in its investigation note. Its `SKILL.md` is about 3,900 words. The user has been told what was removed and has not yet commented.
@@ -104,7 +104,7 @@ The evaluation harness from the refreshes is saved in [`../references/refresh-ev
 - A fake credential in a fixture can trip the host's secret scanning on push, and `agent_context.py check` flags one anywhere under `docs/agent/` (a URL with a user name and a password in it does). Use a shape no scanner recognises (an invented prefix, or a body with characters a real key cannot contain).
 - The opening rules of `ship-clean-code`, `ship-tested-code` and `ship-secure-code` are near-identical on purpose. A change to one should be considered for the other.
 - A session's permission check can block an evaluation agent's write even to a simulated service; say in the agent's prompt that the service is a simulation and the write is expected.
-- The marketplace `metadata.version` is 1.5.0 after the three refreshes.
+- The marketplace `metadata.version` is 1.3.3: `main` has 1.3.2 and the whole refresh is one patch above it.
 
 ## What the user has asked for
 
@@ -112,12 +112,12 @@ The standing rules are in `instructions/`, where every session's digest shows th
 
 For this piece of work specifically:
 
-- One skill at a time, all on `ship-better-plans-v2`. No pull request has been opened; the user said to wait.
+- One skill at a time, all on `ship-better-plans-v2`. Pull request #9 was opened on 2026-11-02 at the user's request.
 - Commits and pushes of this branch for this refresh work no longer need asking first. On 2026-10-05 the user said: "Go ahead and commit/push at different check points no need to wait". This covers pushing `ship-better-plans-v2` as each skill lands; it does not cover opening a pull request, and it is not a general change to the standing rule in `instructions/`.
-- Version bumps are minor. The user turned down 2.0.0 for `ship-reviewed-prs` on 2026-10-04 ("No v2 yet - just a minor versionbump is enough"); ask before proposing a major version for any skill.
+- Version bumps are patches. The user turned down 2.0.0 for `ship-reviewed-prs` on 2026-10-04 ("No v2 yet - just a minor versionbump is enough"), then on 2026-11-02 asked to "make sure this entire PR is only a patch upgrade to each skill": every plugin is `main`'s version plus one patch, and so is the marketplace metadata. Ask before proposing anything larger for any skill.
 - The bot's approvals in `ship-reviewed-prs` are meant to count as approvals (confirmed 2026-10-04).
 - In `ship-execute`, the user's "approve and build now" at the end of `ship-better-plans` counts as the start confirmation (decided 2026-10-04).
 
 ## Done when
 
-This work spans several pull requests, so it is closed by hand (`done_when: manual`): it is finished when `docs/agent/decisions/` on the default branch has a `<skill>-refresh.md` note (or an explicit decision not to refresh) for every skill listed under "Not started". Check with `git ls-tree -r --name-only origin/main docs/agent/decisions/ | grep refresh`. Until then this note is current; update the table above as each skill lands.
+This work is one pull request, #9 (`done_when: pr:9`): the note is closed when it merges. Until then it is current; record the outcome of the review workflow's run on the pull request, and the user's rulings on the revisions, here.

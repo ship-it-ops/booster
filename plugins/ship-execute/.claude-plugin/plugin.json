@@ -1,7 +1,7 @@
 {
   "name": "ship-execute",
   "description": "Build an approved implementation plan and hand back work you can trust: one fresh agent and one commit per task, independent tasks in parallel worktrees, every task's check re-run on the execution branch before it counts, gates on irreversible steps, a run ledger so an interrupted run resumes, an independent review of the whole change, and an honest report. Never pushes or opens a pull request unless you choose to.",
-  "version": "2.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "ship-it-ops"
   },

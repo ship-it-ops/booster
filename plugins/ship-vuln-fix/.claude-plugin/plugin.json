@@ -1,5 +1,5 @@
 {
   "name": "ship-vuln-fix",
   "description": "Fix known vulnerabilities in dependencies. Applies the fixes that are mechanical (a lock-file update inside the allowed range, a minimal bump, the parent that pulls the package in), checks what each change brings with it before anything is installed, and proves closure by running the same scan again and the project's tests. Major upgrades, versions that add an install script and advisories with no fix are advised, not applied. Never forces, never runs install scripts, never adds an ignore entry on its own judgement, never touches uncommitted work, and says which fixes were confirmed and which were not.",
-  "version": "0.3.0"
+  "version": "0.2.1"
 }

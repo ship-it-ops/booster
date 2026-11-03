@@ -1,5 +1,5 @@
 {
   "name": "ship-devops",
   "description": "Review and write what carries a change to production: CI/CD workflows, Dockerfiles, Kubernetes manifests, infrastructure code, migrations and deploy scripts. A finding says what breaks, when and for whom; it starts from the path a change takes to production, reads the other side of every claim, says what could not be seen from the repository, never weakens a gate to get to green and never runs anything against real state. Notes for GitHub Actions, Docker, Kubernetes and Terraform.",
-  "version": "0.3.0"
+  "version": "0.2.1"
 }

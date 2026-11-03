@@ -6,7 +6,7 @@ metadata:
 type: decision
 status: active
 created: 2026-05-28
-updated: 2026-05-28
+updated: 2026-11-02
 author: claude-session-2026-05-28
 tags: [ship-reviewed-prs, comment-lifecycle, auto-resolve, github-graphql]
 importance: core
@@ -69,4 +69,4 @@ Add a Step 4 to the submission protocol that auto-resolves bot-authored review t
 - [[pr-review-table-driven-summary-format]] — the layout the auto-resolve count is rendered into
 - [[relaxed-approve-decision-matrix]] — the matrix Step 4 short-circuits before the "Possibly addressed" → COMMENT row fires
 - [[pr-review-installs-plugin-from-pr-head]] — the dogfood workflow that will exercise this end-to-end on the next PR
-- [ship-reviewed-prs-refresh](ship-reviewed-prs-refresh.md) — the 1.4.0 rewrite keeps this; a thread is resolved on the reviewer's `fixed` or `withdrawn` disposition, not on a fingerprint no longer firing (R5).
+- [ship-reviewed-prs-refresh](ship-reviewed-prs-refresh.md) — the 1.3.2 rewrite keeps this; a thread is resolved on the reviewer's `fixed` or `withdrawn` disposition, not on a fingerprint no longer firing (R5).

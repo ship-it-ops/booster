@@ -2,7 +2,7 @@
 type: investigation
 status: active
 created: 2026-10-08
-updated: 2026-10-08
+updated: 2026-11-02
 summary: "obsidian-knowledge-graph audit: six reviewers, three judged scenarios in a sandboxed vault, a no-skill control, three rounds and a final run"
 ---
 
@@ -37,7 +37,7 @@ In the scenarios 1.0.0 and no skill behaved alike on the main point: both found 
 
 ## Fix
 
-The rewrite, released as 1.1.0, described in [obsidian-knowledge-graph-refresh](../decisions/obsidian-knowledge-graph-refresh.md).
+The rewrite, released as 1.0.1, described in [obsidian-knowledge-graph-refresh](../decisions/obsidian-knowledge-graph-refresh.md).
 
 ### Results
 

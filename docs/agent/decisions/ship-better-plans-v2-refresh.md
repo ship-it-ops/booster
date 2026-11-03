@@ -2,14 +2,16 @@
 type: decision
 status: active
 created: 2026-10-01
-updated: 2026-10-01
+updated: 2026-11-02
 author: claude-fable-5-1
 tags: [skill, plugin, planning, audit, workflow, ship-family, ship-execute]
 importance: core
-summary: 2.0 rewrite: cards, linter, grounded review; revises D6/Q3
+summary: Rewrite released as 1.0.1 (drafted as 2.0): cards, linter, grounded review; revises D6/Q3
 ---
 
-# `ship-better-plans` 2.0: what changed from the 1.0 architecture, and why
+# `ship-better-plans` 1.0.1 (the rewrite drafted as 2.0): what changed from the 1.0 architecture, and why
+
+> **2026-11-02:** released as 1.0.1, a patch, at the user's request that the whole refresh ship as patch versions. "2.0" below names this rewrite as it was drafted, not a released version. The plan format it introduces is `plan_format: 2`.
 
 ## Context
 
@@ -34,7 +36,7 @@ The 1.0 architecture is recorded as D1–D7 in [ship-better-plans-architecture](
 - **R7 — Ultra is bounded and converges on a revised plan.** 1.0's loop re-read an unchanged plan with an exact-title dedup key and no round cap. 2.0 caps rounds at three, tells each round what was already found, merges duplicates across rounds, stops when a round confirms a blocker (revise first), and adds a `recheck` mode that reads the revised plan.
 - **R8 — "No quick mode" revised.** Plans are sized to the work (`N/A — reason`, no separate requirements for small plans), and a one-agent light review exists. Why: a single depth for every task produced filler and made mid-sized work not worth the ceremony.
 - **R9 — Draft and approval are explicit.** The plan file is written at specification time with `approval: draft` and flipped to `approved` only on the user's yes; an unattended run ends with a draft and named assumptions instead of stalling.
-- **R10 — `ship-execute` 1.1.0 reads the new format in the same change.** It parses cards, passes the conventions block and the text of the ids in `Covers`, pauses at a `Gate`, refuses a draft plan without confirmation, and warns on a stale `base`. Why: all six reviewers of the rewrite flagged that a plan format the executor does not honour gives false safety. This was the one edit made outside `ship-better-plans`; the rest of `ship-execute` is unchanged and still due its own refresh.
+- **R10 — `ship-execute` reads the new format in the same change.** It parses cards, passes the conventions block and the text of the ids in `Covers`, pauses at a `Gate`, refuses a draft plan without confirmation, and warns on a stale `base`. Why: all six reviewers of the rewrite flagged that a plan format the executor does not honour gives false safety. This was the one edit made outside `ship-better-plans`; the rest of `ship-execute` is unchanged and still due its own refresh.
 
 ## Alternatives Considered
 

@@ -6,7 +6,7 @@ metadata:
 type: pattern
 status: superseded
 created: 2026-05-26
-updated: 2026-10-04
+updated: 2026-11-02
 author: claude-session-2026-05-26
 tags: [ship-reviewed-prs, output-format, summary-body]
 importance: core
@@ -15,7 +15,7 @@ summary: Old summary layout; superseded by the ship-reviewed-prs rewrite
 
 # `ship-reviewed-prs` summary-body layout
 
-> **Superseded 2026-10-04.** This describes the layout before the 1.4.0 rewrite. Since then the summary is rendered by `skills/ship-reviewed-prs/scripts/review_pr.py` (`render_body`), so the layout is code, not a convention to follow by hand. The persona and lifecycle tables are gone; see [ship-reviewed-prs-refresh](../decisions/ship-reviewed-prs-refresh.md) (R6) and `skills/ship-reviewed-prs/examples/example-review.md` for the current shape.
+> **Superseded 2026-10-04.** This describes the layout before the 1.3.2 rewrite. Since then the summary is rendered by `skills/ship-reviewed-prs/scripts/review_pr.py` (`render_body`), so the layout is code, not a convention to follow by hand. The persona and lifecycle tables are gone; see [ship-reviewed-prs-refresh](../decisions/ship-reviewed-prs-refresh.md) (R6) and `skills/ship-reviewed-prs/examples/example-review.md` for the current shape.
 
 ## When to Use
 

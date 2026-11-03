@@ -59,7 +59,7 @@ Same failure mode in a downstream consumer ([run 27085369112](https://github.com
 This recurrence is what motivated two follow-up changes in the ship-code repo (see [askuserquestion-denial-failsafe-to-submission](../decisions/askuserquestion-denial-failsafe-to-submission.md)):
 
 1. **Skill failsafe**: `SKILL.md` now treats `AskUserQuestion` denial at the submission gate as a switch to CI mode and submits via `gh api`. Prevents the silent-drop tail case even when the workflow forgets the flag.
-2. **Authoritative template**: `skills/ship-reviewed-prs/examples/pr-review.yml` (it replaced the earlier `ci-github-actions-claude-code-action.yml` in the 1.4.0 rewrite) ships the canonical `anthropics/claude-code-action@v1` workflow shape with the namespaced slash command and `--non-interactive` baked in. Future consumers copy from this template.
+2. **Authoritative template**: `skills/ship-reviewed-prs/examples/pr-review.yml` (it replaced the earlier `ci-github-actions-claude-code-action.yml` in the 1.3.2 rewrite) ships the canonical `anthropics/claude-code-action@v1` workflow shape with the namespaced slash command and `--non-interactive` baked in. Future consumers copy from this template.
 
 The flag is still mandatory in workflow YAML — the failsafe is a backstop, not a replacement.
 
